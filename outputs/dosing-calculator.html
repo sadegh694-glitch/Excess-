@@ -1399,6 +1399,13 @@ const DEFAULTS = {
   curFlowQ: 0, naActualLh: 0, ohActualLh: 0, naActualMgl: 0, ohActualMgl: 0,
 };
 
+// tracks which of the two "current status" inputs (typed rate vs typed
+// measured excess) the user most recently edited, per chemical — used so
+// the action/recommendation always follows the freshest number the user
+// actually typed, instead of always favoring one field forever.
+const lastTouched = { na: null, oh: null };
+let prevActualInputs = { naActualLh: 0, naActualMgl: 0, ohActualLh: 0, ohActualMgl: 0 };
+
 function fmt(n, d = 1) {
   if (!isFinite(n)) return "—";
   return n.toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d });
@@ -1437,6 +1444,15 @@ function readInputs() {
 
 function calculate() {
   const v = readInputs();
+
+  if (v.naActualLh !== prevActualInputs.naActualLh) lastTouched.na = "lh";
+  else if (v.naActualMgl !== prevActualInputs.naActualMgl) lastTouched.na = "mgl";
+  if (v.ohActualLh !== prevActualInputs.ohActualLh) lastTouched.oh = "lh";
+  else if (v.ohActualMgl !== prevActualInputs.ohActualMgl) lastTouched.oh = "mgl";
+  prevActualInputs = {
+    naActualLh: v.naActualLh, naActualMgl: v.naActualMgl,
+    ohActualLh: v.ohActualLh, ohActualMgl: v.ohActualMgl,
+  };
 
   $("loadPctAVal").textContent = v.loadPctA + "٪";
   $("loadPctBVal").textContent = v.loadPctB + "٪";
@@ -1551,7 +1567,7 @@ function calculate() {
   const CS_ICON_UP = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>';
   const CS_ICON_DOWN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>';
   let hasCurAlert = false;
-  const renderCurStatus = (flowQ, actualLh, actualMgl, targetConcMg, frac, dens, downstreamLimit, boxId, emptyId, badgeId, achievedId, targetId, actionId, achievedItemId) => {
+  const renderCurStatus = (flowQ, actualLh, actualMgl, targetConcMg, frac, dens, downstreamLimit, boxId, emptyId, badgeId, achievedId, targetId, actionId, achievedItemId, touched) => {
     const show = actualLh > 0 || actualMgl > 0;
     const box = $(boxId);
     const achievedItem = $(achievedItemId);
@@ -1559,21 +1575,24 @@ function calculate() {
     $(emptyId).style.display = show ? "none" : "";
     if (!show) { achievedItem.className = "cs-item achieved"; return; }
 
-    // the measured excess (mg/l) — when provided — is a direct lab reading,
-    // so it takes priority for the concentration/status shown. But the
-    // "current rate" used in the action message must always reflect the
-    // real rate the user actually typed in naActualLh/ohActualLh (what the
-    // pump is really set to right now); it must never be silently replaced
-    // by a rate back-calculated from the mg/l reading, even if both fields
-    // are filled in at the same time.
+    // if only ONE of the two fields is filled, there's no ambiguity — use
+    // it. If BOTH are filled, the field the user most recently typed into
+    // ("touched") wins completely (both the shown excess and the rate used
+    // in the recommendation come from that same field), so re-editing
+    // either field always visibly updates the result — never gets stuck
+    // on a stale value from the other field.
     const targetSolLh = litersFor(flowQ, targetConcMg, frac, dens);
-    let achievedConc;
-    if (actualMgl > 0) {
+    let achievedConc, actualLhUsed;
+    if (touched === "mgl" && actualMgl > 0) {
       achievedConc = actualMgl;
-    } else {
+      actualLhUsed = litersFor(flowQ, achievedConc, frac, dens);
+    } else if (actualLh > 0) {
+      actualLhUsed = actualLh;
       achievedConc = (flowQ > 0 && frac > 0 && dens > 0) ? (actualLh * frac * dens * 1000) / flowQ : NaN;
+    } else {
+      achievedConc = actualMgl;
+      actualLhUsed = litersFor(flowQ, achievedConc, frac, dens);
     }
-    const actualLhUsed = actualLh > 0 ? actualLh : litersFor(flowQ, achievedConc, frac, dens);
     const deltaLh = (isFinite(targetSolLh) && isFinite(actualLhUsed)) ? targetSolLh - actualLhUsed : NaN;
     $(achievedId).textContent = fmt(achievedConc, 0);
     $(targetId).textContent = fmt(targetConcMg, 0);
@@ -1611,9 +1630,9 @@ function calculate() {
     }
   };
   renderCurStatus(curFlowQ, v.naActualLh, v.naActualMgl, totalConcNa, naFrac, v.densNa, DOWNSTREAM_LIMIT_NA2CO3,
-    "naCurStatus", "naCsEmpty", "naCsBadge", "naCsAchieved", "naCsTarget", "naCsAction", "naCsAchievedItem");
+    "naCurStatus", "naCsEmpty", "naCsBadge", "naCsAchieved", "naCsTarget", "naCsAction", "naCsAchievedItem", lastTouched.na);
   renderCurStatus(curFlowQ, v.ohActualLh, v.ohActualMgl, totalConcOH, ohFrac, v.densOH, DOWNSTREAM_LIMIT_NAOH,
-    "ohCurStatus", "ohCsEmpty", "ohCsBadge", "ohCsAchieved", "ohCsTarget", "ohCsAction", "ohCsAchievedItem");
+    "ohCurStatus", "ohCsEmpty", "ohCsBadge", "ohCsAchieved", "ohCsTarget", "ohCsAction", "ohCsAchievedItem", lastTouched.oh);
   document.querySelector('.nav-btn[data-tab="status"]').classList.toggle("alert", hasCurAlert);
 
   // breakdown text
