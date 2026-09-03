@@ -593,6 +593,7 @@ input[type=range]::-moz-range-progress{ height:8px; border-radius:999px; backgro
 }
 .cs-action-detail{ margin-top:4px; font-size:0.74rem; color: var(--muted); line-height:1.8; }
 .cs-action-warn{ margin-top:6px; font-size:0.74rem; color: var(--danger-ink); line-height:1.8; }
+.cs-action-note{ margin-top:6px; padding:8px 10px; border-radius:10px; background: var(--warn-bg); color: var(--warn-ink); font-size:0.72rem; line-height:1.8; }
 .cs-action.dir-down{ border-inline-start-color: var(--danger-ink); }
 .cs-action.dir-down .cs-action-head{ color: var(--danger-ink); }
 .cs-action.dir-up{ border-inline-start-color: var(--warn-ink); }
@@ -1597,6 +1598,21 @@ function calculate() {
     $(achievedId).textContent = fmt(achievedConc, 0);
     $(targetId).textContent = fmt(targetConcMg, 0);
 
+    // when BOTH fields are filled, the last-edited one is the source for
+    // achievedConc/actualLhUsed (see above). If that source is the measured
+    // excess (mg/l), actualLhUsed is a back-calculated *equivalent* rate —
+    // not the literal number typed in the rate field — so it must never be
+    // labeled "your current rate" as if they were the same value; that
+    // mislabeling is what made the recommendation look self-contradictory
+    // (e.g. "increase by 543 vs. your current rate of 543" while the rate
+    // field visibly showed 2000). Instead it's labeled as a derived
+    // equivalent, with a note pointing at the literal rate field.
+    const usingMglSource = touched === "mgl" && actualMgl > 0;
+    const rateNoun = usingMglSource ? "معادلِ نرخ (بر اساس اکسسِ اندازه‌گیری‌شده)" : "نرخ فعلیِ شما";
+    const mismatchNote = (usingMglSource && actualLh > 0 && isFinite(actualLhUsed) && Math.abs(actualLh - actualLhUsed) > Math.max(1, actualLh * 0.02))
+      ? `<div class="cs-action-note">نرخِ واردشدهٔ شما در فیلدِ «نرخ فعلی تزریق» (<b>${fmt(actualLh,1)} L/h</b>) در این محاسبه لحاظ نشد، چون آخرین فیلدی که ویرایش کردید «اکسسِ اندازه‌گیری‌شده» بود. برای اینکه محاسبه بر اساسِ همان نرخ انجام شود، دوباره یک بار روی فیلدِ نرخ ضربه بزنید (یا فقط رقمی از آن را دوباره تایپ کنید).</div>`
+      : "";
+
     const badge = $(badgeId);
     const action = $(actionId);
     if (!isFinite(achievedConc)) {
@@ -1611,22 +1627,22 @@ function calculate() {
     if (Math.abs(diffPct) <= TOLERANCE_PCT && !overDownstream) {
       badge.className = "cs-badge ok"; badge.textContent = "نرمال"; achievedItem.className = "cs-item achieved ok";
       action.className = "cs-action dir-ok";
-      action.innerHTML = isFinite(actualLhUsed)
-        ? `<div class="cs-action-head">${CS_ICON_OK}نیازی به تغییر نیست</div><div class="cs-action-detail">نرخ تزریق فعلی <b>${fmt(actualLhUsed,1)} L/h</b> است و اکسس حاصل از آن در محدودهٔ هدف قرار دارد.</div>`
-        : `<div class="cs-action-head">${CS_ICON_OK}نیازی به تغییر نیست</div><div class="cs-action-detail">اکسس فعلی در محدودهٔ هدف قرار دارد.</div>`;
+      action.innerHTML = (isFinite(actualLhUsed)
+        ? `<div class="cs-action-head">${CS_ICON_OK}نیازی به تغییر نیست</div><div class="cs-action-detail">${rateNoun} <b>${fmt(actualLhUsed,1)} L/h</b> است و اکسس حاصل از آن در محدودهٔ هدف قرار دارد.</div>`
+        : `<div class="cs-action-head">${CS_ICON_OK}نیازی به تغییر نیست</div><div class="cs-action-detail">اکسس فعلی در محدودهٔ هدف قرار دارد.</div>`) + mismatchNote;
     } else if (diffPct < 0) {
       badge.className = "cs-badge low"; badge.textContent = "کمتر از هدف"; achievedItem.className = "cs-item achieved low"; hasCurAlert = true;
       action.className = "cs-action dir-up";
-      action.innerHTML = isFinite(deltaLh)
-        ? `<div class="cs-action-head">${CS_ICON_UP}نرخ تزریق را روی <b class="cs-setpoint">${fmt(targetSolLh,1)}</b> لیتر بر ساعت تنظیم کنید</div><div class="cs-action-detail">یعنی <b>${fmt(Math.abs(deltaLh),1)} L/h افزایش</b> نسبت به نرخ فعلیِ شما (<b>${fmt(actualLhUsed,1)} L/h</b>).</div>`
-        : `<div class="cs-action-head">${CS_ICON_UP}نرخ تزریق را روی <b class="cs-setpoint">${fmt(targetSolLh,1)}</b> لیتر بر ساعت تنظیم کنید</div><div class="cs-action-detail">این نرخ برای رساندن اکسس به هدف لازم است.</div>`;
+      action.innerHTML = (isFinite(deltaLh)
+        ? `<div class="cs-action-head">${CS_ICON_UP}نرخ تزریق را روی <b class="cs-setpoint">${fmt(targetSolLh,1)}</b> لیتر بر ساعت تنظیم کنید</div><div class="cs-action-detail">یعنی <b>${fmt(Math.abs(deltaLh),1)} L/h افزایش</b> نسبت به ${rateNoun} (<b>${fmt(actualLhUsed,1)} L/h</b>).</div>`
+        : `<div class="cs-action-head">${CS_ICON_UP}نرخ تزریق را روی <b class="cs-setpoint">${fmt(targetSolLh,1)}</b> لیتر بر ساعت تنظیم کنید</div><div class="cs-action-detail">این نرخ برای رساندن اکسس به هدف لازم است.</div>`) + mismatchNote;
     } else {
       badge.className = "cs-badge high"; badge.textContent = overDownstream ? "بیش از حد مجاز" : "بیشتر از هدف"; achievedItem.className = "cs-item achieved high"; hasCurAlert = true;
       action.className = "cs-action dir-down";
       action.innerHTML = (isFinite(deltaLh)
-        ? `<div class="cs-action-head">${CS_ICON_DOWN}نرخ تزریق را روی <b class="cs-setpoint">${fmt(targetSolLh,1)}</b> لیتر بر ساعت تنظیم کنید</div><div class="cs-action-detail">یعنی <b>${fmt(Math.abs(deltaLh),1)} L/h کاهش</b> نسبت به نرخ فعلیِ شما (<b>${fmt(actualLhUsed,1)} L/h</b>).</div>`
+        ? `<div class="cs-action-head">${CS_ICON_DOWN}نرخ تزریق را روی <b class="cs-setpoint">${fmt(targetSolLh,1)}</b> لیتر بر ساعت تنظیم کنید</div><div class="cs-action-detail">یعنی <b>${fmt(Math.abs(deltaLh),1)} L/h کاهش</b> نسبت به ${rateNoun} (<b>${fmt(actualLhUsed,1)} L/h</b>).</div>`
         : `<div class="cs-action-head">${CS_ICON_DOWN}نرخ تزریق را روی <b class="cs-setpoint">${fmt(targetSolLh,1)}</b> لیتر بر ساعت تنظیم کنید</div><div class="cs-action-detail">این نرخ برای رساندن اکسس به هدف لازم است.</div>`) +
-        (overDownstream ? `<div class="cs-action-warn">⚠ از حد مجاز پایین‌دست (&lt; ${downstreamLimit} mg/l) نیز عبور کرده است.</div>` : "");
+        (overDownstream ? `<div class="cs-action-warn">⚠ از حد مجاز پایین‌دست (&lt; ${downstreamLimit} mg/l) نیز عبور کرده است.</div>` : "") + mismatchNote;
     }
   };
   renderCurStatus(curFlowQ, v.naActualLh, v.naActualMgl, totalConcNa, naFrac, v.densNa, DOWNSTREAM_LIMIT_NA2CO3,
