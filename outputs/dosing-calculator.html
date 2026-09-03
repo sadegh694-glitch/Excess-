@@ -379,6 +379,10 @@ button{ -webkit-appearance:none; appearance:none; border:none; background:none; 
 
 .row2{ display:grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
+.or-sep{ display:flex; align-items:center; gap:10px; margin: 6px 0 12px; }
+.or-sep:before, .or-sep:after{ content:""; flex:1; height:1px; background: var(--border); }
+.or-sep span{ font-size: 0.68rem; color: var(--muted); flex:none; }
+
 /* ---------- Range slider ---------- */
 input[type=range]{
   -webkit-appearance:none; appearance:none;
@@ -905,15 +909,15 @@ footer.app-foot{
         </div>
         <div class="card-titles">
           <h2>وضعیت فعلی تزریق <span class="tag">اختیاری</span></h2>
-          <p>نرخ تزریق فعلیِ واقعیِ محلول (طبق روتامتر/فلومتر پمپ دوزینگ) را وارد کنید تا اکسس فعلاً حاصل‌شده محاسبه و با هدف مقایسه شود و مقدار دقیق افزایش/کاهش لازم اعلام گردد.</p>
+          <p>هرکدام از دو عدد زیر که همین الان در اختیار دارید وارد کنید — یا نرخ تزریق فعلی از روی روتامتر/فلومتر، یا اکسس فعلیِ اندازه‌گیری‌شده (مثلاً از تیتراسیون/آزمایشگاه). همهٔ اعداد کاملاً قابل تغییرند؛ اپ بر همان اساس، مقدار دقیق افزایش/کاهش تزریق لازم را حساب می‌کند.</p>
         </div>
         <span class="step">۵</span>
       </div>
 
       <div class="toggle-row" id="curToggleRow">
         <div class="txt">
-          <strong>مقایسهٔ تزریق فعلی با هدف</strong>
-          <span>مثال: اکسس فعلی از روی نرخ تزریق واقعی محاسبه و با اکسس هدف مقایسه می‌شود</span>
+          <strong>مقایسهٔ وضعیت فعلی با هدف</strong>
+          <span>با تغییر هر عدد، وضعیت و تزریق پیشنهادی بلافاصله در تب «نتایج» به‌روز می‌شود</span>
         </div>
         <label class="switch">
           <input type="checkbox" id="curToggle" />
@@ -935,6 +939,23 @@ footer.app-foot{
             <div class="unit-field">
               <input type="number" id="ohActualLh" value="0" min="0" step="10" inputmode="decimal" />
               <span class="unit">L/h</span>
+            </div>
+          </div>
+        </div>
+        <div class="or-sep"><span>یا</span></div>
+        <div class="row2">
+          <div class="field">
+            <label for="naActualMgl">اکسس Na₂CO₃ فعلیِ اندازه‌گیری‌شده</label>
+            <div class="unit-field">
+              <input type="number" id="naActualMgl" value="0" min="0" step="10" inputmode="decimal" />
+              <span class="unit">mg/l</span>
+            </div>
+          </div>
+          <div class="field">
+            <label for="ohActualMgl">اکسس NaOH فعلیِ اندازه‌گیری‌شده</label>
+            <div class="unit-field">
+              <input type="number" id="ohActualMgl" value="0" min="0" step="10" inputmode="decimal" />
+              <span class="unit">mg/l</span>
             </div>
           </div>
         </div>
@@ -1269,7 +1290,7 @@ const DEFAULTS = {
   concOH: 18, densOH: 1.197,
   purity: 99,
   advToggle: false, caPpm: 0, mgPpm: 0,
-  curToggle: false, naActualLh: 0, ohActualLh: 0,
+  curToggle: false, naActualLh: 0, ohActualLh: 0, naActualMgl: 0, ohActualMgl: 0,
 };
 
 function fmt(n, d = 1) {
@@ -1303,6 +1324,8 @@ function readInputs() {
     curToggle: $("curToggle").checked,
     naActualLh: parseFloat($("naActualLh").value) || 0,
     ohActualLh: parseFloat($("ohActualLh").value) || 0,
+    naActualMgl: parseFloat($("naActualMgl").value) || 0,
+    ohActualMgl: parseFloat($("ohActualMgl").value) || 0,
   };
 }
 
@@ -1406,17 +1429,30 @@ function calculate() {
     $("ohStoichLh").textContent = fmt(litersFor(Q, stoichOH, ohFrac, v.densOH), 1);
   }
 
-  // "with this actual injection rate, what excess are we actually
-  // achieving right now, and how much must the injection change to
-  // reach the target?" — reverse of the main calculation
+  // "given whichever number I actually have right now — either the
+  // current injection rate (L/h) or a directly-measured excess (mg/l) —
+  // tell me the achieved excess and exactly how much to change the
+  // injection to reach the target." Either field, both, or neither can
+  // be filled; nothing here is a fixed/hardcoded reference number.
   const TOLERANCE_PCT = 0.05; // ±5% around target counts as "normal"
-  const renderCurStatus = (show, actualLh, targetConcMg, targetSolLh, frac, dens, downstreamLimit, boxId, badgeId, achievedId, targetId, actionId) => {
+  const renderCurStatus = (show, actualLh, actualMgl, targetConcMg, targetSolLh, frac, dens, downstreamLimit, boxId, badgeId, achievedId, targetId, actionId) => {
     const box = $(boxId);
     box.classList.toggle("open", show);
     if (!show) return;
-    const achievedConc = (Q > 0 && frac > 0 && dens > 0)
-      ? (actualLh * frac * dens * 1000) / Q : NaN;
-    const deltaLh = (isFinite(targetSolLh)) ? targetSolLh - actualLh : NaN;
+
+    // measured excess (mg/l) takes priority if provided; otherwise it is
+    // derived from the actual injection rate. Symmetrically, the actual
+    // injection rate used for the "change from X to Y L/h" phrasing is
+    // taken from the field the user filled, or inferred from the other.
+    let achievedConc, actualLhUsed;
+    if (actualMgl > 0) {
+      achievedConc = actualMgl;
+      actualLhUsed = litersFor(Q, actualMgl, frac, dens);
+    } else {
+      achievedConc = (Q > 0 && frac > 0 && dens > 0) ? (actualLh * frac * dens * 1000) / Q : NaN;
+      actualLhUsed = actualLh;
+    }
+    const deltaLh = (isFinite(targetSolLh) && isFinite(actualLhUsed)) ? targetSolLh - actualLhUsed : NaN;
     $(achievedId).textContent = fmt(achievedConc, 0);
     $(targetId).textContent = fmt(targetConcMg, 0);
 
@@ -1431,19 +1467,25 @@ function calculate() {
     const overDownstream = achievedConc > downstreamLimit;
     if (Math.abs(diffPct) <= TOLERANCE_PCT && !overDownstream) {
       badge.className = "cs-badge ok"; badge.textContent = "نرمال";
-      action.innerHTML = `✓ تزریق فعلی (<b>${fmt(actualLh,1)} L/h</b>) در محدودهٔ هدف است؛ نیازی به تغییر نیست.`;
+      action.innerHTML = isFinite(actualLhUsed)
+        ? `✓ تزریق فعلی (<b>${fmt(actualLhUsed,1)} L/h</b>) در محدودهٔ هدف است؛ نیازی به تغییر نیست.`
+        : `✓ اکسس فعلی در محدودهٔ هدف است؛ نیازی به تغییر نیست.`;
     } else if (diffPct < 0) {
       badge.className = "cs-badge low"; badge.textContent = "کمتر از هدف";
-      action.innerHTML = `برای رسیدن به اکسس هدف، نرخ تزریق را <b>${fmt(Math.abs(deltaLh),1)} L/h افزایش</b> دهید (از ${fmt(actualLh,1)} به <b>${fmt(targetSolLh,1)} L/h</b>).`;
+      action.innerHTML = isFinite(deltaLh)
+        ? `برای رسیدن به اکسس هدف، نرخ تزریق را <b>${fmt(Math.abs(deltaLh),1)} L/h افزایش</b> دهید (از ${fmt(actualLhUsed,1)} به <b>${fmt(targetSolLh,1)} L/h</b>).`
+        : `اکسس فعلی کمتر از هدف است؛ نرخ تزریق لازم برای رسیدن به هدف <b>${fmt(targetSolLh,1)} L/h</b> است.`;
     } else {
       badge.className = "cs-badge high"; badge.textContent = overDownstream ? "بیش از حد مجاز" : "بیشتر از هدف";
-      action.innerHTML = `اکسس فعلی از هدف بالاتر است؛ نرخ تزریق را <b>${fmt(Math.abs(deltaLh),1)} L/h کاهش</b> دهید (از ${fmt(actualLh,1)} به <b>${fmt(targetSolLh,1)} L/h</b>).` +
+      action.innerHTML = (isFinite(deltaLh)
+        ? `اکسس فعلی از هدف بالاتر است؛ نرخ تزریق را <b>${fmt(Math.abs(deltaLh),1)} L/h کاهش</b> دهید (از ${fmt(actualLhUsed,1)} به <b>${fmt(targetSolLh,1)} L/h</b>).`
+        : `اکسس فعلی از هدف بالاتر است؛ نرخ تزریق لازم برای رسیدن به هدف <b>${fmt(targetSolLh,1)} L/h</b> است.`) +
         (overDownstream ? ` ⚠ همچنین از حد مجاز پایین‌دست (&lt; ${downstreamLimit} mg/l) عبور کرده است.` : "");
     }
   };
-  renderCurStatus(v.curToggle && v.naActualLh > 0, v.naActualLh, totalConcNa, naSolLh, naFrac, v.densNa, DOWNSTREAM_LIMIT_NA2CO3,
+  renderCurStatus(v.curToggle && (v.naActualLh > 0 || v.naActualMgl > 0), v.naActualLh, v.naActualMgl, totalConcNa, naSolLh, naFrac, v.densNa, DOWNSTREAM_LIMIT_NA2CO3,
     "naCurStatus", "naCsBadge", "naCsAchieved", "naCsTarget", "naCsAction");
-  renderCurStatus(v.curToggle && v.ohActualLh > 0, v.ohActualLh, totalConcOH, ohSolLh, ohFrac, v.densOH, DOWNSTREAM_LIMIT_NAOH,
+  renderCurStatus(v.curToggle && (v.ohActualLh > 0 || v.ohActualMgl > 0), v.ohActualLh, v.ohActualMgl, totalConcOH, ohSolLh, ohFrac, v.densOH, DOWNSTREAM_LIMIT_NAOH,
     "ohCurStatus", "ohCsBadge", "ohCsAchieved", "ohCsTarget", "ohCsAction");
 
   // breakdown text
@@ -1511,6 +1553,8 @@ function applyDefaults() {
   $("curToggle").checked = DEFAULTS.curToggle;
   $("naActualLh").value = DEFAULTS.naActualLh;
   $("ohActualLh").value = DEFAULTS.ohActualLh;
+  $("naActualMgl").value = DEFAULTS.naActualMgl;
+  $("ohActualMgl").value = DEFAULTS.ohActualMgl;
   calculate();
 }
 
@@ -1518,7 +1562,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const ids = ["qDesignA","loadPctA","activeA","qDesignB","loadPctB","activeB",
                "excNa","excOH","concNa","densNa",
                "concOH","densOH","purity","advToggle","caPpm","mgPpm",
-               "curToggle","naActualLh","ohActualLh"];
+               "curToggle","naActualLh","ohActualLh","naActualMgl","ohActualMgl"];
   ids.forEach((id) => {
     const el = $(id);
     el.addEventListener("input", calculate);
