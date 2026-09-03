@@ -1533,19 +1533,21 @@ function calculate() {
     $(emptyId).style.display = show ? "none" : "";
     if (!show) { achievedItem.className = "cs-item achieved"; return; }
 
-    // measured excess (mg/l) takes priority if provided; otherwise it is
-    // derived from the actual injection rate. Symmetrically, the actual
-    // injection rate used for the "change from X to Y L/h" phrasing is
-    // taken from the field the user filled, or inferred from the other.
+    // the measured excess (mg/l) — when provided — is a direct lab reading,
+    // so it takes priority for the concentration/status shown. But the
+    // "current rate" used in the action message must always reflect the
+    // real rate the user actually typed in naActualLh/ohActualLh (what the
+    // pump is really set to right now); it must never be silently replaced
+    // by a rate back-calculated from the mg/l reading, even if both fields
+    // are filled in at the same time.
     const targetSolLh = litersFor(flowQ, targetConcMg, frac, dens);
-    let achievedConc, actualLhUsed;
+    let achievedConc;
     if (actualMgl > 0) {
       achievedConc = actualMgl;
-      actualLhUsed = litersFor(flowQ, actualMgl, frac, dens);
     } else {
       achievedConc = (flowQ > 0 && frac > 0 && dens > 0) ? (actualLh * frac * dens * 1000) / flowQ : NaN;
-      actualLhUsed = actualLh;
     }
+    const actualLhUsed = actualLh > 0 ? actualLh : litersFor(flowQ, achievedConc, frac, dens);
     const deltaLh = (isFinite(targetSolLh) && isFinite(actualLhUsed)) ? targetSolLh - actualLhUsed : NaN;
     $(achievedId).textContent = fmt(achievedConc, 0);
     $(targetId).textContent = fmt(targetConcMg, 0);
