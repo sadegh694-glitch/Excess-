@@ -1,0 +1,17 @@
+{
+  "name": "محاسبه‌گر دوز کاستیک و کربنات سدیم | رسوب‌دهی آب‌نمک",
+  "short_name": "دوز کاستیک/کربنات",
+  "description": "محاسبه نرخ تزریق کربنات سدیم (Na2CO3) و کاستیک سدا (NaOH) برای نگه‌داشتن اکسس در محدوده نرمال بهره‌برداری واحد تصفیه آب‌نمک (Brine Precipitation)",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0b3b52",
+  "theme_color": "#0b3b52",
+  "lang": "fa",
+  "dir": "rtl",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

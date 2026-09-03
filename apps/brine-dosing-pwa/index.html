@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>محاسبه‌گر دوز کاستیک و کربنات سدیم | اکسس تانک رسوب‌دهی آب‌نمک</title>
+<meta name="description" content="محاسبه نرخ تزریق کربنات سدیم و کاستیک سدا برای حفظ اکسس در محدوده نرمال بهره‌برداری واحد رسوب‌دهی آب‌نمک، بر اساس دفترچه راهنمای بهره‌برداری واحد C/A." />
+<meta name="theme-color" content="#0b3b52" />
+<link rel="manifest" href="manifest.webmanifest" />
+<link rel="icon" href="icons/icon-192.png" />
+<link rel="apple-touch-icon" href="icons/icon-192.png" />
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <h1>دوز کربنات سدیم و کاستیک سدا</h1>
+    <p>محاسبه نرخ تزریق Na₂CO₃ و NaOH برای نگه‌داشتن «اکسس کربنات» در محدوده نرمال بهره‌برداری واحد رسوب‌دهی/زلال‌سازی آب‌نمک</p>
+    <span class="doc-tag">مبنا: دفترچه راهنمای بهره‌برداری واحد C/A — فصل ۳ (Brine Precipitation)</span>
+  </header>
+
+  <!-- 1. Flow -->
+  <div class="card">
+    <h2>۱. جریان آب‌نمک <span class="badge">Flow</span></h2>
+    <p class="sub">ظرفیت اسمی هر ترین طبق سند ۵۰۰ m³/h با قابلیت کاهش بار (Turndown) تا ۴۰٪ ظرفیت.</p>
+
+    <div class="row2">
+      <div class="field">
+        <label>ظرفیت اسمی هر ترین <span class="hint">m³/h</span></label>
+        <input type="number" id="qDesign" value="500" min="1" step="1" />
+      </div>
+      <div class="field">
+        <label>تعداد ترین فعال</label>
+        <select id="trains">
+          <option value="1">۱ ترین</option>
+          <option value="2">۲ ترین</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>درصد بار بهره‌برداری <span class="hint" id="loadPctVal">100٪</span></label>
+      <input type="range" id="loadPct" value="100" min="40" max="100" step="1" />
+    </div>
+  </div>
+
+  <!-- 2. Excess targets -->
+  <div class="card">
+    <h2>۲. اکسس هدف در تانک رسوب‌دهی <span class="badge">Excess</span></h2>
+    <p class="sub">طبق سند، برای رسوب‌گذاری مناسب کلسیم و منیزیم، اکسسی معادل تقریباً ۴۰۰ mg/l کربنات سدیم و ۱۵۰ mg/l کاستیک در جریان آب‌نمک خام نگه‌داشته می‌شود.</p>
+
+    <div class="row2">
+      <div class="field">
+        <label>اکسس Na₂CO₃ هدف <span class="hint">mg/l</span></label>
+        <input type="number" id="excNa" value="400" min="0" step="10" />
+      </div>
+      <div class="field">
+        <label>اکسس NaOH هدف <span class="hint">mg/l</span></label>
+        <input type="number" id="excOH" value="150" min="0" step="10" />
+      </div>
+    </div>
+    <div id="excWarn"></div>
+  </div>
+
+  <!-- 3. Solution specs -->
+  <div class="card">
+    <h2>۳. مشخصات محلول‌های تزریقی <span class="badge">Dosing solution</span></h2>
+    <p class="sub">پیش‌فرض‌ها بر اساس سند: محلول Na₂CO3 با غلظت ۱۰٪ وزنی (تهیه‌شده از حل کیسه‌های ۵۰ کیلویی در آب‌نمک رقیق) و محلول NaOH با غلظت ۱۸٪ وزنی. در صورت متفاوت‌بودن مشخصات واقعی کارخانه، مقادیر را ویرایش کنید.</p>
+
+    <div class="row2">
+      <div class="field">
+        <label>غلظت محلول Na₂CO₃ <span class="hint">% وزنی</span></label>
+        <input type="number" id="concNa" value="10" min="1" max="40" step="0.5" />
+      </div>
+      <div class="field">
+        <label>چگالی محلول Na₂CO₃ <span class="hint">kg/L</span></label>
+        <input type="number" id="densNa" value="1.105" min="0.9" max="1.6" step="0.001" />
+      </div>
+    </div>
+
+    <div class="row2">
+      <div class="field">
+        <label>غلظت محلول NaOH <span class="hint">% وزنی</span></label>
+        <input type="number" id="concOH" value="18" min="1" max="50" step="0.5" />
+      </div>
+      <div class="field">
+        <label>چگالی محلول NaOH <span class="hint">kg/L</span></label>
+        <input type="number" id="densOH" value="1.197" min="0.9" max="1.6" step="0.001" />
+      </div>
+    </div>
+
+    <div class="field">
+      <label>خلوص Na₂CO₃ جامد (کیسه ۵۰ کیلویی) <span class="hint">%</span></label>
+      <input type="number" id="purity" value="99" min="80" max="100" step="0.5" />
+    </div>
+  </div>
+
+  <!-- 4. Advanced -->
+  <div class="card">
+    <h2>۴. حالت پیشرفته <span class="badge">اختیاری</span></h2>
+    <p class="sub">در صورت در دسترس‌بودن آنالیز آب‌نمک خام (کلسیم و منیزیم)، مصرف استوکیومتری واکنش رسوب‌دهی نیز به اکسس هدف افزوده می‌شود. سند فعلی این مقادیر را به Annex A2 (Material Balances) ارجاع داده و در این دفترچه عددی برای آن ذکر نشده است؛ بنابراین این بخش اختیاری و بر پایه ورودی شماست.</p>
+
+    <div class="toggle-row">
+      <div class="txt">
+        <strong>لحاظ سختی آب‌نمک خام (Ca²⁺ / Mg²⁺)</strong>
+        <span>واکنش: CaCl₂+Na₂CO₃→CaCO₃+2NaCl و MgCl₂+2NaOH→Mg(OH)₂+2NaCl</span>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="advToggle" />
+        <span class="slider-el"></span>
+      </label>
+    </div>
+
+    <div class="advanced-body" id="advBody">
+      <div class="row2">
+        <div class="field">
+          <label>غلظت Ca²⁺ در آب‌نمک خام <span class="hint">mg/l</span></label>
+          <input type="number" id="caPpm" value="0" min="0" step="10" />
+        </div>
+        <div class="field">
+          <label>غلظت Mg²⁺ در آب‌نمک خام <span class="hint">mg/l</span></label>
+          <input type="number" id="mgPpm" value="0" min="0" step="10" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn-reset" id="resetBtn">بازگردانی به پیش‌فرض‌های سند</button>
+
+  <!-- Results -->
+  <div class="card" id="resultsCard">
+    <h2>نتیجه محاسبه <span class="badge">Result</span></h2>
+
+    <div class="result-flow">
+      <div class="v" id="qActual">—</div>
+      <div class="l">جریان کل آب‌نمک در شرایط جاری (m³/h)</div>
+    </div>
+
+    <div class="chem-block na2co3">
+      <div class="head">
+        <span class="dot"></span>
+        <div>
+          <b>کربنات سدیم — Na₂CO₃</b>
+          <small>نرخ تزریق لازم برای اکسس هدف (+ استوکیومتری در صورت فعال‌بودن حالت پیشرفته)</small>
+        </div>
+      </div>
+      <div class="metric-grid">
+        <div class="metric"><div class="num" id="naKgH">—</div><div class="lab">کیلوگرم خالص در ساعت</div></div>
+        <div class="metric"><div class="num" id="naKgDay">—</div><div class="lab">کیلوگرم خالص در روز</div></div>
+        <div class="metric"><div class="num" id="naSolLh">—</div><div class="lab">L/h محلول ۱۰٪</div></div>
+        <div class="metric"><div class="num" id="naBags">—</div><div class="lab">کیسه ۵۰ کیلویی در روز</div></div>
+      </div>
+      <div class="breakdown" id="naBreak"></div>
+      <div id="naNotice"></div>
+    </div>
+
+    <div class="chem-block naoh">
+      <div class="head">
+        <span class="dot"></span>
+        <div>
+          <b>کاستیک سدا — NaOH</b>
+          <small>نرخ تزریق لازم برای اکسس هدف (+ استوکیومتری در صورت فعال‌بودن حالت پیشرفته)</small>
+        </div>
+      </div>
+      <div class="metric-grid">
+        <div class="metric"><div class="num" id="ohKgH">—</div><div class="lab">کیلوگرم خالص در ساعت</div></div>
+        <div class="metric"><div class="num" id="ohKgDay">—</div><div class="lab">کیلوگرم خالص در روز</div></div>
+        <div class="metric"><div class="num" id="ohSolLh">—</div><div class="lab">L/h محلول ۱۸٪</div></div>
+        <div class="metric"><div class="num" id="ohSolM3Day">—</div><div class="lab">m³/day محلول</div></div>
+      </div>
+      <div class="breakdown" id="ohBreak"></div>
+      <div id="ohNotice"></div>
+    </div>
+
+    <div class="src">
+      فرمول: نرخ تزریق (kg/h) = جریان آب‌نمک (m³/h) × غلظت هدف (mg/l) ÷ ۱۰۰۰٫ برای حالت پیشرفته، غلظت هدف = اکسس + مصرف استوکیومتری واکنش رسوب‌دهی.
+      <br/>
+      منبع اعداد پایه: <code>8408205-CB-PR-MNL-0102</code> — Operating Manual C/A Plant، بخش‌های ۳٫۲٫۲٫۱ و ۳٫۲٫۳٫۱ (اکسس ۴۰۰/۱۵۰ mg/l، غلظت محلول‌ها) و جدول ۶-۸ (حد بالادست اکسس در آب‌نمک فوق‌خالص: Na₂CO₃ &lt; ۰٫۴ g/l، NaOH &lt; ۰٫۲ g/l).
+    </div>
+  </div>
+
+  <!-- Operating notes -->
+  <div class="card">
+    <h2>نکات کنترل شرایط نرمال بهره‌برداری</h2>
+    <ul class="info-list">
+      <li>محدوده pH مطلوب آب‌نمک قبل/بعد از تانک رسوب‌دهی: <b>۹ تا ۱۱</b>. pH بالاتر از ۱۲ باعث انحلال سیلیس/آلومینیوم و pH پایین‌تر از ۷ باعث عدم رسوب کامل Ca/Mg می‌شود.</li>
+      <li>دمای معمول آب‌نمک در این نقطه حدود <b>۶۰ درجه سانتی‌گراد</b> است؛ اکسس ۴۰۰/۱۵۰ mg/l بر همین دما تنظیم شده است.</li>
+      <li>اکسس بیش‌ازحد یا کمتر از حد، رشد کریستال CaCO₃/Mg(OH)₂ و در نتیجه ته‌نشینی در کلاریفایر را مختل می‌کند.</li>
+      <li>در بهره‌برداری نرمال، محلول Na₂CO₃ به تانک اول (A) و محلول NaOH به تانک دوم (B) تزریق می‌شود؛ در سرویس‌خارج‌بودن یک تانک، کاستیک پس از تانک رسوب‌دهی تزریق می‌شود.</li>
+      <li>اکسس Na₂CO₃ در آب‌نمک فوق‌خالص ورودی الکترولایزر نباید از ۰٫۴ g/l و اکسس NaOH از ۰٫۲ g/l بیشتر شود (جدول حداکثر ناخالصی‌های مجاز).</li>
+    </ul>
+  </div>
+
+  <footer class="app-foot">
+    این ابزار صرفاً بر پایه اعداد و روابط منتشرشده در دفترچه راهنمای بهره‌برداری کار می‌کند و جایگزین آنالیز آزمایشگاهی، لاگ اپراتوری و مهندسی فرآیند سایت نیست.
+  </footer>
+
+</div>
+
+<div class="install-bar" id="installBar">
+  <span>این ابزار را به صفحه اصلی موبایل اضافه کنید</span>
+  <button id="installBtn">نصب</button>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
