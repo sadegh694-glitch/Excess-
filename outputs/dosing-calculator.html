@@ -587,6 +587,10 @@ input[type=range]::-moz-range-progress{ height:8px; border-radius:999px; backgro
   display:flex; align-items:center; gap:7px; font-weight:800; font-size:0.94rem; line-height:1.6;
 }
 .cs-action-head svg{ width:17px; height:17px; flex:none; }
+.cs-setpoint{
+  font-size: 1.18em; text-decoration: underline; text-decoration-thickness: 2px;
+  text-underline-offset: 3px; font-variant-numeric: tabular-nums; direction:ltr; unicode-bidi:isolate; display:inline-block;
+}
 .cs-action-detail{ margin-top:4px; font-size:0.74rem; color: var(--muted); line-height:1.8; }
 .cs-action-warn{ margin-top:6px; font-size:0.74rem; color: var(--danger-ink); line-height:1.8; }
 .cs-action.dir-down{ border-inline-start-color: var(--danger-ink); }
@@ -1567,14 +1571,14 @@ function calculate() {
       badge.className = "cs-badge low"; badge.textContent = "کمتر از هدف"; achievedItem.className = "cs-item achieved low"; hasCurAlert = true;
       action.className = "cs-action dir-up";
       action.innerHTML = isFinite(deltaLh)
-        ? `<div class="cs-action-head">${CS_ICON_UP}افزایش ${fmt(Math.abs(deltaLh),1)} L/h به نرخ تزریق</div><div class="cs-action-detail">نرخ تزریق را از <b>${fmt(actualLhUsed,1)} L/h</b> به <b>${fmt(targetSolLh,1)} L/h</b> برسانید تا اکسس به هدف برسد.</div>`
-        : `<div class="cs-action-head">${CS_ICON_UP}افزایش نرخ تزریق لازم است</div><div class="cs-action-detail">نرخ تزریق لازم برای رسیدن به هدف: <b>${fmt(targetSolLh,1)} L/h</b></div>`;
+        ? `<div class="cs-action-head">${CS_ICON_UP}نرخ تزریق را روی <b class="cs-setpoint">${fmt(targetSolLh,1)}</b> لیتر بر ساعت تنظیم کنید</div><div class="cs-action-detail">یعنی <b>${fmt(Math.abs(deltaLh),1)} L/h افزایش</b> نسبت به نرخ فعلیِ شما (<b>${fmt(actualLhUsed,1)} L/h</b>).</div>`
+        : `<div class="cs-action-head">${CS_ICON_UP}نرخ تزریق را روی <b class="cs-setpoint">${fmt(targetSolLh,1)}</b> لیتر بر ساعت تنظیم کنید</div><div class="cs-action-detail">این نرخ برای رساندن اکسس به هدف لازم است.</div>`;
     } else {
       badge.className = "cs-badge high"; badge.textContent = overDownstream ? "بیش از حد مجاز" : "بیشتر از هدف"; achievedItem.className = "cs-item achieved high"; hasCurAlert = true;
       action.className = "cs-action dir-down";
       action.innerHTML = (isFinite(deltaLh)
-        ? `<div class="cs-action-head">${CS_ICON_DOWN}کاهش ${fmt(Math.abs(deltaLh),1)} L/h از نرخ تزریق</div><div class="cs-action-detail">نرخ تزریق را از <b>${fmt(actualLhUsed,1)} L/h</b> به <b>${fmt(targetSolLh,1)} L/h</b> برسانید تا اکسس به هدف برسد.</div>`
-        : `<div class="cs-action-head">${CS_ICON_DOWN}کاهش نرخ تزریق لازم است</div><div class="cs-action-detail">نرخ تزریق لازم برای رسیدن به هدف: <b>${fmt(targetSolLh,1)} L/h</b></div>`) +
+        ? `<div class="cs-action-head">${CS_ICON_DOWN}نرخ تزریق را روی <b class="cs-setpoint">${fmt(targetSolLh,1)}</b> لیتر بر ساعت تنظیم کنید</div><div class="cs-action-detail">یعنی <b>${fmt(Math.abs(deltaLh),1)} L/h کاهش</b> نسبت به نرخ فعلیِ شما (<b>${fmt(actualLhUsed,1)} L/h</b>).</div>`
+        : `<div class="cs-action-head">${CS_ICON_DOWN}نرخ تزریق را روی <b class="cs-setpoint">${fmt(targetSolLh,1)}</b> لیتر بر ساعت تنظیم کنید</div><div class="cs-action-detail">این نرخ برای رساندن اکسس به هدف لازم است.</div>`) +
         (overDownstream ? `<div class="cs-action-warn">⚠ از حد مجاز پایین‌دست (&lt; ${downstreamLimit} mg/l) نیز عبور کرده است.</div>` : "");
     }
   };
@@ -1663,6 +1667,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const el = $(id);
     el.addEventListener("input", calculate);
     el.addEventListener("change", calculate);
+  });
+
+  // tap a number field → select its current value so typing replaces it
+  // immediately (no need to manually delete a leading "0" first)
+  document.querySelectorAll('input[type="number"]').forEach((el) => {
+    el.addEventListener("focus", () => el.select());
   });
 
   // numeric steppers
