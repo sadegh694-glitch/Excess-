@@ -555,12 +555,22 @@ input[type=range]::-moz-range-progress{ height:8px; border-radius:999px; backgro
 .cs-badge.high{ background: var(--danger-bg); color: var(--danger-ink); border-color:#f3c9c9; }
 .cs-row{ display:grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .cs-item{
-  display:flex; align-items:baseline; gap:6px; background: var(--card-2); border:1px solid var(--border);
-  border-radius: 10px; padding: 8px 10px;
+  min-width:0; display:flex; flex-direction:column; gap:5px;
+  background: var(--card-2); border:1.5px solid var(--border);
+  border-radius: 12px; padding: 9px 11px;
 }
-.cs-lab{ font-size: 0.68rem; color: var(--muted); flex:none; }
-.cs-val{ margin-inline-start:auto; font-weight:700; font-variant-numeric: tabular-nums; direction: ltr; unicode-bidi: isolate; }
-.cs-unit{ font-size: 0.62rem; color: var(--muted); }
+.cs-item.target{ border-inline-start: 3px solid var(--blue); }
+.cs-item.target.oh{ border-inline-start-color: var(--teal); }
+.cs-item.achieved.ok{ background: var(--ok-bg); border-color:#c9ecdb; }
+.cs-item.achieved.low{ background: var(--warn-bg); border-color:#f0dcae; }
+.cs-item.achieved.high{ background: var(--danger-bg); border-color:#f3c9c9; }
+.cs-lab{ font-size: 0.68rem; color: var(--muted); min-width:0; }
+.cs-val-wrap{ display:flex; align-items:baseline; gap:5px; min-width:0; }
+.cs-val{
+  font-size: 1.05rem; font-weight:800; font-variant-numeric: tabular-nums;
+  direction: ltr; unicode-bidi: isolate; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+.cs-unit{ font-size: 0.62rem; color: var(--muted); flex:none; }
 .cs-action{
   margin-top: 9px; font-size: 0.78rem; line-height: 1.85; color: var(--ink);
   background: var(--card-2); border-radius: 10px; padding: 9px 11px;
@@ -1083,8 +1093,14 @@ footer.app-foot{
         <div class="cur-status" id="naCurStatus">
           <div class="cs-head"><span>نتیجه</span><span class="cs-badge" id="naCsBadge">—</span></div>
           <div class="cs-row">
-            <div class="cs-item"><span class="cs-lab">اکسس فعلی (محاسبه‌شده)</span><span class="cs-val" id="naCsAchieved">—</span><span class="cs-unit">mg/l</span></div>
-            <div class="cs-item"><span class="cs-lab">اکسس هدف</span><span class="cs-val" id="naCsTarget">—</span><span class="cs-unit">mg/l</span></div>
+            <div class="cs-item achieved" id="naCsAchievedItem">
+              <span class="cs-lab">اکسس فعلی</span>
+              <div class="cs-val-wrap"><span class="cs-val" id="naCsAchieved">—</span><span class="cs-unit">mg/l</span></div>
+            </div>
+            <div class="cs-item target">
+              <span class="cs-lab">اکسس هدف</span>
+              <div class="cs-val-wrap"><span class="cs-val" id="naCsTarget">—</span><span class="cs-unit">mg/l</span></div>
+            </div>
           </div>
           <div class="cs-action" id="naCsAction">—</div>
         </div>
@@ -1122,8 +1138,14 @@ footer.app-foot{
         <div class="cur-status" id="ohCurStatus">
           <div class="cs-head"><span>نتیجه</span><span class="cs-badge" id="ohCsBadge">—</span></div>
           <div class="cs-row">
-            <div class="cs-item"><span class="cs-lab">اکسس فعلی (محاسبه‌شده)</span><span class="cs-val" id="ohCsAchieved">—</span><span class="cs-unit">mg/l</span></div>
-            <div class="cs-item"><span class="cs-lab">اکسس هدف</span><span class="cs-val" id="ohCsTarget">—</span><span class="cs-unit">mg/l</span></div>
+            <div class="cs-item achieved" id="ohCsAchievedItem">
+              <span class="cs-lab">اکسس فعلی</span>
+              <div class="cs-val-wrap"><span class="cs-val" id="ohCsAchieved">—</span><span class="cs-unit">mg/l</span></div>
+            </div>
+            <div class="cs-item target oh">
+              <span class="cs-lab">اکسس هدف</span>
+              <div class="cs-val-wrap"><span class="cs-val" id="ohCsTarget">—</span><span class="cs-unit">mg/l</span></div>
+            </div>
           </div>
           <div class="cs-action" id="ohCsAction">—</div>
         </div>
@@ -1477,12 +1499,13 @@ function calculate() {
   // fixed/hardcoded reference number — every field is freely editable.
   const TOLERANCE_PCT = 0.05; // ±5% around target counts as "normal"
   let hasCurAlert = false;
-  const renderCurStatus = (flowQ, actualLh, actualMgl, targetConcMg, frac, dens, downstreamLimit, boxId, emptyId, badgeId, achievedId, targetId, actionId) => {
+  const renderCurStatus = (flowQ, actualLh, actualMgl, targetConcMg, frac, dens, downstreamLimit, boxId, emptyId, badgeId, achievedId, targetId, actionId, achievedItemId) => {
     const show = actualLh > 0 || actualMgl > 0;
     const box = $(boxId);
+    const achievedItem = $(achievedItemId);
     box.classList.toggle("open", show);
     $(emptyId).style.display = show ? "none" : "";
-    if (!show) return;
+    if (!show) { achievedItem.className = "cs-item achieved"; return; }
 
     // measured excess (mg/l) takes priority if provided; otherwise it is
     // derived from the actual injection rate. Symmetrically, the actual
@@ -1505,23 +1528,24 @@ function calculate() {
     const action = $(actionId);
     if (!isFinite(achievedConc)) {
       badge.className = "cs-badge"; badge.textContent = "—";
+      achievedItem.className = "cs-item achieved";
       action.innerHTML = "برای محاسبه، جریان آب‌نمک باید بزرگ‌تر از صفر باشد.";
       return;
     }
     const diffPct = targetConcMg > 0 ? (achievedConc - targetConcMg) / targetConcMg : 0;
     const overDownstream = achievedConc > downstreamLimit;
     if (Math.abs(diffPct) <= TOLERANCE_PCT && !overDownstream) {
-      badge.className = "cs-badge ok"; badge.textContent = "نرمال";
+      badge.className = "cs-badge ok"; badge.textContent = "نرمال"; achievedItem.className = "cs-item achieved ok";
       action.innerHTML = isFinite(actualLhUsed)
         ? `✓ تزریق فعلی (<b>${fmt(actualLhUsed,1)} L/h</b>) در محدودهٔ هدف است؛ نیازی به تغییر نیست.`
         : `✓ اکسس فعلی در محدودهٔ هدف است؛ نیازی به تغییر نیست.`;
     } else if (diffPct < 0) {
-      badge.className = "cs-badge low"; badge.textContent = "کمتر از هدف"; hasCurAlert = true;
+      badge.className = "cs-badge low"; badge.textContent = "کمتر از هدف"; achievedItem.className = "cs-item achieved low"; hasCurAlert = true;
       action.innerHTML = isFinite(deltaLh)
         ? `برای رسیدن به اکسس هدف، نرخ تزریق را <b>${fmt(Math.abs(deltaLh),1)} L/h افزایش</b> دهید (از ${fmt(actualLhUsed,1)} به <b>${fmt(targetSolLh,1)} L/h</b>).`
         : `اکسس فعلی کمتر از هدف است؛ نرخ تزریق لازم برای رسیدن به هدف <b>${fmt(targetSolLh,1)} L/h</b> است.`;
     } else {
-      badge.className = "cs-badge high"; badge.textContent = overDownstream ? "بیش از حد مجاز" : "بیشتر از هدف"; hasCurAlert = true;
+      badge.className = "cs-badge high"; badge.textContent = overDownstream ? "بیش از حد مجاز" : "بیشتر از هدف"; achievedItem.className = "cs-item achieved high"; hasCurAlert = true;
       action.innerHTML = (isFinite(deltaLh)
         ? `اکسس فعلی از هدف بالاتر است؛ نرخ تزریق را <b>${fmt(Math.abs(deltaLh),1)} L/h کاهش</b> دهید (از ${fmt(actualLhUsed,1)} به <b>${fmt(targetSolLh,1)} L/h</b>).`
         : `اکسس فعلی از هدف بالاتر است؛ نرخ تزریق لازم برای رسیدن به هدف <b>${fmt(targetSolLh,1)} L/h</b> است.`) +
@@ -1529,9 +1553,9 @@ function calculate() {
     }
   };
   renderCurStatus(curFlowQ, v.naActualLh, v.naActualMgl, totalConcNa, naFrac, v.densNa, DOWNSTREAM_LIMIT_NA2CO3,
-    "naCurStatus", "naCsEmpty", "naCsBadge", "naCsAchieved", "naCsTarget", "naCsAction");
+    "naCurStatus", "naCsEmpty", "naCsBadge", "naCsAchieved", "naCsTarget", "naCsAction", "naCsAchievedItem");
   renderCurStatus(curFlowQ, v.ohActualLh, v.ohActualMgl, totalConcOH, ohFrac, v.densOH, DOWNSTREAM_LIMIT_NAOH,
-    "ohCurStatus", "ohCsEmpty", "ohCsBadge", "ohCsAchieved", "ohCsTarget", "ohCsAction");
+    "ohCurStatus", "ohCsEmpty", "ohCsBadge", "ohCsAchieved", "ohCsTarget", "ohCsAction", "ohCsAchievedItem");
   document.querySelector('.nav-btn[data-tab="status"]').classList.toggle("alert", hasCurAlert);
 
   // breakdown text
