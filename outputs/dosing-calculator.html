@@ -521,23 +521,29 @@ input[type=range]::-moz-range-progress{ height:8px; border-radius:999px; backgro
 .breakdown b{ color: var(--ink); font-variant-numeric: tabular-nums; }
 
 .stoich-split{
-  display:none; margin-top: 10px; padding: 11px 12px; border-radius: 12px;
+  display:none; margin-top: 12px; padding: 12px; border-radius: 14px;
   background: linear-gradient(180deg, #fbfdfe, #f3f8fa); border: 1.2px dashed var(--border);
 }
 .stoich-split.open{ display:block; }
-.ss-head{ font-size: 0.7rem; color: var(--muted); margin-bottom: 8px; }
-.ss-head span{ font-weight:700; color: var(--ink); font-variant-numeric: tabular-nums; direction: ltr; unicode-bidi: isolate; }
-.ss-row{ display:grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.ss-row + .ss-row{ margin-top: 8px; }
-.ss-item{
-  display:flex; align-items:baseline; gap:6px; background:#fff; border:1px solid var(--border);
-  border-radius: 10px; padding: 8px 10px;
+.ss-head{
+  display:flex; align-items:center; gap:6px;
+  font-size: 0.7rem; color: var(--muted); margin-bottom: 10px; padding-bottom:8px;
+  border-bottom: 1px dashed var(--border);
 }
-.ss-item.hi{ background: #eaf5f8; border-color:#d7e6ea; }
-.ss-item.hi.oh{ background: #e9f9f4; border-color:#d3ece3; }
-.ss-lab{ font-size: 0.68rem; color: var(--muted); flex:none; }
-.ss-val{ margin-inline-start:auto; font-weight:700; font-variant-numeric: tabular-nums; direction: ltr; unicode-bidi: isolate; }
-.ss-unit{ font-size: 0.62rem; color: var(--muted); }
+.ss-head span{ font-weight:700; color: var(--ink); font-variant-numeric: tabular-nums; direction: ltr; unicode-bidi: isolate; }
+.ss-row{ display:grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+.ss-row + .ss-row{ margin-top: 9px; }
+.ss-item{
+  display:flex; flex-direction:column; gap:6px; min-width:0;
+  background:#fff; border:1px solid var(--border); border-inline-start: 3px solid var(--border);
+  border-radius: 11px; padding: 9px 11px;
+}
+.ss-item.hi{ background: #eaf5f8; border-color:#d7e6ea; border-inline-start-color: var(--blue); }
+.ss-item.hi.oh{ background: #e9f9f4; border-color:#d3ece3; border-inline-start-color: var(--teal); }
+.ss-lab{ font-size: 0.66rem; color: var(--muted); line-height:1.5; }
+.ss-vwrap{ display:flex; align-items:baseline; gap:4px; min-width:0; }
+.ss-val{ font-size:0.98rem; font-weight:700; font-variant-numeric: tabular-nums; direction: ltr; unicode-bidi: isolate; white-space:nowrap; }
+.ss-unit{ font-size: 0.62rem; color: var(--muted); white-space:nowrap; }
 
 .cur-status{
   display:none; margin-top: 10px; padding: 12px 13px; border-radius: 12px;
@@ -994,12 +1000,12 @@ footer.app-foot{
         <div class="stoich-split" id="naStoichSplit">
           <div class="ss-head">به ازای سختی آب‌نمک ورودی (Ca²⁺ = <span id="naCaEcho">—</span> mg/l)</div>
           <div class="ss-row">
-            <div class="ss-item"><span class="ss-lab">سهم اکسس هدف</span><span class="ss-val" id="naExcKgH">—</span><span class="ss-unit">kg/h</span></div>
-            <div class="ss-item hi"><span class="ss-lab">سهم رسوب‌دهی Ca²⁺</span><span class="ss-val" id="naStoichKgH">—</span><span class="ss-unit">kg/h</span></div>
+            <div class="ss-item"><span class="ss-lab">سهم اکسس هدف</span><span class="ss-vwrap"><span class="ss-val" id="naExcKgH">—</span><span class="ss-unit">kg/h</span></span></div>
+            <div class="ss-item hi"><span class="ss-lab">سهم رسوب‌دهی Ca²⁺</span><span class="ss-vwrap"><span class="ss-val" id="naStoichKgH">—</span><span class="ss-unit">kg/h</span></span></div>
           </div>
           <div class="ss-row">
-            <div class="ss-item"><span class="ss-lab">معادل محلول اکسس</span><span class="ss-val" id="naExcLh">—</span><span class="ss-unit">L/h</span></div>
-            <div class="ss-item hi"><span class="ss-lab">معادل محلول رسوب‌دهی</span><span class="ss-val" id="naStoichLh">—</span><span class="ss-unit">L/h</span></div>
+            <div class="ss-item"><span class="ss-lab">معادل محلول اکسس</span><span class="ss-vwrap"><span class="ss-val" id="naExcLh">—</span><span class="ss-unit">L/h</span></span></div>
+            <div class="ss-item hi"><span class="ss-lab">معادل محلول رسوب‌دهی</span><span class="ss-vwrap"><span class="ss-val" id="naStoichLh">—</span><span class="ss-unit">L/h</span></span></div>
           </div>
         </div>
 
@@ -1036,12 +1042,12 @@ footer.app-foot{
         <div class="stoich-split" id="ohStoichSplit">
           <div class="ss-head">به ازای سختی آب‌نمک ورودی (Mg²⁺ = <span id="ohMgEcho">—</span> mg/l)</div>
           <div class="ss-row">
-            <div class="ss-item"><span class="ss-lab">سهم اکسس هدف</span><span class="ss-val" id="ohExcKgH">—</span><span class="ss-unit">kg/h</span></div>
-            <div class="ss-item hi oh"><span class="ss-lab">سهم رسوب‌دهی Mg²⁺</span><span class="ss-val" id="ohStoichKgH">—</span><span class="ss-unit">kg/h</span></div>
+            <div class="ss-item"><span class="ss-lab">سهم اکسس هدف</span><span class="ss-vwrap"><span class="ss-val" id="ohExcKgH">—</span><span class="ss-unit">kg/h</span></span></div>
+            <div class="ss-item hi oh"><span class="ss-lab">سهم رسوب‌دهی Mg²⁺</span><span class="ss-vwrap"><span class="ss-val" id="ohStoichKgH">—</span><span class="ss-unit">kg/h</span></span></div>
           </div>
           <div class="ss-row">
-            <div class="ss-item"><span class="ss-lab">معادل محلول اکسس</span><span class="ss-val" id="ohExcLh">—</span><span class="ss-unit">L/h</span></div>
-            <div class="ss-item hi oh"><span class="ss-lab">معادل محلول رسوب‌دهی</span><span class="ss-val" id="ohStoichLh">—</span><span class="ss-unit">L/h</span></div>
+            <div class="ss-item"><span class="ss-lab">معادل محلول اکسس</span><span class="ss-vwrap"><span class="ss-val" id="ohExcLh">—</span><span class="ss-unit">L/h</span></span></div>
+            <div class="ss-item hi oh"><span class="ss-lab">معادل محلول رسوب‌دهی</span><span class="ss-vwrap"><span class="ss-val" id="ohStoichLh">—</span><span class="ss-unit">L/h</span></span></div>
           </div>
         </div>
 
