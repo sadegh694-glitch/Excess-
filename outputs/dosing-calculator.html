@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
-<title>محاسبه‌گر دوز کاستیک و کربنات سدیم | اکسس تانک رسوب‌دهی آب‌نمک</title>
+<title>محاسبه‌گر میزان تزریق کاستیک و کربنات سدیم | اکسس تانک رسوب‌دهی آب‌نمک</title>
 <meta name="description" content="محاسبه نرخ تزریق کربنات سدیم و کاستیک سدا برای حفظ اکسس در محدوده نرمال بهره‌برداری واحد رسوب‌دهی آب‌نمک، بر اساس دفترچه راهنمای بهره‌برداری واحد C/A." />
 <meta name="theme-color" content="#071b26" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-<meta name="apple-mobile-web-app-title" content="دوز کاستیک/کربنات" />
+<meta name="apple-mobile-web-app-title" content="تزریق کاستیک/کربنات" />
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
 <link rel="icon" type="image/png" sizes="32x32" href="favicon.png" />
 <style>
@@ -161,17 +161,17 @@ button{ -webkit-appearance:none; appearance:none; border:none; background:none; 
 /* ---------- bottom tab bar ---------- */
 .bottom-nav{
   flex: none;
-  display:grid; grid-template-columns: repeat(4,1fr);
+  display:grid; grid-template-columns: repeat(5,1fr);
   background: #fff;
   border-top: 1px solid var(--border);
-  padding: 6px 8px calc(6px + env(safe-area-inset-bottom,0px));
+  padding: 6px 4px calc(6px + env(safe-area-inset-bottom,0px));
   box-shadow: 0 -6px 18px rgba(10,47,66,.08);
   position: relative; z-index: 30;
 }
 .nav-btn{
   display:flex; flex-direction:column; align-items:center; gap:3px;
-  padding: 7px 4px 6px; border-radius: 12px; color: var(--muted);
-  font-size: 0.66rem; font-weight:600; cursor:pointer;
+  padding: 7px 2px 6px; border-radius: 12px; color: var(--muted);
+  font-size: 0.6rem; font-weight:600; cursor:pointer; white-space:nowrap;
   transition: color .15s, background .15s;
 }
 .nav-btn svg{ width:21px; height:21px; }
@@ -652,7 +652,7 @@ footer.app-foot{
       <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6M10 3v5.2c0 .5-.15 1-.44 1.4L5.9 15.4C4.6 17.2 5.9 19.7 8.1 19.7h7.8c2.2 0 3.5-2.5 2.2-4.3l-3.66-5.8A2.4 2.4 0 0 1 14 8.2V3"/><path d="M7.5 14.5h9"/></svg>
     </div>
     <div class="appbar-txt">
-      <b>دوز کربنات و کاستیک</b>
+      <b>میزان تزریق کربنات و کاستیک</b>
       <span>PLANT UNIT 031 · BRINE PRECIPITATION</span>
     </div>
     <div class="appbar-doc">C/A</div>
@@ -682,7 +682,7 @@ footer.app-foot{
     <div class="hero">
       <span class="corner tl"></span><span class="corner br"></span>
       <span class="hero-eyebrow">Chlor‑Alkali · Brine Precipitation</span>
-      <h1>محاسبه‌گر دوز Na₂CO₃ و NaOH</h1>
+      <h1>محاسبه‌گر میزان تزریق Na₂CO₃ و NaOH</h1>
       <p>نرخ تزریق کربنات سدیم و کاستیک سدا برای حفظ «اکسس» در محدودهٔ نرمال بهره‌برداری تانک رسوب‌دهی آب‌نمک را محاسبه کنید.</p>
 
       <div class="schematic">
@@ -736,7 +736,7 @@ footer.app-foot{
         </div>
         <div class="card-titles">
           <h2>جریان آب‌نمک</h2>
-          <p>ترین ۱ و ترین ۲ کاملاً مستقل از هم تنظیم می‌شوند؛ هرکدام ظرفیت و درصد بار خودشان را دارند و دوز لازم برای هرکدام جداگانه در نتایج محاسبه می‌شود.</p>
+          <p>ترین ۱ و ترین ۲ کاملاً مستقل از هم تنظیم می‌شوند؛ هرکدام ظرفیت و درصد بار خودشان را دارند و میزان تزریق لازم برای هرکدام جداگانه در نتایج محاسبه می‌شود.</p>
         </div>
         <span class="step">۱</span>
       </div>
@@ -981,7 +981,7 @@ footer.app-foot{
           <span class="dot"></span>
           <div class="chem-title">
             <b>کربنات سدیم <span class="formula">Na₂CO₃</span></b>
-            <small>دوز (نرخ تزریق) برای اکسس هدف (+ استوکیومتری در حالت پیشرفته)</small>
+            <small>میزان تزریق برای اکسس هدف (+ استوکیومتری در حالت پیشرفته)</small>
           </div>
         </div>
 
@@ -995,18 +995,6 @@ footer.app-foot{
         <div class="train-split">
           <div class="ts-item a" id="naSplitA"><span class="ts-dot"></span><span class="ts-lab">ترین ۱</span><span class="ts-val" id="naSolLhA">—</span><span class="ts-unit">L/h</span></div>
           <div class="ts-item b" id="naSplitB"><span class="ts-dot"></span><span class="ts-lab">ترین ۲</span><span class="ts-val" id="naSolLhB">—</span><span class="ts-unit">L/h</span></div>
-        </div>
-
-        <div class="stoich-split" id="naStoichSplit">
-          <div class="ss-head">به ازای سختی آب‌نمک ورودی (Ca²⁺ = <span id="naCaEcho">—</span> mg/l)</div>
-          <div class="ss-row">
-            <div class="ss-item"><span class="ss-lab">سهم اکسس هدف</span><span class="ss-vwrap"><span class="ss-val" id="naExcKgH">—</span><span class="ss-unit">kg/h</span></span></div>
-            <div class="ss-item hi"><span class="ss-lab">سهم رسوب‌دهی Ca²⁺</span><span class="ss-vwrap"><span class="ss-val" id="naStoichKgH">—</span><span class="ss-unit">kg/h</span></span></div>
-          </div>
-          <div class="ss-row">
-            <div class="ss-item"><span class="ss-lab">معادل محلول اکسس</span><span class="ss-vwrap"><span class="ss-val" id="naExcLh">—</span><span class="ss-unit">L/h</span></span></div>
-            <div class="ss-item hi"><span class="ss-lab">معادل محلول رسوب‌دهی</span><span class="ss-vwrap"><span class="ss-val" id="naStoichLh">—</span><span class="ss-unit">L/h</span></span></div>
-          </div>
         </div>
 
         <div class="gauge">
@@ -1023,7 +1011,7 @@ footer.app-foot{
           <span class="dot"></span>
           <div class="chem-title">
             <b>کاستیک سدا <span class="formula">NaOH</span></b>
-            <small>دوز (نرخ تزریق) برای اکسس هدف (+ استوکیومتری در حالت پیشرفته)</small>
+            <small>میزان تزریق برای اکسس هدف (+ استوکیومتری در حالت پیشرفته)</small>
           </div>
         </div>
 
@@ -1039,6 +1027,80 @@ footer.app-foot{
           <div class="ts-item b" id="ohSplitB"><span class="ts-dot"></span><span class="ts-lab">ترین ۲</span><span class="ts-val" id="ohSolLhB">—</span><span class="ts-unit">L/h</span></div>
         </div>
 
+        <div class="gauge">
+          <div class="gauge-top"><span>اکسس هدف نسبت به حد مجاز پایین‌دست</span><span id="ohGaugeLbl">—</span></div>
+          <div class="gauge-track"><div class="gauge-fill oh" id="ohGaugeFill"></div><div class="gauge-limit" id="ohGaugeLimit"></div></div>
+        </div>
+
+        <div class="breakdown" id="ohBreak"></div>
+        <div id="ohNotice"></div>
+      </div>
+
+      <div class="src">
+        <b>فرمول:</b> میزان تزریق (kg/h) = جریان آب‌نمک (m³/h) × غلظت هدف (mg/l) ÷ ۱۰۰۰٫ در حالت پیشرفته: غلظت هدف = اکسس + مصرف استوکیومتری واکنش رسوب‌دهی.
+        <br/>
+        <b>منبع:</b> <code>8408205-CB-PR-MNL-0102</code> — Operating Manual C/A Plant، بخش‌های ۳٫۲٫۲٫۱ و ۳٫۲٫۳٫۱ (اکسس ۴۰۰/۱۵۰ mg/l، غلظت محلول‌ها) و جدول ۶-۸ (حد بالادست: Na₂CO₃ &lt; ۰٫۴ g/l، NaOH &lt; ۰٫۲ g/l).
+      </div>
+    </section>
+  </div>
+
+  <!-- ================= TAB: HARDNESS-BASED CONSUMPTION ================= -->
+  <div class="tab-panel" id="panel-hardness">
+
+    <section class="card accent-blue">
+      <span class="ref-tag">Ca²⁺ / Mg²⁺</span>
+      <div class="card-head">
+        <div class="ic-badge">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c3 4 6 7.5 6 11.2A6 6 0 0 1 6 14.2C6 10.5 9 7 12 3Z"/></svg>
+        </div>
+        <div class="card-titles">
+          <h2>مصرف بر اساس سختی آب‌نمک</h2>
+          <p>با غلظت Ca²⁺/Mg²⁺ آب‌نمک خام (تب «ورودی‌ها» → بخش پیشرفته)، این تب می‌گوید به‌ازای جریان فعلی، چه مقدار کربنات/کاستیک صرفِ رسوب‌دهی همان سختی می‌شود — جدا از سهم اکسس هدف.</p>
+        </div>
+      </div>
+
+      <div class="result-flow">
+        <span class="corner tl"></span><span class="corner br"></span>
+        <div class="rf-label">جریان کل آب‌نمک در شرایط جاری</div>
+        <div class="rf-value"><span id="qActualHardness">—</span><small>m³/h</small></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="chem-block na2co3" style="margin-bottom:0">
+        <div class="head">
+          <span class="dot"></span>
+          <div class="chem-title">
+            <b>کربنات سدیم <span class="formula">Na₂CO₃</span></b>
+            <small>میزان تزریق لازم برای رسوب‌دهی سختی کلسیم ورودی</small>
+          </div>
+        </div>
+
+        <div class="stoich-split" id="naStoichSplit">
+          <div class="ss-head">به ازای سختی آب‌نمک ورودی (Ca²⁺ = <span id="naCaEcho">—</span> mg/l)</div>
+          <div class="ss-row">
+            <div class="ss-item"><span class="ss-lab">سهم اکسس هدف</span><span class="ss-vwrap"><span class="ss-val" id="naExcKgH">—</span><span class="ss-unit">kg/h</span></span></div>
+            <div class="ss-item hi"><span class="ss-lab">سهم رسوب‌دهی Ca²⁺</span><span class="ss-vwrap"><span class="ss-val" id="naStoichKgH">—</span><span class="ss-unit">kg/h</span></span></div>
+          </div>
+          <div class="ss-row">
+            <div class="ss-item"><span class="ss-lab">معادل محلول اکسس</span><span class="ss-vwrap"><span class="ss-val" id="naExcLh">—</span><span class="ss-unit">L/h</span></span></div>
+            <div class="ss-item hi"><span class="ss-lab">معادل محلول رسوب‌دهی</span><span class="ss-vwrap"><span class="ss-val" id="naStoichLh">—</span><span class="ss-unit">L/h</span></span></div>
+          </div>
+        </div>
+        <div class="cur-status-empty" id="naStoichEmpty">غلظت Ca²⁺ آب‌نمک خام را در تب «ورودی‌ها» → بخش پیشرفته وارد کنید تا سهم رسوب‌دهی اینجا محاسبه شود.</div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="chem-block naoh" style="margin-bottom:0">
+        <div class="head">
+          <span class="dot"></span>
+          <div class="chem-title">
+            <b>کاستیک سدا <span class="formula">NaOH</span></b>
+            <small>میزان تزریق لازم برای رسوب‌دهی سختی منیزیم ورودی</small>
+          </div>
+        </div>
+
         <div class="stoich-split" id="ohStoichSplit">
           <div class="ss-head">به ازای سختی آب‌نمک ورودی (Mg²⁺ = <span id="ohMgEcho">—</span> mg/l)</div>
           <div class="ss-row">
@@ -1050,22 +1112,13 @@ footer.app-foot{
             <div class="ss-item hi oh"><span class="ss-lab">معادل محلول رسوب‌دهی</span><span class="ss-vwrap"><span class="ss-val" id="ohStoichLh">—</span><span class="ss-unit">L/h</span></span></div>
           </div>
         </div>
-
-        <div class="gauge">
-          <div class="gauge-top"><span>اکسس هدف نسبت به حد مجاز پایین‌دست</span><span id="ohGaugeLbl">—</span></div>
-          <div class="gauge-track"><div class="gauge-fill oh" id="ohGaugeFill"></div><div class="gauge-limit" id="ohGaugeLimit"></div></div>
-        </div>
-
-        <div class="breakdown" id="ohBreak"></div>
-        <div id="ohNotice"></div>
-      </div>
-
-      <div class="src">
-        <b>فرمول:</b> دوز/نرخ تزریق (kg/h) = جریان آب‌نمک (m³/h) × غلظت هدف (mg/l) ÷ ۱۰۰۰٫ در حالت پیشرفته: غلظت هدف = اکسس + مصرف استوکیومتری واکنش رسوب‌دهی.
-        <br/>
-        <b>منبع:</b> <code>8408205-CB-PR-MNL-0102</code> — Operating Manual C/A Plant، بخش‌های ۳٫۲٫۲٫۱ و ۳٫۲٫۳٫۱ (اکسس ۴۰۰/۱۵۰ mg/l، غلظت محلول‌ها) و جدول ۶-۸ (حد بالادست: Na₂CO₃ &lt; ۰٫۴ g/l، NaOH &lt; ۰٫۲ g/l).
+        <div class="cur-status-empty" id="ohStoichEmpty">غلظت Mg²⁺ آب‌نمک خام را در تب «ورودی‌ها» → بخش پیشرفته وارد کنید تا سهم رسوب‌دهی اینجا محاسبه شود.</div>
       </div>
     </section>
+
+    <div class="src" style="margin: 0 2px 4px">
+      <b>فرمول:</b> سهم رسوب‌دهی (kg/h) = جریان آب‌نمک (m³/h) × غلظت Ca²⁺/Mg²⁺ ورودی (mg/l) × نسبت مولی واکنش ÷ ۱۰۰۰٫ این سهم مستقل از فعال‌بودن «حالت پیشرفته» نمایش داده می‌شود؛ فقط برای وارد کردنِ عدد Ca²⁺/Mg²⁺ باید بخش پیشرفتهٔ تب «ورودی‌ها» را باز کنید.
+    </div>
   </div>
 
   <!-- ================= TAB: LIVE STATUS ================= -->
@@ -1232,7 +1285,7 @@ footer.app-foot{
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 11h2M13 11h3M8 15h2M13 15h3"/></svg>
         </div>
         <div class="card-titles">
-          <h2>فرمول‌های محاسبهٔ دوز</h2>
+          <h2>فرمول‌های محاسبهٔ میزان تزریق</h2>
           <p>مسیر محاسبه از جریان و اکسس هدف تا نرخ تزریق محلول، همانی که در تب‌های «ورودی‌ها»، «نتایج» و «وضعیت فعلی» اجرا می‌شود.</p>
         </div>
       </div>
@@ -1267,7 +1320,6 @@ footer.app-foot{
         <li><b>کلاریفایر (41R-04101/04201):</b> بیش از ۹۹٪ رسوبات (CaCO₃/Mg(OH)₂ به‌همراه SrCO₃ و Al(OH)₃) طی حدود ۹٫۵ ساعت ماند در ته‌نشین‌کن جدا می‌شوند؛ آب‌نمکِ سرریزشده به مخزن Clarified Brine فقط <b>۲۰ تا ۵۰ ppm جامد معلق</b> باقی‌مانده دارد (این عدد جامد معلق است، نه غلظت یونیِ Ca/Mg محلول).</li>
         <li><b>مخزن آب‌نمک فیلترشده 41V-05001:</b> پس از عبور از ۹ فیلتر آنتراسیت، جامد معلق به <b>۲ تا ۵ ppm</b> کاهش می‌یابد؛ این مخزن مشترک هر دو ترین و سطح‌کنترل‌شده است.</li>
         <li><b>مخزن آب‌نمک صیقل‌شده 41V-05002:</b> پس از فیلترهای پالیشینگ (precoat/body-feed با آلفا-سلولز)، جامد معلق به کمتر از <b>۰٫۵ ppm</b> می‌رسد. کاهش بیشترِ Ca²⁺/Mg²⁺ محلول در این مرحله انجام نمی‌شود — آن روی ستون‌های تبادل یونی ثانویه (Secondary Brine Purification) صورت می‌گیرد تا مجموع Ca+Mg در آب‌نمک فوق‌خالص ورودی الکترولایزر به کمتر از <b>۱۰ تا ۲۰ ppb</b> برسد (جدول ۶-۸).</li>
-        <li><b>بای‌پس:</b> در سرویس‌خارج‌بودن یک تانک رسوب‌دهی، کاستیک به‌جای تانک دوم، پس از خروجی تانک اول تزریق می‌شود (bypass دوز، نه بای‌پس مکانیکی خط). شیرهای بای‌پس دستی روی خطوط انتقال lean/raw brine صرفاً برای عملیات استارت‌آپ/دورزدن تجهیزات هستند و نقشی در کنترل غلظت Ca/Mg ندارند.</li>
       </ul>
       <div class="notice warn" style="margin-top:12px">
         عددِ دقیقِ ppm/ppb کلسیم و منیزیمِ محلول برای هرکدام از این نقاط (به‌جز مشخصهٔ نهایی جدول ۶-۸) در این جلد از دفترچه نیامده؛ فقط درصد جامد معلق و اکسسِ شیمیایی حفظ‌شده مستند است. عدد ورودی نمک خام این سایت به Annex A2 - Material Balances ارجاع دارد.
@@ -1335,6 +1387,10 @@ footer.app-foot{
     <span class="dot"></span>
     نتایج
   </button>
+  <button class="nav-btn" data-tab="hardness">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c3 4 6 7.5 6 11.2A6 6 0 0 1 6 14.2C6 10.5 9 7 12 3Z"/></svg>
+    سختی آب‌نمک
+  </button>
   <button class="nav-btn" data-tab="status">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V10M18 20V4M6 20v-6"/><path d="M3 20h18"/></svg>
     <span class="dot"></span>
@@ -1347,7 +1403,7 @@ footer.app-foot{
 </nav>
 
 <script>
-// محاسبه‌گر دوز کاستیک و کربنات سدیم برای اکسس تانک رسوب‌دهی آب‌نمک
+// محاسبه‌گر میزان تزریق کاستیک و کربنات سدیم برای اکسس تانک رسوب‌دهی آب‌نمک
 // اعداد پایه از Operating Manual C/A Plant (Doc 8408205-CB-PR-MNL-0102)
 
 const MW = {
@@ -1501,9 +1557,13 @@ function calculate() {
   const curFlowQ = v.curFlowQ > 0 ? v.curFlowQ : Q;
   $("curFlowQEcho").textContent = fmt(Q, 0);
 
-  // stoichiometric addition (optional, advanced mode)
-  const stoichNa = v.advToggle ? v.caPpm * RATIO_NA2CO3_PER_CA : 0;
-  const stoichOH = v.advToggle ? v.mgPpm * RATIO_NAOH_PER_MG : 0;
+  // stoichiometric consumption for the incoming brine hardness — always
+  // computed (drives the standalone "سختی آب‌نمک" tab); only merged into
+  // the main target concentration below when "حالت پیشرفته" is enabled.
+  const stoichNaRaw = v.caPpm * RATIO_NA2CO3_PER_CA;
+  const stoichOhRaw = v.mgPpm * RATIO_NAOH_PER_MG;
+  const stoichNa = v.advToggle ? stoichNaRaw : 0;
+  const stoichOH = v.advToggle ? stoichOhRaw : 0;
 
   const totalConcNa = v.excNa + stoichNa; // mg/l = g/m3
   const totalConcOH = v.excOH + stoichOH;
@@ -1540,6 +1600,7 @@ function calculate() {
 
   // --- render: results tab ---
   $("qActual").textContent = fmt(Q, 1);
+  $("qActualHardness").textContent = fmt(Q, 1);
 
   $("naKgH").textContent = fmt(naKgH, 1);
   $("naKgDay").textContent = fmt(naKgDay, 0);
@@ -1561,29 +1622,34 @@ function calculate() {
   renderSplit($("ohSplitA"), $("ohSolLhA"), v.activeA, ohSolLhA);
   renderSplit($("ohSplitB"), $("ohSolLhB"), v.activeB, ohSolLhB);
 
-  // "how much for this much hardness" split: excess-target portion vs
-  // Ca2+/Mg2+ stoichiometric portion, each converted to kg/h and L/h
-  const showNaStoich = v.advToggle && v.caPpm > 0;
-  const showOhStoich = v.advToggle && v.mgPpm > 0;
+  // tab "سختی آب‌نمک": "how much for this much hardness" — excess-target
+  // portion vs Ca2+/Mg2+ stoichiometric portion, each in kg/h and L/h.
+  // Uses the raw stoichiometric values so it works regardless of whether
+  // "حالت پیشرفته" is toggled on (that toggle only controls merging the
+  // stoichiometric portion into the MAIN dose shown in تب «نتایج»).
+  const showNaStoich = v.caPpm > 0;
+  const showOhStoich = v.mgPpm > 0;
   $("naStoichSplit").classList.toggle("open", showNaStoich);
   $("ohStoichSplit").classList.toggle("open", showOhStoich);
+  $("naStoichEmpty").style.display = showNaStoich ? "none" : "";
+  $("ohStoichEmpty").style.display = showOhStoich ? "none" : "";
   if (showNaStoich) {
     const excNaKgH = Q * v.excNa / 1000;
-    const stoichNaKgH = Q * stoichNa / 1000;
+    const stoichNaKgH = Q * stoichNaRaw / 1000;
     $("naCaEcho").textContent = fmt(v.caPpm, 0);
     $("naExcKgH").textContent = fmt(excNaKgH, 1);
     $("naStoichKgH").textContent = fmt(stoichNaKgH, 1);
     $("naExcLh").textContent = fmt(litersFor(Q, v.excNa, naFrac, v.densNa), 1);
-    $("naStoichLh").textContent = fmt(litersFor(Q, stoichNa, naFrac, v.densNa), 1);
+    $("naStoichLh").textContent = fmt(litersFor(Q, stoichNaRaw, naFrac, v.densNa), 1);
   }
   if (showOhStoich) {
     const excOhKgH = Q * v.excOH / 1000;
-    const stoichOhKgH = Q * stoichOH / 1000;
+    const stoichOhKgH = Q * stoichOhRaw / 1000;
     $("ohMgEcho").textContent = fmt(v.mgPpm, 0);
     $("ohExcKgH").textContent = fmt(excOhKgH, 1);
     $("ohStoichKgH").textContent = fmt(stoichOhKgH, 1);
     $("ohExcLh").textContent = fmt(litersFor(Q, v.excOH, ohFrac, v.densOH), 1);
-    $("ohStoichLh").textContent = fmt(litersFor(Q, stoichOH, ohFrac, v.densOH), 1);
+    $("ohStoichLh").textContent = fmt(litersFor(Q, stoichOhRaw, ohFrac, v.densOH), 1);
   }
 
   // "وقتی X متر مکعب با اکسس Y وارد چرخه می‌شود و خارج از رنج است، طبق
