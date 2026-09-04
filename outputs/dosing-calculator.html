@@ -534,6 +534,29 @@ input[type=range]::-moz-range-progress{ height:8px; border-radius:999px; backgro
 .info-list li{ margin-bottom:4px; }
 .info-list b{ color: var(--blue-ink); }
 
+/* ---------- calculation steps (guide · formulas card) ---------- */
+.calc-steps{ display:flex; flex-direction:column; }
+.calc-step{ display:flex; gap:12px; padding: 14px 0; }
+.calc-step:first-child{ padding-top:2px; }
+.calc-step:not(:last-child){ border-bottom: 1px dashed var(--border); }
+.calc-step .cs-num{
+  flex:none; width:26px; height:26px; border-radius:50%;
+  background: var(--blue-ink); color:#fff; font-weight:700; font-size:0.76rem;
+  display:flex; align-items:center; justify-content:center;
+  font-variant-numeric: tabular-nums; margin-top:1px;
+}
+.calc-step .cs-body{ flex:1; min-width:0; }
+.calc-step .cs-title{ font-weight:700; font-size:0.82rem; color:var(--ink); margin-bottom:7px; }
+.calc-step .cs-formula{
+  direction:ltr; unicode-bidi:isolate; text-align:center;
+  font-size:0.85rem; font-weight:700; color: var(--blue-ink);
+  background: var(--card-2); border:1px solid var(--border); border-radius:10px;
+  padding:9px 10px; letter-spacing:.02em; font-variant-numeric: tabular-nums;
+}
+.calc-step .cs-legend{ margin:9px 0 0; padding-inline-start:18px; font-size:0.73rem; line-height:1.85; color:var(--muted); }
+.calc-step .cs-legend li{ margin-bottom:2px; }
+.calc-step .cs-legend b{ color:var(--ink); direction:ltr; unicode-bidi:isolate; display:inline-block; }
+
 /* ---------- guide tables ---------- */
 .table-wrap{ overflow-x:auto; border-radius: 12px; border: 1px solid var(--border); }
 .info-table{ width:100%; border-collapse: collapse; table-layout: fixed; font-size: 0.76rem; line-height:1.65; min-width: 560px; }
@@ -1036,18 +1059,43 @@ footer.app-foot{
           <p>مسیر محاسبه از جریان و اکسس هدف تا نرخ تزریق محلول، همانی که در تب‌های «ورودی‌ها» و «نتایج» اجرا می‌شود.</p>
         </div>
       </div>
-      <ul class="info-list">
-        <li><b>۱) غلظت هدف کل:</b>
-          <span style="direction:ltr;unicode-bidi:isolate;display:inline-block">C_target (mg/l) = اکسس هدف + استوکیومتری Ca²⁺/Mg²⁺</span>
-          &nbsp;(جمله دوم فقط در حالت پیشرفته/advanced فعال می‌شود؛ در حالت عادی C_target = اکسس هدف)
-        </li>
-        <li><b>۲) جرم مادهٔ خالص لازم:</b>
-          <span style="direction:ltr;unicode-bidi:isolate;display:inline-block">Mass (kg/h) = Q (m³/h) × C_target (mg/l) ÷ 1000</span>
-        </li>
-        <li><b>۳) نرخ تزریق محلول:</b>
-          <span style="direction:ltr;unicode-bidi:isolate;display:inline-block">Rate (L/h) = Mass (kg/h) ÷ [ غلظت٪محلول÷100 × چگالی (kg/L) ]</span>
-        </li>
-      </ul>
+      <div class="calc-steps">
+        <div class="calc-step">
+          <div class="cs-num">۱</div>
+          <div class="cs-body">
+            <div class="cs-title">غلظت هدف کل در آب‌نمک</div>
+            <div class="cs-formula">C_target &nbsp;=&nbsp; C_excess &nbsp;+&nbsp; C_stoich</div>
+            <ul class="cs-legend">
+              <li><b>C_excess</b> = اکسس هدف واردشده در تب «ورودی‌ها» (mg/l)</li>
+              <li><b>C_stoich</b> = مصرف استوکیومتری Ca²⁺/Mg²⁺؛ فقط وقتی «حالت پیشرفته» روشن باشد اضافه می‌شود، در غیر این صورت صفر است</li>
+            </ul>
+          </div>
+        </div>
+        <div class="calc-step">
+          <div class="cs-num">۲</div>
+          <div class="cs-body">
+            <div class="cs-title">جرم مادهٔ خالص لازم</div>
+            <div class="cs-formula">Mass &nbsp;=&nbsp; Q &nbsp;×&nbsp; C_target &nbsp;÷&nbsp; 1000</div>
+            <ul class="cs-legend">
+              <li><b>Q</b> = جریان آب‌نمک ترین فعال (m³/h)</li>
+              <li><b>C_target</b> = حاصل مرحلهٔ ۱ (mg/l)</li>
+              <li>حاصل تقسیم، جرم مادهٔ خالص را به <b>kg/h</b> می‌دهد</li>
+            </ul>
+          </div>
+        </div>
+        <div class="calc-step">
+          <div class="cs-num">۳</div>
+          <div class="cs-body">
+            <div class="cs-title">نرخ تزریق محلول</div>
+            <div class="cs-formula">Rate &nbsp;=&nbsp; Mass &nbsp;÷&nbsp; ( Conc٪ ÷ 100 × Density )</div>
+            <ul class="cs-legend">
+              <li><b>Conc٪</b> = غلظت وزنی محلول تزریقی، از تب «ورودی‌ها» (٪)</li>
+              <li><b>Density</b> = چگالی محلول (kg/L)</li>
+              <li>حاصل، نرخ تزریق محلول را به <b>L/h</b> می‌دهد — همان عددی که در تب «نتایج» نشان داده می‌شود</li>
+            </ul>
+          </div>
+        </div>
+      </div>
     </section>
 
 
