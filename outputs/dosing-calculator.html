@@ -161,17 +161,17 @@ button{ -webkit-appearance:none; appearance:none; border:none; background:none; 
 /* ---------- bottom tab bar ---------- */
 .bottom-nav{
   flex: none;
-  display:grid; grid-template-columns: repeat(5,1fr);
+  display:grid; grid-template-columns: repeat(3,1fr);
   background: #fff;
   border-top: 1px solid var(--border);
-  padding: 6px 4px calc(6px + env(safe-area-inset-bottom,0px));
+  padding: 6px 8px calc(6px + env(safe-area-inset-bottom,0px));
   box-shadow: 0 -6px 18px rgba(10,47,66,.08);
   position: relative; z-index: 30;
 }
 .nav-btn{
   display:flex; flex-direction:column; align-items:center; gap:3px;
-  padding: 7px 2px 6px; border-radius: 12px; color: var(--muted);
-  font-size: 0.6rem; font-weight:600; cursor:pointer; white-space:nowrap;
+  padding: 7px 4px 6px; border-radius: 12px; color: var(--muted);
+  font-size: 0.66rem; font-weight:600; cursor:pointer; white-space:nowrap;
   transition: color .15s, background .15s;
 }
 .nav-btn svg{ width:21px; height:21px; }
@@ -519,99 +519,6 @@ input[type=range]::-moz-range-progress{ height:8px; border-radius:999px; backgro
   background: var(--card-2); border-radius: 10px; padding: 9px 11px; line-height:1.95;
 }
 .breakdown b{ color: var(--ink); font-variant-numeric: tabular-nums; }
-
-.stoich-split{
-  display:none; margin-top: 12px; padding: 12px; border-radius: 14px;
-  background: linear-gradient(180deg, #fbfdfe, #f3f8fa); border: 1.2px dashed var(--border);
-}
-.stoich-split.open{ display:block; }
-.ss-head{
-  display:flex; align-items:center; gap:6px;
-  font-size: 0.7rem; color: var(--muted); margin-bottom: 10px; padding-bottom:8px;
-  border-bottom: 1px dashed var(--border);
-}
-.ss-head span{ font-weight:700; color: var(--ink); font-variant-numeric: tabular-nums; direction: ltr; unicode-bidi: isolate; }
-.ss-row{ display:grid; grid-template-columns: 1fr 1fr; gap: 9px; }
-.ss-row + .ss-row{ margin-top: 9px; }
-.ss-item{
-  display:flex; flex-direction:column; gap:6px; min-width:0;
-  background:#fff; border:1px solid var(--border); border-inline-start: 3px solid var(--border);
-  border-radius: 11px; padding: 9px 11px;
-}
-.ss-item.hi{ background: #eaf5f8; border-color:#d7e6ea; border-inline-start-color: var(--blue); }
-.ss-item.hi.oh{ background: #e9f9f4; border-color:#d3ece3; border-inline-start-color: var(--teal); }
-.ss-lab{ font-size: 0.66rem; color: var(--muted); line-height:1.5; }
-.ss-vwrap{ display:flex; align-items:baseline; gap:4px; min-width:0; }
-.ss-val{ font-size:0.98rem; font-weight:700; font-variant-numeric: tabular-nums; direction: ltr; unicode-bidi: isolate; white-space:nowrap; }
-.ss-unit{ font-size: 0.62rem; color: var(--muted); white-space:nowrap; }
-
-.cur-status{
-  display:none; margin-top: 10px; padding: 12px 13px; border-radius: 12px;
-  background: #fff; border: 1.5px solid var(--border);
-}
-.cur-status.open{ display:block; }
-.cs-head{ display:flex; justify-content:space-between; align-items:center; margin-bottom:9px; }
-.cs-head > span:first-child{ font-size: 0.78rem; font-weight:600; }
-.cs-chem{
-  display:inline-block; margin-inline-start:5px; padding:1px 8px; border-radius:999px;
-  font-size:0.68rem; font-weight:800; direction:ltr; unicode-bidi:isolate;
-  background:#e7f2f9; color: var(--blue);
-}
-.cs-chem.oh{ background:#e3f6f2; color: var(--teal); }
-.cs-badge{
-  font-size: 0.66rem; font-weight:700; padding: 3px 10px; border-radius: 999px;
-  background: var(--card-2); color: var(--muted); border: 1px solid var(--border);
-}
-.cs-badge.ok{ background: var(--ok-bg); color: var(--ok-ink); border-color:#c9ecdb; }
-.cs-badge.low{ background: var(--warn-bg); color: var(--warn-ink); border-color:#f0dcae; }
-.cs-badge.high{ background: var(--danger-bg); color: var(--danger-ink); border-color:#f3c9c9; }
-.cs-row{ display:grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.cs-item{
-  min-width:0; display:flex; flex-direction:column; gap:5px;
-  background: var(--card-2); border:1.5px solid var(--border);
-  border-radius: 12px; padding: 9px 11px;
-}
-.cs-item.target{ border-inline-start: 3px solid var(--blue); }
-.cs-item.target.oh{ border-inline-start-color: var(--teal); }
-.cs-item.achieved.ok{ background: var(--ok-bg); border-color:#c9ecdb; }
-.cs-item.achieved.low{ background: var(--warn-bg); border-color:#f0dcae; }
-.cs-item.achieved.high{ background: var(--danger-bg); border-color:#f3c9c9; }
-.cs-lab{ font-size: 0.68rem; color: var(--muted); min-width:0; }
-.cs-val-wrap{ display:flex; align-items:baseline; gap:5px; min-width:0; }
-.cs-val{
-  font-size: 1.05rem; font-weight:800; font-variant-numeric: tabular-nums;
-  direction: ltr; unicode-bidi: isolate; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
-}
-.cs-unit{ font-size: 0.62rem; color: var(--muted); flex:none; }
-.cs-action{
-  margin-top: 9px; font-size: 0.78rem; line-height: 1.85; color: var(--ink);
-  background: var(--card-2); border-radius: 10px; padding: 9px 11px;
-  border-inline-start: 3px solid var(--border);
-}
-.cs-action b{ font-variant-numeric: tabular-nums; }
-.cs-action-head{
-  display:flex; align-items:center; gap:7px; font-weight:800; font-size:0.94rem; line-height:1.6;
-}
-.cs-action-head svg{ width:17px; height:17px; flex:none; }
-.cs-setpoint{
-  font-size: 1.18em; text-decoration: underline; text-decoration-thickness: 2px;
-  text-underline-offset: 3px; font-variant-numeric: tabular-nums; direction:ltr; unicode-bidi:isolate; display:inline-block;
-}
-.cs-action-detail{ margin-top:4px; font-size:0.74rem; color: var(--muted); line-height:1.8; }
-.cs-action-warn{ margin-top:6px; font-size:0.74rem; color: var(--danger-ink); line-height:1.8; }
-.cs-action-note{ margin-top:6px; padding:8px 10px; border-radius:10px; background: var(--warn-bg); color: var(--warn-ink); font-size:0.72rem; line-height:1.8; }
-.cs-action.dir-down{ border-inline-start-color: var(--danger-ink); }
-.cs-action.dir-down .cs-action-head{ color: var(--danger-ink); }
-.cs-action.dir-up{ border-inline-start-color: var(--warn-ink); }
-.cs-action.dir-up .cs-action-head{ color: var(--warn-ink); }
-.cs-action.dir-ok{ border-inline-start-color: var(--ok-ink); }
-.cs-action.dir-ok .cs-action-head{ color: var(--ok-ink); }
-.cur-status-empty{
-  margin-top: 10px; padding: 12px 13px; border-radius: 12px; text-align:center;
-  background: var(--card-2); border: 1.5px dashed var(--border);
-  font-size: 0.78rem; color: var(--muted); line-height:1.85;
-}
-.cur-status.open + .cur-status-empty{ display:none; }
 
 .notice{ margin-top: 9px; padding: 9px 11px; border-radius: 10px; font-size: 0.78rem; line-height:1.9; }
 .notice.ok{ background: var(--ok-bg); color: var(--ok-ink); }
@@ -1044,202 +951,6 @@ footer.app-foot{
     </section>
   </div>
 
-  <!-- ================= TAB: HARDNESS-BASED CONSUMPTION ================= -->
-  <div class="tab-panel" id="panel-hardness">
-
-    <section class="card accent-blue">
-      <span class="ref-tag">Ca²⁺ / Mg²⁺</span>
-      <div class="card-head">
-        <div class="ic-badge">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c3 4 6 7.5 6 11.2A6 6 0 0 1 6 14.2C6 10.5 9 7 12 3Z"/></svg>
-        </div>
-        <div class="card-titles">
-          <h2>مصرف بر اساس سختی آب‌نمک</h2>
-          <p>با فعال‌کردن «حالت پیشرفته» و وارد کردن غلظت Ca²⁺/Mg²⁺ آب‌نمک خام (تب «ورودی‌ها» → بخش پیشرفته)، این تب می‌گوید به‌ازای جریان فعلی، چه مقدار کربنات/کاستیک صرفِ رسوب‌دهی همان سختی می‌شود — جدا از سهم اکسس هدف. مجموع این دو سهم، عیناً همان عددی است که در تب «نتایج» به‌عنوان دوز کل نمایش داده می‌شود.</p>
-        </div>
-      </div>
-
-      <div class="result-flow">
-        <span class="corner tl"></span><span class="corner br"></span>
-        <div class="rf-label">جریان کل آب‌نمک در شرایط جاری</div>
-        <div class="rf-value"><span id="qActualHardness">—</span><small>m³/h</small></div>
-      </div>
-    </section>
-
-    <section class="card">
-      <div class="chem-block na2co3" style="margin-bottom:0">
-        <div class="head">
-          <span class="dot"></span>
-          <div class="chem-title">
-            <b>کربنات سدیم <span class="formula">Na₂CO₃</span></b>
-            <small>میزان تزریق لازم برای رسوب‌دهی سختی کلسیم ورودی</small>
-          </div>
-        </div>
-
-        <div class="stoich-split" id="naStoichSplit">
-          <div class="ss-head">به ازای سختی آب‌نمک ورودی (Ca²⁺ = <span id="naCaEcho">—</span> mg/l)</div>
-          <div class="ss-row">
-            <div class="ss-item"><span class="ss-lab">سهم اکسس هدف</span><span class="ss-vwrap"><span class="ss-val" id="naExcKgH">—</span><span class="ss-unit">kg/h</span></span></div>
-            <div class="ss-item hi"><span class="ss-lab">سهم رسوب‌دهی Ca²⁺</span><span class="ss-vwrap"><span class="ss-val" id="naStoichKgH">—</span><span class="ss-unit">kg/h</span></span></div>
-          </div>
-          <div class="ss-row">
-            <div class="ss-item"><span class="ss-lab">معادل محلول اکسس</span><span class="ss-vwrap"><span class="ss-val" id="naExcLh">—</span><span class="ss-unit">L/h</span></span></div>
-            <div class="ss-item hi"><span class="ss-lab">معادل محلول رسوب‌دهی</span><span class="ss-vwrap"><span class="ss-val" id="naStoichLh">—</span><span class="ss-unit">L/h</span></span></div>
-          </div>
-          <div class="breakdown" id="naStoichTotal"></div>
-        </div>
-        <div class="cur-status-empty" id="naStoichEmpty">برای دیدن این محاسبه، «حالت پیشرفته» را در تب «ورودی‌ها» فعال و غلظت Ca²⁺ آب‌نمک خام را وارد کنید.</div>
-      </div>
-    </section>
-
-    <section class="card">
-      <div class="chem-block naoh" style="margin-bottom:0">
-        <div class="head">
-          <span class="dot"></span>
-          <div class="chem-title">
-            <b>کاستیک سدا <span class="formula">NaOH</span></b>
-            <small>میزان تزریق لازم برای رسوب‌دهی سختی منیزیم ورودی</small>
-          </div>
-        </div>
-
-        <div class="stoich-split" id="ohStoichSplit">
-          <div class="ss-head">به ازای سختی آب‌نمک ورودی (Mg²⁺ = <span id="ohMgEcho">—</span> mg/l)</div>
-          <div class="ss-row">
-            <div class="ss-item"><span class="ss-lab">سهم اکسس هدف</span><span class="ss-vwrap"><span class="ss-val" id="ohExcKgH">—</span><span class="ss-unit">kg/h</span></span></div>
-            <div class="ss-item hi oh"><span class="ss-lab">سهم رسوب‌دهی Mg²⁺</span><span class="ss-vwrap"><span class="ss-val" id="ohStoichKgH">—</span><span class="ss-unit">kg/h</span></span></div>
-          </div>
-          <div class="ss-row">
-            <div class="ss-item"><span class="ss-lab">معادل محلول اکسس</span><span class="ss-vwrap"><span class="ss-val" id="ohExcLh">—</span><span class="ss-unit">L/h</span></span></div>
-            <div class="ss-item hi oh"><span class="ss-lab">معادل محلول رسوب‌دهی</span><span class="ss-vwrap"><span class="ss-val" id="ohStoichLh">—</span><span class="ss-unit">L/h</span></span></div>
-          </div>
-          <div class="breakdown" id="ohStoichTotal"></div>
-        </div>
-        <div class="cur-status-empty" id="ohStoichEmpty">برای دیدن این محاسبه، «حالت پیشرفته» را در تب «ورودی‌ها» فعال و غلظت Mg²⁺ آب‌نمک خام را وارد کنید.</div>
-      </div>
-    </section>
-
-    <div class="src" style="margin: 0 2px 4px">
-      <b>فرمول:</b> سهم رسوب‌دهی (kg/h) = جریان آب‌نمک (m³/h) × غلظت Ca²⁺/Mg²⁺ ورودی (mg/l) × نسبت مولی واکنش ÷ ۱۰۰۰٫ این محاسبه فقط وقتی «حالت پیشرفته» در تب «ورودی‌ها» فعال باشد نمایش داده می‌شود — همان حالتی که سهم رسوب‌دهی در دوز کل تب «نتایج» هم لحاظ می‌شود، تا دو تب همیشه با هم هم‌خوان بمانند.
-    </div>
-  </div>
-
-  <!-- ================= TAB: LIVE STATUS ================= -->
-  <div class="tab-panel" id="panel-status">
-
-    <section class="card accent-teal">
-      <span class="ref-tag">LIVE CHECK</span>
-      <div class="card-head">
-        <div class="ic-badge ic-teal">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V10M18 20V4M6 20v-6"/><path d="M3 20h18"/></svg>
-        </div>
-        <div class="card-titles">
-          <h2>وضعیت فعلی تزریق</h2>
-          <p>جریان و اکسسِ فعلیِ اندازه‌گیری‌شده (یا نرخ تزریق فعلی از روتامتر/فلومتر) را وارد کنید. اپ با استفاده از غلظت/چگالی/اکسس هدفی که در تب «ورودی‌ها» ثبت کرده‌اید، دقیقاً می‌گوید چند لیتر بر ساعت کربنات سدیم و کاستیک سدا باید تزریق شود. همهٔ اعداد این صفحه کاملاً آزاد و قابل‌تغییرند.</p>
-        </div>
-      </div>
-
-      <div class="field">
-        <label for="curFlowQ">جریان آب‌نمک فعلی وارد به چرخه (X)</label>
-        <div class="unit-field">
-          <input type="number" id="curFlowQ" value="0" min="0" step="10" inputmode="decimal" />
-          <span class="unit">m³/h</span>
-        </div>
-        <span class="field-hint">صفر یا خالی = استفاده از جریان محاسبه‌شدهٔ تب «ورودی‌ها» (هم‌اکنون <b id="curFlowQEcho">—</b> m³/h)</span>
-      </div>
-    </section>
-
-    <section class="card">
-      <div class="chem-block na2co3" style="margin-bottom:0">
-        <div class="head">
-          <span class="dot"></span>
-          <div class="chem-title">
-            <b>کربنات سدیم <span class="formula">Na₂CO₃</span></b>
-            <small>اکسس فعلیِ اندازه‌گیری‌شده (Y) یا نرخ تزریق فعلی را وارد کنید</small>
-          </div>
-        </div>
-
-        <div class="row2">
-          <div class="field">
-            <label for="naActualLh">نرخ فعلی تزریق محلول</label>
-            <div class="unit-field">
-              <input type="number" id="naActualLh" value="0" min="0" step="10" inputmode="decimal" />
-              <span class="unit">L/h</span>
-            </div>
-          </div>
-          <div class="field">
-            <label for="naActualMgl">اکسس فعلیِ اندازه‌گیری‌شده (Y)</label>
-            <div class="unit-field">
-              <input type="number" id="naActualMgl" value="0" min="0" step="10" inputmode="decimal" />
-              <span class="unit">mg/l</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="cur-status" id="naCurStatus">
-          <div class="cs-head"><span>نتیجه <span class="cs-chem">Na₂CO₃</span></span><span class="cs-badge" id="naCsBadge">—</span></div>
-          <div class="cs-row">
-            <div class="cs-item achieved" id="naCsAchievedItem">
-              <span class="cs-lab">اکسس فعلی</span>
-              <div class="cs-val-wrap"><span class="cs-val" id="naCsAchieved">—</span><span class="cs-unit">mg/l</span></div>
-            </div>
-            <div class="cs-item target">
-              <span class="cs-lab">اکسس هدف</span>
-              <div class="cs-val-wrap"><span class="cs-val" id="naCsTarget">—</span><span class="cs-unit">mg/l</span></div>
-            </div>
-          </div>
-          <div class="cs-action" id="naCsAction">—</div>
-        </div>
-        <div class="cur-status-empty" id="naCsEmpty">برای مشاهدهٔ نتیجه، نرخ تزریق فعلی یا اکسس اندازه‌گیری‌شده را وارد کنید.</div>
-      </div>
-    </section>
-
-    <section class="card">
-      <div class="chem-block naoh" style="margin-bottom:0">
-        <div class="head">
-          <span class="dot"></span>
-          <div class="chem-title">
-            <b>کاستیک سدا <span class="formula">NaOH</span></b>
-            <small>اکسس فعلیِ اندازه‌گیری‌شده (Y) یا نرخ تزریق فعلی را وارد کنید</small>
-          </div>
-        </div>
-
-        <div class="row2">
-          <div class="field">
-            <label for="ohActualLh">نرخ فعلی تزریق محلول</label>
-            <div class="unit-field">
-              <input type="number" id="ohActualLh" value="0" min="0" step="10" inputmode="decimal" />
-              <span class="unit">L/h</span>
-            </div>
-          </div>
-          <div class="field">
-            <label for="ohActualMgl">اکسس فعلیِ اندازه‌گیری‌شده (Y)</label>
-            <div class="unit-field">
-              <input type="number" id="ohActualMgl" value="0" min="0" step="10" inputmode="decimal" />
-              <span class="unit">mg/l</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="cur-status" id="ohCurStatus">
-          <div class="cs-head"><span>نتیجه <span class="cs-chem oh">NaOH</span></span><span class="cs-badge" id="ohCsBadge">—</span></div>
-          <div class="cs-row">
-            <div class="cs-item achieved" id="ohCsAchievedItem">
-              <span class="cs-lab">اکسس فعلی</span>
-              <div class="cs-val-wrap"><span class="cs-val" id="ohCsAchieved">—</span><span class="cs-unit">mg/l</span></div>
-            </div>
-            <div class="cs-item target oh">
-              <span class="cs-lab">اکسس هدف</span>
-              <div class="cs-val-wrap"><span class="cs-val" id="ohCsTarget">—</span><span class="cs-unit">mg/l</span></div>
-            </div>
-          </div>
-          <div class="cs-action" id="ohCsAction">—</div>
-        </div>
-        <div class="cur-status-empty" id="ohCsEmpty">برای مشاهدهٔ نتیجه، نرخ تزریق فعلی یا اکسس اندازه‌گیری‌شده را وارد کنید.</div>
-      </div>
-    </section>
-
-  </div>
-
   <!-- ================= TAB 3: GUIDE ================= -->
   <div class="tab-panel" id="panel-guide">
 
@@ -1389,15 +1100,6 @@ footer.app-foot{
     <span class="dot"></span>
     نتایج
   </button>
-  <button class="nav-btn" data-tab="hardness">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c3 4 6 7.5 6 11.2A6 6 0 0 1 6 14.2C6 10.5 9 7 12 3Z"/></svg>
-    سختی آب‌نمک
-  </button>
-  <button class="nav-btn" data-tab="status">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V10M18 20V4M6 20v-6"/><path d="M3 20h18"/></svg>
-    <span class="dot"></span>
-    وضعیت فعلی
-  </button>
   <button class="nav-btn" data-tab="guide">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/></svg>
     راهنما
@@ -1484,15 +1186,7 @@ const DEFAULTS = {
   concOH: 18, densOH: 1.197,
   purity: 99,
   advToggle: false, caPpm: 0, mgPpm: 0,
-  curFlowQ: 0, naActualLh: 0, ohActualLh: 0, naActualMgl: 0, ohActualMgl: 0,
 };
-
-// tracks which of the two "current status" inputs (typed rate vs typed
-// measured excess) the user most recently edited, per chemical — used so
-// the action/recommendation always follows the freshest number the user
-// actually typed, instead of always favoring one field forever.
-const lastTouched = { na: null, oh: null };
-let prevActualInputs = { naActualLh: 0, naActualMgl: 0, ohActualLh: 0, ohActualMgl: 0 };
 
 function fmt(n, d = 1) {
   if (!isFinite(n)) return "—";
@@ -1522,25 +1216,11 @@ function readInputs() {
     advToggle: $("advToggle").checked,
     caPpm: parseFloat($("caPpm").value) || 0,
     mgPpm: parseFloat($("mgPpm").value) || 0,
-    curFlowQ: parseFloat($("curFlowQ").value) || 0,
-    naActualLh: parseFloat($("naActualLh").value) || 0,
-    ohActualLh: parseFloat($("ohActualLh").value) || 0,
-    naActualMgl: parseFloat($("naActualMgl").value) || 0,
-    ohActualMgl: parseFloat($("ohActualMgl").value) || 0,
   };
 }
 
 function calculate() {
   const v = readInputs();
-
-  if (v.naActualLh !== prevActualInputs.naActualLh) lastTouched.na = "lh";
-  else if (v.naActualMgl !== prevActualInputs.naActualMgl) lastTouched.na = "mgl";
-  if (v.ohActualLh !== prevActualInputs.ohActualLh) lastTouched.oh = "lh";
-  else if (v.ohActualMgl !== prevActualInputs.ohActualMgl) lastTouched.oh = "mgl";
-  prevActualInputs = {
-    naActualLh: v.naActualLh, naActualMgl: v.naActualMgl,
-    ohActualLh: v.ohActualLh, ohActualMgl: v.ohActualMgl,
-  };
 
   $("loadPctAVal").textContent = v.loadPctA + "٪";
   $("loadPctBVal").textContent = v.loadPctB + "٪";
@@ -1553,15 +1233,7 @@ function calculate() {
   const QB = v.activeB ? v.qDesignB * (v.loadPctB / 100) : 0;
   const Q = QA + QB; // m3/h total
 
-  // live-status tab: the flow "currently entering the cycle" (X) may differ
-  // from the design flow above (e.g. plant running at a different rate than
-  // what's set in tab 1); 0/empty means "use the design flow as-is".
-  const curFlowQ = v.curFlowQ > 0 ? v.curFlowQ : Q;
-  $("curFlowQEcho").textContent = fmt(Q, 0);
-
-  // stoichiometric addition (optional, advanced mode) — used both for the
-  // main target concentration below and for the "سختی آب‌نمک" tab, so the
-  // two tabs always agree exactly.
+  // stoichiometric addition (optional, advanced mode)
   const stoichNa = v.advToggle ? v.caPpm * RATIO_NA2CO3_PER_CA : 0;
   const stoichOH = v.advToggle ? v.mgPpm * RATIO_NAOH_PER_MG : 0;
 
@@ -1600,7 +1272,6 @@ function calculate() {
 
   // --- render: results tab ---
   $("qActual").textContent = fmt(Q, 1);
-  $("qActualHardness").textContent = fmt(Q, 1);
 
   $("naKgH").textContent = fmt(naKgH, 1);
   $("naKgDay").textContent = fmt(naKgDay, 0);
@@ -1621,135 +1292,6 @@ function calculate() {
   renderSplit($("naSplitB"), $("naSolLhB"), v.activeB, naSolLhB);
   renderSplit($("ohSplitA"), $("ohSolLhA"), v.activeA, ohSolLhA);
   renderSplit($("ohSplitB"), $("ohSolLhB"), v.activeB, ohSolLhB);
-
-  // tab "سختی آب‌نمک": "how much for this much hardness" — excess-target
-  // portion vs Ca2+/Mg2+ stoichiometric portion, each in kg/h and L/h.
-  // Only shown when "حالت پیشرفته" is on — that's exactly the condition
-  // under which the stoichiometric portion is merged into the MAIN dose
-  // (naKgH/ohKgH etc. above), so excKgH + stoichKgH here always equals,
-  // to the last decimal, the "kg/h خالص" number shown in تب «نتایج».
-  const showNaStoich = v.advToggle && v.caPpm > 0;
-  const showOhStoich = v.advToggle && v.mgPpm > 0;
-  $("naStoichSplit").classList.toggle("open", showNaStoich);
-  $("ohStoichSplit").classList.toggle("open", showOhStoich);
-  $("naStoichEmpty").style.display = showNaStoich ? "none" : "";
-  $("ohStoichEmpty").style.display = showOhStoich ? "none" : "";
-  if (showNaStoich) {
-    const excNaKgH = Q * v.excNa / 1000;
-    const stoichNaKgH = Q * stoichNa / 1000;
-    $("naCaEcho").textContent = fmt(v.caPpm, 0);
-    $("naExcKgH").textContent = fmt(excNaKgH, 1);
-    $("naStoichKgH").textContent = fmt(stoichNaKgH, 1);
-    $("naExcLh").textContent = fmt(litersFor(Q, v.excNa, naFrac, v.densNa), 1);
-    $("naStoichLh").textContent = fmt(litersFor(Q, stoichNa, naFrac, v.densNa), 1);
-    $("naStoichTotal").innerHTML =
-      `جمع کل: <b>${fmt(naKgH,1)} kg/h</b> · <b>${fmt(naKgDay,0)} kg/day</b> · <b>${fmt(naSolLh,0)} L/h</b> محلول ۱۰٪ — دقیقاً برابر با تب «نتایج»`;
-  }
-  if (showOhStoich) {
-    const excOhKgH = Q * v.excOH / 1000;
-    const stoichOhKgH = Q * stoichOH / 1000;
-    $("ohMgEcho").textContent = fmt(v.mgPpm, 0);
-    $("ohExcKgH").textContent = fmt(excOhKgH, 1);
-    $("ohStoichKgH").textContent = fmt(stoichOhKgH, 1);
-    $("ohExcLh").textContent = fmt(litersFor(Q, v.excOH, ohFrac, v.densOH), 1);
-    $("ohStoichLh").textContent = fmt(litersFor(Q, stoichOH, ohFrac, v.densOH), 1);
-    $("ohStoichTotal").innerHTML =
-      `جمع کل: <b>${fmt(ohKgH,1)} kg/h</b> · <b>${fmt(ohKgDay,0)} kg/day</b> · <b>${fmt(ohSolLh,0)} L/h</b> محلول ۱۸٪ — دقیقاً برابر با تب «نتایج»`;
-  }
-
-  // "وقتی X متر مکعب با اکسس Y وارد چرخه می‌شود و خارج از رنج است، طبق
-  // اطلاعات ثبت‌شده در تب‌ها چه تزریقی لازم است؟" — either the current
-  // injection rate (L/h) or a directly-measured excess (mg/l) can be typed;
-  // the app derives the other, then the exact L/h adjustment needed to hit
-  // the target AT THE CURRENT FLOW (curFlowQ). Nothing here is a
-  // fixed/hardcoded reference number — every field is freely editable.
-  const TOLERANCE_PCT = 0.05; // ±5% around target counts as "normal"
-  const CS_ICON_OK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
-  const CS_ICON_UP = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>';
-  const CS_ICON_DOWN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>';
-  let hasCurAlert = false;
-  const renderCurStatus = (flowQ, actualLh, actualMgl, targetConcMg, frac, dens, downstreamLimit, boxId, emptyId, badgeId, achievedId, targetId, actionId, achievedItemId, touched) => {
-    const show = actualLh > 0 || actualMgl > 0;
-    const box = $(boxId);
-    const achievedItem = $(achievedItemId);
-    box.classList.toggle("open", show);
-    $(emptyId).style.display = show ? "none" : "";
-    if (!show) { achievedItem.className = "cs-item achieved"; return; }
-
-    // if only ONE of the two fields is filled, there's no ambiguity — use
-    // it. If BOTH are filled, the field the user most recently typed into
-    // ("touched") wins completely (both the shown excess and the rate used
-    // in the recommendation come from that same field), so re-editing
-    // either field always visibly updates the result — never gets stuck
-    // on a stale value from the other field.
-    const targetSolLh = litersFor(flowQ, targetConcMg, frac, dens);
-    let achievedConc, actualLhUsed;
-    if (touched === "mgl" && actualMgl > 0) {
-      achievedConc = actualMgl;
-      actualLhUsed = litersFor(flowQ, achievedConc, frac, dens);
-    } else if (actualLh > 0) {
-      actualLhUsed = actualLh;
-      achievedConc = (flowQ > 0 && frac > 0 && dens > 0) ? (actualLh * frac * dens * 1000) / flowQ : NaN;
-    } else {
-      achievedConc = actualMgl;
-      actualLhUsed = litersFor(flowQ, achievedConc, frac, dens);
-    }
-    const deltaLh = (isFinite(targetSolLh) && isFinite(actualLhUsed)) ? targetSolLh - actualLhUsed : NaN;
-    $(achievedId).textContent = fmt(achievedConc, 0);
-    $(targetId).textContent = fmt(targetConcMg, 0);
-
-    // when BOTH fields are filled, the last-edited one is the source for
-    // achievedConc/actualLhUsed (see above). If that source is the measured
-    // excess (mg/l), actualLhUsed is a back-calculated *equivalent* rate —
-    // not the literal number typed in the rate field — so it must never be
-    // labeled "your current rate" as if they were the same value; that
-    // mislabeling is what made the recommendation look self-contradictory
-    // (e.g. "increase by 543 vs. your current rate of 543" while the rate
-    // field visibly showed 2000). Instead it's labeled as a derived
-    // equivalent, with a note pointing at the literal rate field.
-    const usingMglSource = touched === "mgl" && actualMgl > 0;
-    const rateNoun = usingMglSource ? "معادلِ نرخ (بر اساس اکسسِ اندازه‌گیری‌شده)" : "نرخ فعلیِ شما";
-    const mismatchNote = (usingMglSource && actualLh > 0 && isFinite(actualLhUsed) && Math.abs(actualLh - actualLhUsed) > Math.max(1, actualLh * 0.02))
-      ? `<div class="cs-action-note">نرخِ واردشدهٔ شما در فیلدِ «نرخ فعلی تزریق» (<b>${fmt(actualLh,1)} L/h</b>) در این محاسبه لحاظ نشد، چون آخرین فیلدی که ویرایش کردید «اکسسِ اندازه‌گیری‌شده» بود. برای اینکه محاسبه بر اساسِ همان نرخ انجام شود، دوباره یک بار روی فیلدِ نرخ ضربه بزنید (یا فقط رقمی از آن را دوباره تایپ کنید).</div>`
-      : "";
-
-    const badge = $(badgeId);
-    const action = $(actionId);
-    if (!isFinite(achievedConc)) {
-      badge.className = "cs-badge"; badge.textContent = "—";
-      achievedItem.className = "cs-item achieved";
-      action.className = "cs-action";
-      action.innerHTML = "برای محاسبه، جریان آب‌نمک باید بزرگ‌تر از صفر باشد.";
-      return;
-    }
-    const diffPct = targetConcMg > 0 ? (achievedConc - targetConcMg) / targetConcMg : 0;
-    const overDownstream = achievedConc > downstreamLimit;
-    if (Math.abs(diffPct) <= TOLERANCE_PCT && !overDownstream) {
-      badge.className = "cs-badge ok"; badge.textContent = "نرمال"; achievedItem.className = "cs-item achieved ok";
-      action.className = "cs-action dir-ok";
-      action.innerHTML = (isFinite(actualLhUsed)
-        ? `<div class="cs-action-head">${CS_ICON_OK}نیازی به تغییر نیست</div><div class="cs-action-detail">${rateNoun} <b>${fmt(actualLhUsed,1)} L/h</b> است و اکسس حاصل از آن در محدودهٔ هدف قرار دارد.</div>`
-        : `<div class="cs-action-head">${CS_ICON_OK}نیازی به تغییر نیست</div><div class="cs-action-detail">اکسس فعلی در محدودهٔ هدف قرار دارد.</div>`) + mismatchNote;
-    } else if (diffPct < 0) {
-      badge.className = "cs-badge low"; badge.textContent = "کمتر از هدف"; achievedItem.className = "cs-item achieved low"; hasCurAlert = true;
-      action.className = "cs-action dir-up";
-      action.innerHTML = (isFinite(deltaLh)
-        ? `<div class="cs-action-head">${CS_ICON_UP}نرخ تزریق را روی <b class="cs-setpoint">${fmt(targetSolLh,1)}</b> لیتر بر ساعت تنظیم کنید</div><div class="cs-action-detail">یعنی <b>${fmt(Math.abs(deltaLh),1)} L/h افزایش</b> نسبت به ${rateNoun} (<b>${fmt(actualLhUsed,1)} L/h</b>).</div>`
-        : `<div class="cs-action-head">${CS_ICON_UP}نرخ تزریق را روی <b class="cs-setpoint">${fmt(targetSolLh,1)}</b> لیتر بر ساعت تنظیم کنید</div><div class="cs-action-detail">این نرخ برای رساندن اکسس به هدف لازم است.</div>`) + mismatchNote;
-    } else {
-      badge.className = "cs-badge high"; badge.textContent = overDownstream ? "بیش از حد مجاز" : "بیشتر از هدف"; achievedItem.className = "cs-item achieved high"; hasCurAlert = true;
-      action.className = "cs-action dir-down";
-      action.innerHTML = (isFinite(deltaLh)
-        ? `<div class="cs-action-head">${CS_ICON_DOWN}نرخ تزریق را روی <b class="cs-setpoint">${fmt(targetSolLh,1)}</b> لیتر بر ساعت تنظیم کنید</div><div class="cs-action-detail">یعنی <b>${fmt(Math.abs(deltaLh),1)} L/h کاهش</b> نسبت به ${rateNoun} (<b>${fmt(actualLhUsed,1)} L/h</b>).</div>`
-        : `<div class="cs-action-head">${CS_ICON_DOWN}نرخ تزریق را روی <b class="cs-setpoint">${fmt(targetSolLh,1)}</b> لیتر بر ساعت تنظیم کنید</div><div class="cs-action-detail">این نرخ برای رساندن اکسس به هدف لازم است.</div>`) +
-        (overDownstream ? `<div class="cs-action-warn">⚠ از حد مجاز پایین‌دست (&lt; ${downstreamLimit} mg/l) نیز عبور کرده است.</div>` : "") + mismatchNote;
-    }
-  };
-  renderCurStatus(curFlowQ, v.naActualLh, v.naActualMgl, totalConcNa, naFrac, v.densNa, DOWNSTREAM_LIMIT_NA2CO3,
-    "naCurStatus", "naCsEmpty", "naCsBadge", "naCsAchieved", "naCsTarget", "naCsAction", "naCsAchievedItem", lastTouched.na);
-  renderCurStatus(curFlowQ, v.ohActualLh, v.ohActualMgl, totalConcOH, ohFrac, v.densOH, DOWNSTREAM_LIMIT_NAOH,
-    "ohCurStatus", "ohCsEmpty", "ohCsBadge", "ohCsAchieved", "ohCsTarget", "ohCsAction", "ohCsAchievedItem", lastTouched.oh);
-  document.querySelector('.nav-btn[data-tab="status"]').classList.toggle("alert", hasCurAlert);
 
   // breakdown text
   if (v.advToggle && (v.caPpm > 0 || v.mgPpm > 0)) {
@@ -1813,19 +1355,13 @@ function applyDefaults() {
   $("advToggle").checked = DEFAULTS.advToggle;
   $("caPpm").value = DEFAULTS.caPpm;
   $("mgPpm").value = DEFAULTS.mgPpm;
-  $("curFlowQ").value = DEFAULTS.curFlowQ;
-  $("naActualLh").value = DEFAULTS.naActualLh;
-  $("ohActualLh").value = DEFAULTS.ohActualLh;
-  $("naActualMgl").value = DEFAULTS.naActualMgl;
-  $("ohActualMgl").value = DEFAULTS.ohActualMgl;
   calculate();
 }
 
 document.addEventListener("DOMContentLoaded", () => {
   const ids = ["qDesignA","loadPctA","activeA","qDesignB","loadPctB","activeB",
                "excNa","excOH","concNa","densNa",
-               "concOH","densOH","purity","advToggle","caPpm","mgPpm",
-               "curFlowQ","naActualLh","ohActualLh","naActualMgl","ohActualMgl"];
+               "concOH","densOH","purity","advToggle","caPpm","mgPpm"];
   ids.forEach((id) => {
     const el = $(id);
     el.addEventListener("input", calculate);
