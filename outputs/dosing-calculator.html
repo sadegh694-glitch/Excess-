@@ -1055,7 +1055,7 @@ footer.app-foot{
         </div>
         <div class="card-titles">
           <h2>مصرف بر اساس سختی آب‌نمک</h2>
-          <p>با غلظت Ca²⁺/Mg²⁺ آب‌نمک خام (تب «ورودی‌ها» → بخش پیشرفته)، این تب می‌گوید به‌ازای جریان فعلی، چه مقدار کربنات/کاستیک صرفِ رسوب‌دهی همان سختی می‌شود — جدا از سهم اکسس هدف.</p>
+          <p>با فعال‌کردن «حالت پیشرفته» و وارد کردن غلظت Ca²⁺/Mg²⁺ آب‌نمک خام (تب «ورودی‌ها» → بخش پیشرفته)، این تب می‌گوید به‌ازای جریان فعلی، چه مقدار کربنات/کاستیک صرفِ رسوب‌دهی همان سختی می‌شود — جدا از سهم اکسس هدف. مجموع این دو سهم، عیناً همان عددی است که در تب «نتایج» به‌عنوان دوز کل نمایش داده می‌شود.</p>
         </div>
       </div>
 
@@ -1086,8 +1086,9 @@ footer.app-foot{
             <div class="ss-item"><span class="ss-lab">معادل محلول اکسس</span><span class="ss-vwrap"><span class="ss-val" id="naExcLh">—</span><span class="ss-unit">L/h</span></span></div>
             <div class="ss-item hi"><span class="ss-lab">معادل محلول رسوب‌دهی</span><span class="ss-vwrap"><span class="ss-val" id="naStoichLh">—</span><span class="ss-unit">L/h</span></span></div>
           </div>
+          <div class="breakdown" id="naStoichTotal"></div>
         </div>
-        <div class="cur-status-empty" id="naStoichEmpty">غلظت Ca²⁺ آب‌نمک خام را در تب «ورودی‌ها» → بخش پیشرفته وارد کنید تا سهم رسوب‌دهی اینجا محاسبه شود.</div>
+        <div class="cur-status-empty" id="naStoichEmpty">برای دیدن این محاسبه، «حالت پیشرفته» را در تب «ورودی‌ها» فعال و غلظت Ca²⁺ آب‌نمک خام را وارد کنید.</div>
       </div>
     </section>
 
@@ -1111,13 +1112,14 @@ footer.app-foot{
             <div class="ss-item"><span class="ss-lab">معادل محلول اکسس</span><span class="ss-vwrap"><span class="ss-val" id="ohExcLh">—</span><span class="ss-unit">L/h</span></span></div>
             <div class="ss-item hi oh"><span class="ss-lab">معادل محلول رسوب‌دهی</span><span class="ss-vwrap"><span class="ss-val" id="ohStoichLh">—</span><span class="ss-unit">L/h</span></span></div>
           </div>
+          <div class="breakdown" id="ohStoichTotal"></div>
         </div>
-        <div class="cur-status-empty" id="ohStoichEmpty">غلظت Mg²⁺ آب‌نمک خام را در تب «ورودی‌ها» → بخش پیشرفته وارد کنید تا سهم رسوب‌دهی اینجا محاسبه شود.</div>
+        <div class="cur-status-empty" id="ohStoichEmpty">برای دیدن این محاسبه، «حالت پیشرفته» را در تب «ورودی‌ها» فعال و غلظت Mg²⁺ آب‌نمک خام را وارد کنید.</div>
       </div>
     </section>
 
     <div class="src" style="margin: 0 2px 4px">
-      <b>فرمول:</b> سهم رسوب‌دهی (kg/h) = جریان آب‌نمک (m³/h) × غلظت Ca²⁺/Mg²⁺ ورودی (mg/l) × نسبت مولی واکنش ÷ ۱۰۰۰٫ این سهم مستقل از فعال‌بودن «حالت پیشرفته» نمایش داده می‌شود؛ فقط برای وارد کردنِ عدد Ca²⁺/Mg²⁺ باید بخش پیشرفتهٔ تب «ورودی‌ها» را باز کنید.
+      <b>فرمول:</b> سهم رسوب‌دهی (kg/h) = جریان آب‌نمک (m³/h) × غلظت Ca²⁺/Mg²⁺ ورودی (mg/l) × نسبت مولی واکنش ÷ ۱۰۰۰٫ این محاسبه فقط وقتی «حالت پیشرفته» در تب «ورودی‌ها» فعال باشد نمایش داده می‌شود — همان حالتی که سهم رسوب‌دهی در دوز کل تب «نتایج» هم لحاظ می‌شود، تا دو تب همیشه با هم هم‌خوان بمانند.
     </div>
   </div>
 
@@ -1557,13 +1559,11 @@ function calculate() {
   const curFlowQ = v.curFlowQ > 0 ? v.curFlowQ : Q;
   $("curFlowQEcho").textContent = fmt(Q, 0);
 
-  // stoichiometric consumption for the incoming brine hardness — always
-  // computed (drives the standalone "سختی آب‌نمک" tab); only merged into
-  // the main target concentration below when "حالت پیشرفته" is enabled.
-  const stoichNaRaw = v.caPpm * RATIO_NA2CO3_PER_CA;
-  const stoichOhRaw = v.mgPpm * RATIO_NAOH_PER_MG;
-  const stoichNa = v.advToggle ? stoichNaRaw : 0;
-  const stoichOH = v.advToggle ? stoichOhRaw : 0;
+  // stoichiometric addition (optional, advanced mode) — used both for the
+  // main target concentration below and for the "سختی آب‌نمک" tab, so the
+  // two tabs always agree exactly.
+  const stoichNa = v.advToggle ? v.caPpm * RATIO_NA2CO3_PER_CA : 0;
+  const stoichOH = v.advToggle ? v.mgPpm * RATIO_NAOH_PER_MG : 0;
 
   const totalConcNa = v.excNa + stoichNa; // mg/l = g/m3
   const totalConcOH = v.excOH + stoichOH;
@@ -1624,32 +1624,37 @@ function calculate() {
 
   // tab "سختی آب‌نمک": "how much for this much hardness" — excess-target
   // portion vs Ca2+/Mg2+ stoichiometric portion, each in kg/h and L/h.
-  // Uses the raw stoichiometric values so it works regardless of whether
-  // "حالت پیشرفته" is toggled on (that toggle only controls merging the
-  // stoichiometric portion into the MAIN dose shown in تب «نتایج»).
-  const showNaStoich = v.caPpm > 0;
-  const showOhStoich = v.mgPpm > 0;
+  // Only shown when "حالت پیشرفته" is on — that's exactly the condition
+  // under which the stoichiometric portion is merged into the MAIN dose
+  // (naKgH/ohKgH etc. above), so excKgH + stoichKgH here always equals,
+  // to the last decimal, the "kg/h خالص" number shown in تب «نتایج».
+  const showNaStoich = v.advToggle && v.caPpm > 0;
+  const showOhStoich = v.advToggle && v.mgPpm > 0;
   $("naStoichSplit").classList.toggle("open", showNaStoich);
   $("ohStoichSplit").classList.toggle("open", showOhStoich);
   $("naStoichEmpty").style.display = showNaStoich ? "none" : "";
   $("ohStoichEmpty").style.display = showOhStoich ? "none" : "";
   if (showNaStoich) {
     const excNaKgH = Q * v.excNa / 1000;
-    const stoichNaKgH = Q * stoichNaRaw / 1000;
+    const stoichNaKgH = Q * stoichNa / 1000;
     $("naCaEcho").textContent = fmt(v.caPpm, 0);
     $("naExcKgH").textContent = fmt(excNaKgH, 1);
     $("naStoichKgH").textContent = fmt(stoichNaKgH, 1);
     $("naExcLh").textContent = fmt(litersFor(Q, v.excNa, naFrac, v.densNa), 1);
-    $("naStoichLh").textContent = fmt(litersFor(Q, stoichNaRaw, naFrac, v.densNa), 1);
+    $("naStoichLh").textContent = fmt(litersFor(Q, stoichNa, naFrac, v.densNa), 1);
+    $("naStoichTotal").innerHTML =
+      `جمع کل: <b>${fmt(naKgH,1)} kg/h</b> · <b>${fmt(naKgDay,0)} kg/day</b> · <b>${fmt(naSolLh,0)} L/h</b> محلول ۱۰٪ — دقیقاً برابر با تب «نتایج»`;
   }
   if (showOhStoich) {
     const excOhKgH = Q * v.excOH / 1000;
-    const stoichOhKgH = Q * stoichOhRaw / 1000;
+    const stoichOhKgH = Q * stoichOH / 1000;
     $("ohMgEcho").textContent = fmt(v.mgPpm, 0);
     $("ohExcKgH").textContent = fmt(excOhKgH, 1);
     $("ohStoichKgH").textContent = fmt(stoichOhKgH, 1);
     $("ohExcLh").textContent = fmt(litersFor(Q, v.excOH, ohFrac, v.densOH), 1);
-    $("ohStoichLh").textContent = fmt(litersFor(Q, stoichOhRaw, ohFrac, v.densOH), 1);
+    $("ohStoichLh").textContent = fmt(litersFor(Q, stoichOH, ohFrac, v.densOH), 1);
+    $("ohStoichTotal").innerHTML =
+      `جمع کل: <b>${fmt(ohKgH,1)} kg/h</b> · <b>${fmt(ohKgDay,0)} kg/day</b> · <b>${fmt(ohSolLh,0)} L/h</b> محلول ۱۸٪ — دقیقاً برابر با تب «نتایج»`;
   }
 
   // "وقتی X متر مکعب با اکسس Y وارد چرخه می‌شود و خارج از رنج است، طبق
