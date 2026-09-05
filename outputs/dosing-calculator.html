@@ -519,9 +519,20 @@ input[type=range]::-moz-range-progress{ height:8px; border-radius:999px; backgro
 
 .metric-grid{ display:grid; grid-template-columns: repeat(2,1fr); gap: 8px; }
 .metric{ background: var(--card-2); border-radius: 10px; padding: 10px 11px; border: 1px solid var(--border); }
-.metric.main{ background: #eaf5f8; border-color:#d7e6ea; }
+.metric.main{
+  background: #eaf5f8; border-color:#d7e6ea;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  text-align:center; padding:16px 12px;
+}
 .metric .num{ font-size:1.08rem; font-weight:700; font-variant-numeric: tabular-nums; direction: ltr; unicode-bidi: isolate; }
+.metric.main .num{ font-size:1.9rem; }
 .metric .lab{ font-size:0.68rem; color:var(--muted); margin-top:2px; }
+.metric.main .lab{ font-size:0.72rem; margin-top:4px; }
+
+.chem-block.na2co3 .metric.main{ background: linear-gradient(150deg,#e7f3fb,#d2e9f6); border-color:#b9dcef; }
+.chem-block.na2co3 .metric.main .num{ color: var(--blue); }
+.chem-block.naoh .metric.main{ background: linear-gradient(150deg,#e4f9f4,#cdf0e8); border-color:#a9e2d6; }
+.chem-block.naoh .metric.main .num{ color: var(--teal); }
 
 .gauge{ margin-top: 12px; }
 .gauge-top{
@@ -955,7 +966,7 @@ footer.app-foot{
         </div>
         <div class="card-titles">
           <h2>مصرف بر اساس سختی آب‌نمک <span class="tag">اختیاری</span></h2>
-          <p>غلظت Ca²⁺/Mg²⁺ آنالیزشدهٔ آب‌نمک خام را وارد کنید تا علاوه بر اکسس ثابت سند، مصرفِ واقعیِ کربنات و کاستیک لازم برای رسوب‌دادن همان سختی هم محاسبه و در تب «نتایج» به‌صورت جداگانه (kg/h و L/h) نشان داده شود. عدد مرجع خودِ Ca²⁺/Mg²⁺ در این جلد نیامده (ارجاع به Annex A2) — کاملاً بر پایه ورودی شماست.</p>
+          <p>غلظت Ca²⁺/Mg²⁺ آنالیزشدهٔ آب‌نمک خام را وارد کنید تا علاوه بر اکسس ثابت سند، مصرفِ واقعیِ کربنات و کاستیک لازم برای رسوب‌دادن همان سختی هم محاسبه و در تب «نتایج» (L/h محلول) نشان داده شود. عدد مرجع خودِ Ca²⁺/Mg²⁺ در این جلد نیامده (ارجاع به Annex A2) — کاملاً بر پایه ورودی شماست.</p>
         </div>
         <span class="step step-amber">۴</span>
       </div>
@@ -1125,31 +1136,17 @@ footer.app-foot{
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V9M12 19V4M20 19v-7"/></svg>
         </div>
         <div class="card-titles">
-          <h2>روند میزان تزریق کربنات سدیم و کاستیک</h2>
+          <h2>روند تزریق و سختی آب‌نمک خام</h2>
+          <p>خطوط Ca²⁺/Mg²⁺ فقط برای نقاطی رسم می‌شود که هنگام ثبت، «حالت پیشرفته» با مقدار Ca²⁺/Mg²⁺ روشن بوده است.</p>
         </div>
       </div>
       <div class="chart-legend">
-        <span><i style="background:var(--blue)"></i>Na₂CO₃ (kg/h)</span>
-        <span><i style="background:var(--teal)"></i>NaOH (kg/h)</span>
-      </div>
-      <div class="chart-wrap" id="dosingChartWrap"></div>
-    </section>
-
-    <section class="card accent-amber chart-card">
-      <div class="card-head">
-        <div class="ic-badge ic-amber">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V9M12 19V4M20 19v-7"/></svg>
-        </div>
-        <div class="card-titles">
-          <h2>روند کلسیم و منیزیم آب‌نمک خام</h2>
-          <p>فقط برای نقاطی رسم می‌شود که هنگام ثبت، «حالت پیشرفته» با مقدار Ca²⁺/Mg²⁺ روشن بوده است.</p>
-        </div>
-      </div>
-      <div class="chart-legend">
+        <span><i style="background:var(--blue)"></i>Na₂CO₃ (L/h)</span>
+        <span><i style="background:var(--teal)"></i>NaOH (L/h)</span>
         <span><i style="background:var(--amber)"></i>Ca²⁺ (mg/l)</span>
         <span><i style="background:var(--purple)"></i>Mg²⁺ (mg/l)</span>
       </div>
-      <div class="chart-wrap" id="hardnessChartWrap"></div>
+      <div class="chart-wrap" id="dosingChartWrap"></div>
     </section>
 
     <section class="card accent-rose">
@@ -1670,7 +1667,7 @@ function calculate() {
 
   // snapshot for trend tab
   lastCalc = {
-    q: Q, na: naKgH, oh: ohKgH,
+    q: Q, na: naSolLh, oh: ohSolLh,
     ca: v.advToggle ? v.caPpm : 0,
     mg: v.advToggle ? v.mgPpm : 0,
     hasHardness: v.advToggle && (v.caPpm > 0 || v.mgPpm > 0),
@@ -1745,7 +1742,7 @@ function persistTrendPoints() {
 function updateTrendPreview() {
   const liveEl = $("tsbLive"), subEl = $("tsbSub");
   if (!liveEl || !lastCalc) return;
-  liveEl.textContent = `Na₂CO₃ ${fmt(lastCalc.na, 1)} kg/h   ·   NaOH ${fmt(lastCalc.oh, 1)} kg/h`;
+  liveEl.textContent = `Na₂CO₃ ${fmt(lastCalc.na, 0)} L/h   ·   NaOH ${fmt(lastCalc.oh, 0)} L/h`;
   subEl.textContent = lastCalc.hasHardness
     ? `Ca²⁺ ${fmt(lastCalc.ca, 0)} mg/l   ·   Mg²⁺ ${fmt(lastCalc.mg, 0)} mg/l   ·   جریان کل ${fmt(lastCalc.q, 0)} m³/h`
     : `جریان کل ${fmt(lastCalc.q, 0)} m³/h — بدون دادهٔ سختی (حالت پیشرفته خاموش است)`;
@@ -1814,7 +1811,10 @@ function buildLineChart(pts, series, emptyMsg) {
   const n = shown.length;
 
   let maxVal = 0;
-  shown.forEach((p) => series.forEach((s) => { const v = s.getVal(p); if (isFinite(v)) maxVal = Math.max(maxVal, v); }));
+  shown.forEach((p) => series.forEach((s) => {
+    const v = s.getVal(p);
+    if (v !== null && v !== undefined && isFinite(v)) maxVal = Math.max(maxVal, v);
+  }));
   if (maxVal <= 0) maxVal = 1;
   maxVal *= 1.15;
 
@@ -1833,14 +1833,18 @@ function buildLineChart(pts, series, emptyMsg) {
   let seriesSvg = "";
   series.forEach((s) => {
     let d = "";
+    let started = false;
     shown.forEach((p, i) => {
-      const v = s.getVal(p) || 0;
-      d += (i === 0 ? "M" : "L") + xAt(i).toFixed(1) + "," + yAt(v).toFixed(1) + " ";
+      const v = s.getVal(p);
+      if (v === null || v === undefined || !isFinite(v)) { started = false; return; }
+      d += (started ? "L" : "M") + xAt(i).toFixed(1) + "," + yAt(v).toFixed(1) + " ";
+      started = true;
     });
-    seriesSvg += `<path class="cx-line" d="${d}" style="stroke:${s.color}"/>`;
+    if (d) seriesSvg += `<path class="cx-line" d="${d}" style="stroke:${s.color}"/>`;
     shown.forEach((p, i) => {
-      const v = s.getVal(p) || 0;
-      seriesSvg += `<circle class="cx-dot" cx="${xAt(i).toFixed(1)}" cy="${yAt(v).toFixed(1)}" r="3.2" style="fill:${s.color}"><title>${faDateTime(p.t)} — ${fmt(v, 1)}</title></circle>`;
+      const v = s.getVal(p);
+      if (v === null || v === undefined || !isFinite(v)) return;
+      seriesSvg += `<circle class="cx-dot" cx="${xAt(i).toFixed(1)}" cy="${yAt(v).toFixed(1)}" r="3.2" style="fill:${s.color}"><title>${faDateTime(p.t)} — ${s.name || ""} ${fmt(v, 1)}</title></circle>`;
     });
   });
 
@@ -1863,20 +1867,12 @@ function renderTrendTab() {
   $("dosingChartWrap").innerHTML = buildLineChart(
     pts,
     [
-      { color: "var(--blue)", getVal: (p) => p.na },
-      { color: "var(--teal)", getVal: (p) => p.oh },
+      { name: "Na₂CO₃", color: "var(--blue)", getVal: (p) => p.na },
+      { name: "NaOH", color: "var(--teal)", getVal: (p) => p.oh },
+      { name: "Ca²⁺", color: "var(--amber)", getVal: (p) => (p.hasHardness ? p.ca : null) },
+      { name: "Mg²⁺", color: "var(--purple)", getVal: (p) => (p.hasHardness ? p.mg : null) },
     ],
     "برای دیدن روند تزریق، حداقل یک نقطه از دکمهٔ بالای همین تب ثبت کنید."
-  );
-
-  const hardPts = pts.filter((p) => p.hasHardness);
-  $("hardnessChartWrap").innerHTML = buildLineChart(
-    hardPts,
-    [
-      { color: "var(--amber)", getVal: (p) => p.ca },
-      { color: "var(--purple)", getVal: (p) => p.mg },
-    ],
-    "هنوز نقطه‌ای با دادهٔ Ca²⁺/Mg²⁺ (حالت پیشرفته روشن) ثبت نشده است."
   );
 
   const listWrap = $("trendListWrap");
@@ -1900,8 +1896,8 @@ function renderTrendTab() {
           <div class="ti-main">
             <div class="ti-time">${faDateTime(p.t)}</div>
             <div class="ti-vals">
-              <span>Na₂CO₃ <b>${fmt(p.na, 1)}</b> kg/h</span>
-              <span>NaOH <b>${fmt(p.oh, 1)}</b> kg/h</span>
+              <span>Na₂CO₃ <b>${fmt(p.na, 0)}</b> L/h</span>
+              <span>NaOH <b>${fmt(p.oh, 0)}</b> L/h</span>
               ${hardTxt}
             </div>
           </div>
