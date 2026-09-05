@@ -528,6 +528,11 @@ input[type=range]::-moz-range-progress{ height:8px; border-radius:999px; backgro
 .metric.main .num{ font-size:1.9rem; }
 .metric .lab{ font-size:0.68rem; color:var(--muted); margin-top:2px; }
 .metric.main .lab{ font-size:0.72rem; margin-top:4px; }
+.metric.main .sub-kg{
+  font-size:0.68rem; color:var(--muted); margin-top:7px; padding-top:7px;
+  border-top:1px dashed var(--border); font-variant-numeric: tabular-nums;
+}
+.metric.main .sub-kg span{ font-weight:700; direction:ltr; unicode-bidi:isolate; }
 
 .chem-block.na2co3 .metric.main{ background: linear-gradient(150deg,#e7f3fb,#d2e9f6); border-color:#b9dcef; }
 .chem-block.na2co3 .metric.main .num{ color: var(--blue); }
@@ -622,11 +627,15 @@ input[type=range]::-moz-range-progress{ height:8px; border-radius:999px; backgro
 .btn-save:active{ transform: scale(0.98); }
 .btn-save.saved{ background: linear-gradient(120deg, var(--teal), #0c8272); box-shadow:0 6px 16px rgba(16,168,147,.28); }
 
-.chart-legend{ display:flex; gap:14px; flex-wrap:wrap; margin-bottom:10px; }
-.chart-legend span{ display:flex; align-items:center; gap:6px; font-size:0.72rem; color:var(--muted); font-weight:600; }
-.chart-legend i{ width:14px; height:4px; border-radius:3px; display:inline-block; }
-.chart-wrap{ width:100%; overflow:hidden; }
+.chart-legend{ display:flex; gap:8px 14px; flex-wrap:wrap; margin-bottom:10px; }
+.chart-legend span{ display:flex; align-items:center; gap:6px; font-size:0.7rem; color:var(--muted); font-weight:600; }
+.chart-legend i{ width:14px; height:4px; border-radius:3px; display:inline-block; flex:none; }
+.chart-legend b{ color:var(--ink); font-variant-numeric: tabular-nums; direction:ltr; unicode-bidi:isolate; }
+.chart-legend small{ color:#9aacb3; font-weight:700; }
+.chart-wrap{ width:100%; overflow:hidden; cursor:zoom-in; border-radius:10px; transition: box-shadow .15s; }
+.chart-wrap:has(svg):hover{ box-shadow: 0 0 0 2px var(--blue) inset; }
 .chart-wrap svg{ width:100%; height:auto; display:block; }
+.chart-axis-note{ font-size:0.64rem; color:#93a7b0; margin-top:8px; line-height:1.7; }
 .cx-grid{ stroke: var(--border); stroke-width:1; }
 .cx-label{ font-size:9px; fill: var(--muted); }
 .cx-line{ fill:none; stroke-width:2.4; stroke-linecap:round; stroke-linejoin:round; }
@@ -636,6 +645,34 @@ input[type=range]::-moz-range-progress{ height:8px; border-radius:999px; backgro
   gap:8px; padding: 26px 10px; color: var(--muted); font-size:0.78rem; text-align:center;
 }
 .chart-empty svg{ opacity:.35; }
+
+.chart-modal-overlay{
+  position:fixed; inset:0; background:rgba(8,18,24,.74); z-index:999;
+  display:flex; align-items:center; justify-content:center; padding:16px;
+  backdrop-filter: blur(2px);
+}
+.chart-modal-overlay.hidden{ display:none; }
+.chart-modal-box{
+  background:#fff; border-radius:18px; padding:18px; max-width:640px; width:100%;
+  max-height:88vh; overflow:auto; position:relative; box-shadow:0 20px 60px rgba(0,0,0,.35);
+}
+.chart-modal-title{ font-size:0.88rem; font-weight:700; color:var(--ink); margin-bottom:6px; padding-inline-end:34px; }
+.chart-modal-legend{ margin-bottom:10px; }
+.chart-modal-body svg{ width:100%; height:auto; display:block; }
+.chart-modal-note{ font-size:0.66rem; color:#93a7b0; margin-top:8px; line-height:1.7; }
+.chart-modal-actions{ display:flex; gap:10px; margin-top:14px; }
+.chart-modal-actions button{
+  flex:1; display:flex; align-items:center; justify-content:center; gap:6px;
+  padding:11px; border-radius:11px; border:1px solid var(--border); background:var(--card-2);
+  font-size:0.78rem; font-weight:700; cursor:pointer; color:var(--ink); font-family:inherit;
+}
+.chart-modal-actions button.primary{ background:linear-gradient(120deg,var(--blue),#0d5c86); color:#fff; border:none; }
+.chart-modal-actions button:active{ transform: scale(0.98); }
+.chart-modal-close{
+  position:absolute; top:14px; inset-inline-end:14px; width:30px; height:30px; border-radius:50%;
+  background:var(--card-2); border:1px solid var(--border); display:flex; align-items:center; justify-content:center;
+  cursor:pointer; color:var(--ink); padding:0;
+}
 
 .trend-list{ display:flex; flex-direction:column; gap:8px; max-height: 340px; overflow-y:auto; padding-inline-end:2px; margin-top:4px; }
 .trend-item{
@@ -1042,7 +1079,10 @@ footer.app-foot{
         </div>
 
         <div class="metric-grid">
-          <div class="metric main" style="grid-column:1/-1"><div class="num" id="naSolLh">—</div><div class="lab">L/h محلول ۱۰٪</div></div>
+          <div class="metric main" style="grid-column:1/-1">
+            <div class="num" id="naSolLh">—</div><div class="lab">L/h محلول ۱۰٪</div>
+            <div class="sub-kg">≈ <span id="naKgH">—</span> kg/h خالص</div>
+          </div>
           <div class="metric"><div class="num" id="naSolLDay">—</div><div class="lab">L/day محلول ۱۰٪</div></div>
           <div class="metric"><div class="num" id="naBags">—</div><div class="lab">کیسه ۵۰kg در روز</div></div>
         </div>
@@ -1071,7 +1111,10 @@ footer.app-foot{
         </div>
 
         <div class="metric-grid">
-          <div class="metric main" style="grid-column:1/-1"><div class="num" id="ohSolLh">—</div><div class="lab">L/h محلول ۱۸٪</div></div>
+          <div class="metric main" style="grid-column:1/-1">
+            <div class="num" id="ohSolLh">—</div><div class="lab">L/h محلول ۱۸٪</div>
+            <div class="sub-kg">≈ <span id="ohKgH">—</span> kg/h خالص</div>
+          </div>
           <div class="metric"><div class="num" id="ohSolLDay">—</div><div class="lab">L/day محلول ۱۸٪</div></div>
           <div class="metric"><div class="num" id="ohSolM3Day">—</div><div class="lab">m³/day محلول</div></div>
         </div>
@@ -1136,17 +1179,13 @@ footer.app-foot{
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V9M12 19V4M20 19v-7"/></svg>
         </div>
         <div class="card-titles">
-          <h2>روند تزریق و سختی آب‌نمک خام</h2>
-          <p>خطوط Ca²⁺/Mg²⁺ فقط برای نقاطی رسم می‌شود که هنگام ثبت، «حالت پیشرفته» با مقدار Ca²⁺/Mg²⁺ روشن بوده است.</p>
+          <h2>روند تزریق، جریان و سختی آب‌نمک خام</h2>
+          <p>خطوط Ca²⁺/Mg²⁺ فقط برای نقاطی رسم می‌شود که هنگام ثبت، «حالت پیشرفته» با مقدار Ca²⁺/Mg²⁺ روشن بوده است. برای بزرگ‌نمایی و ذخیرهٔ نمودار به‌صورت عکس، روی خودِ نمودار بزنید.</p>
         </div>
       </div>
-      <div class="chart-legend">
-        <span><i style="background:var(--blue)"></i>Na₂CO₃ (L/h)</span>
-        <span><i style="background:var(--teal)"></i>NaOH (L/h)</span>
-        <span><i style="background:var(--amber)"></i>Ca²⁺ (mg/l)</span>
-        <span><i style="background:var(--purple)"></i>Mg²⁺ (mg/l)</span>
-      </div>
-      <div class="chart-wrap" id="dosingChartWrap"></div>
+      <div class="chart-legend" id="dosingChartLegend"></div>
+      <div class="chart-wrap" id="dosingChartWrap" data-title="روند تزریق، جریان و سختی آب‌نمک خام"></div>
+      <div class="chart-axis-note">محور عمودی: درصد نسبت به بیشینهٔ همان شاخص (برای مقایسهٔ روند پنج آیتم در یک نگاه) — عدد واقعیِ هر نقطه در لجند بالا و با نگه‌داشتن روی نقطه دیده می‌شود.</div>
     </section>
 
     <section class="card accent-rose">
@@ -1431,6 +1470,24 @@ footer.app-foot{
   </button>
 </nav>
 
+<div class="chart-modal-overlay hidden" id="chartModal">
+  <div class="chart-modal-box">
+    <button class="chart-modal-close" id="chartModalClose" aria-label="بستن">
+      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+    <div class="chart-modal-title" id="chartModalTitle"></div>
+    <div class="chart-legend chart-modal-legend" id="chartModalLegend"></div>
+    <div class="chart-modal-body" id="chartModalBody"></div>
+    <div class="chart-modal-note">محور عمودی: درصد نسبت به بیشینهٔ همان شاخص — عدد واقعی هر نقطه در لجند بالا و با نگه‌داشتن روی نقطه دیده می‌شود.</div>
+    <div class="chart-modal-actions">
+      <button class="primary" id="chartModalDownload">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v12M7 12l5 5 5-5"/><path d="M5 20h14"/></svg>
+        ذخیره به‌عنوان عکس
+      </button>
+    </div>
+  </div>
+</div>
+
 <script>
 // محاسبه‌گر میزان تزریق کاستیک و کربنات سدیم برای اکسس تانک رسوب‌دهی آب‌نمک
 // اعداد پایه از Operating Manual C/A Plant (Doc 8408205-CB-PR-MNL-0102)
@@ -1607,10 +1664,12 @@ function calculate() {
 
   $("naSolLh").textContent = fmt(naSolLh, 0);
   $("naSolLDay").textContent = fmt(naSolLDay, 0);
+  $("naKgH").textContent = fmt(naKgH, 1);
   $("naBags").textContent = fmt(naBags, 1);
 
   $("ohSolLh").textContent = fmt(ohSolLh, 0);
   $("ohSolLDay").textContent = fmt(ohSolLDay, 0);
+  $("ohKgH").textContent = fmt(ohKgH, 1);
   $("ohSolM3Day").textContent = fmt(ohSolM3Day, 2);
 
   // per-train liter breakdown
@@ -1798,6 +1857,11 @@ function updateLiveClock() {
   el.textContent = `${datePart} — ${timePart} (به وقت ایران)`;
 }
 
+// Each series can have a wildly different unit/scale (L/h, m3/h, mg/l), so a
+// single shared linear axis would flatten the smaller ones. Instead every
+// series is normalized to a % of its OWN max — this keeps every metric's
+// shape (rise/fall) equally readable on one chart. Real numbers are still
+// shown via legend + point tooltips, never lost.
 function buildLineChart(pts, series, emptyMsg) {
   if (!pts || pts.length === 0) {
     return `<div class="chart-empty">
@@ -1806,45 +1870,48 @@ function buildLineChart(pts, series, emptyMsg) {
     </div>`;
   }
   const shown = pts.slice(-40); // keep chart readable
-  const W = 600, H = 220, ML = 34, MR = 14, MT = 14, MB = 26;
+  const W = 600, H = 240, ML = 30, MR = 14, MT = 14, MB = 26;
   const plotW = W - ML - MR, plotH = H - MT - MB;
   const n = shown.length;
 
-  let maxVal = 0;
-  shown.forEach((p) => series.forEach((s) => {
-    const v = s.getVal(p);
-    if (v !== null && v !== undefined && isFinite(v)) maxVal = Math.max(maxVal, v);
-  }));
-  if (maxVal <= 0) maxVal = 1;
-  maxVal *= 1.15;
+  const seriesInfo = series.map((s) => {
+    let max = 0, any = false;
+    shown.forEach((p) => {
+      const v = s.getVal(p);
+      if (v !== null && v !== undefined && isFinite(v)) { any = true; if (v > max) max = v; }
+    });
+    return Object.assign({}, s, { max: max > 0 ? max : 1, any });
+  });
 
   const xAt = (i) => (n > 1 ? ML + (plotW * i) / (n - 1) : ML + plotW / 2);
-  const yAt = (v) => MT + plotH - (v / maxVal) * plotH;
+  const yAt = (pct) => MT + plotH - (pct / 100) * plotH;
 
   let gridSvg = "";
-  const gridCount = 4;
-  for (let g = 0; g <= gridCount; g++) {
-    const val = (maxVal * g) / gridCount;
-    const y = yAt(val);
+  [0, 25, 50, 75, 100].forEach((pct) => {
+    const y = yAt(pct);
     gridSvg += `<line class="cx-grid" x1="${ML}" y1="${y.toFixed(1)}" x2="${W - MR}" y2="${y.toFixed(1)}"/>`;
-    gridSvg += `<text class="cx-label" x="${ML - 6}" y="${(y + 3).toFixed(1)}" text-anchor="end">${fmt(val, 0)}</text>`;
-  }
+    gridSvg += `<text class="cx-label" x="${ML - 5}" y="${(y + 3).toFixed(1)}" text-anchor="end">${pct}%</text>`;
+  });
 
   let seriesSvg = "";
-  series.forEach((s) => {
+  seriesInfo.forEach((s) => {
+    if (!s.any) return;
     let d = "";
     let started = false;
     shown.forEach((p, i) => {
       const v = s.getVal(p);
       if (v === null || v === undefined || !isFinite(v)) { started = false; return; }
-      d += (started ? "L" : "M") + xAt(i).toFixed(1) + "," + yAt(v).toFixed(1) + " ";
+      const pct = (v / s.max) * 100;
+      d += (started ? "L" : "M") + xAt(i).toFixed(1) + "," + yAt(pct).toFixed(1) + " ";
       started = true;
     });
     if (d) seriesSvg += `<path class="cx-line" d="${d}" style="stroke:${s.color}"/>`;
     shown.forEach((p, i) => {
       const v = s.getVal(p);
       if (v === null || v === undefined || !isFinite(v)) return;
-      seriesSvg += `<circle class="cx-dot" cx="${xAt(i).toFixed(1)}" cy="${yAt(v).toFixed(1)}" r="3.2" style="fill:${s.color}"><title>${faDateTime(p.t)} — ${s.name || ""} ${fmt(v, 1)}</title></circle>`;
+      const pct = (v / s.max) * 100;
+      const dec = s.decimals != null ? s.decimals : 1;
+      seriesSvg += `<circle class="cx-dot" cx="${xAt(i).toFixed(1)}" cy="${yAt(pct).toFixed(1)}" r="3.2" style="fill:${s.color}"><title>${faDateTime(p.t)} — ${s.name || ""} ${fmt(v, dec)}${s.unit ? " " + s.unit : ""}</title></circle>`;
     });
   });
 
@@ -1856,6 +1923,95 @@ function buildLineChart(pts, series, emptyMsg) {
   return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">${gridSvg}${seriesSvg}${xLabels}</svg>`;
 }
 
+// legend with the latest real value + trend arrow per series (chart itself
+// only shows normalized shapes, so absolute numbers live here)
+function buildChartLegend(pts, series) {
+  const shown = pts.slice(-40);
+  return series.map((s) => {
+    const withVal = [];
+    shown.forEach((p) => {
+      const v = s.getVal(p);
+      if (v !== null && v !== undefined && isFinite(v)) withVal.push(v);
+    });
+    const unitTxt = s.unit ? ` (${s.unit})` : "";
+    if (withVal.length === 0) {
+      return `<span><i style="background:${s.color}"></i>${s.name}${unitTxt} <b>—</b></span>`;
+    }
+    const dec = s.decimals != null ? s.decimals : 1;
+    const last = withVal[withVal.length - 1];
+    let trendTxt = "";
+    if (withVal.length > 1 && withVal[0] !== 0) {
+      const pct = ((last - withVal[0]) / Math.abs(withVal[0])) * 100;
+      const arrow = pct > 0.5 ? "▲" : pct < -0.5 ? "▼" : "–";
+      trendTxt = ` <small>${arrow} ${fmt(Math.abs(pct), 0)}٪</small>`;
+    }
+    return `<span><i style="background:${s.color}"></i>${s.name}${unitTxt} <b>${fmt(last, dec)}</b>${trendTxt}</span>`;
+  }).join("");
+}
+
+/* ---------------- chart zoom modal + export-as-image ---------------- */
+function openChartModal(wrapEl) {
+  const svgEl = wrapEl.querySelector(":scope > svg");
+  if (!svgEl) return; // empty-state chart: nothing to zoom/export
+  const legendEl = wrapEl.previousElementSibling; // .chart-legend sits right before .chart-wrap
+  $("chartModalTitle").textContent = wrapEl.dataset.title || "نمودار";
+  $("chartModalLegend").innerHTML = (legendEl && legendEl.classList.contains("chart-legend")) ? legendEl.innerHTML : "";
+  $("chartModalBody").innerHTML = svgEl.outerHTML;
+  $("chartModal").classList.remove("hidden");
+}
+function closeChartModal() { $("chartModal").classList.add("hidden"); }
+
+function downloadSvgAsPng(svgEl, filename) {
+  const clone = svgEl.cloneNode(true);
+  clone.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+
+  // the live page's CSS classes (.cx-grid/.cx-line/...) don't travel with a
+  // standalone SVG blob, so inline the few rules the chart actually needs
+  const styleTag = document.createElementNS("http://www.w3.org/2000/svg", "style");
+  styleTag.textContent =
+    ".cx-grid{stroke:#dfe8eb;stroke-width:1}" +
+    ".cx-label{font-size:9px;fill:#647b85;font-family:Vazirmatn,Tahoma,sans-serif}" +
+    ".cx-line{fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}" +
+    ".cx-dot{stroke:#fff;stroke-width:1.3}";
+  clone.insertBefore(styleTag, clone.firstChild);
+
+  const vb = clone.viewBox && clone.viewBox.baseVal;
+  const w = (vb && vb.width) || 600;
+  const h = (vb && vb.height) || 240;
+
+  const bg = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+  bg.setAttribute("width", String(w));
+  bg.setAttribute("height", String(h));
+  bg.setAttribute("fill", "#ffffff");
+  clone.insertBefore(bg, clone.firstChild);
+
+  const svgStr = new XMLSerializer().serializeToString(clone);
+  const svgBlob = new Blob([svgStr], { type: "image/svg+xml;charset=utf-8" });
+  const url = URL.createObjectURL(svgBlob);
+
+  const img = new Image();
+  img.onload = () => {
+    const scale = 2.5; // sharper output for sharing/printing
+    const canvas = document.createElement("canvas");
+    canvas.width = w * scale;
+    canvas.height = h * scale;
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    URL.revokeObjectURL(url);
+    canvas.toBlob((blob) => {
+      if (!blob) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    }, "image/png");
+  };
+  img.onerror = () => { URL.revokeObjectURL(url); alert("ساخت تصویر نمودار ناموفق بود."); };
+  img.src = url;
+}
+
 function renderTrendTab() {
   const pts = loadTrendPoints().slice().sort((a, b) => a.t - b.t);
 
@@ -1864,16 +2020,18 @@ function renderTrendTab() {
   const storageWarn = $("trendStorageWarn");
   if (storageWarn) storageWarn.style.display = trendStorageOK ? "none" : "";
 
+  const dosingSeries = [
+    { name: "Na₂CO₃", color: "var(--blue)", unit: "L/h", decimals: 0, getVal: (p) => p.na },
+    { name: "NaOH", color: "var(--teal)", unit: "L/h", decimals: 0, getVal: (p) => p.oh },
+    { name: "جریان", color: "var(--rose)", unit: "m³/h", decimals: 0, getVal: (p) => p.q },
+    { name: "Ca²⁺", color: "var(--amber)", unit: "mg/l", decimals: 0, getVal: (p) => (p.hasHardness ? p.ca : null) },
+    { name: "Mg²⁺", color: "var(--purple)", unit: "mg/l", decimals: 0, getVal: (p) => (p.hasHardness ? p.mg : null) },
+  ];
   $("dosingChartWrap").innerHTML = buildLineChart(
-    pts,
-    [
-      { name: "Na₂CO₃", color: "var(--blue)", getVal: (p) => p.na },
-      { name: "NaOH", color: "var(--teal)", getVal: (p) => p.oh },
-      { name: "Ca²⁺", color: "var(--amber)", getVal: (p) => (p.hasHardness ? p.ca : null) },
-      { name: "Mg²⁺", color: "var(--purple)", getVal: (p) => (p.hasHardness ? p.mg : null) },
-    ],
+    pts, dosingSeries,
     "برای دیدن روند تزریق، حداقل یک نقطه از دکمهٔ بالای همین تب ثبت کنید."
   );
+  $("dosingChartLegend").innerHTML = buildChartLegend(pts, dosingSeries);
 
   const listWrap = $("trendListWrap");
   const clearBtn = $("clearTrendBtn");
@@ -1964,6 +2122,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
   $("saveTrendBtn").addEventListener("click", addTrendPoint);
   $("clearTrendBtn").addEventListener("click", clearAllTrend);
+
+  // click any rendered chart to zoom it in a modal, with a save-as-image action
+  document.addEventListener("click", (e) => {
+    const wrap = e.target.closest(".chart-wrap");
+    if (wrap) openChartModal(wrap);
+  });
+  $("chartModalClose").addEventListener("click", closeChartModal);
+  $("chartModal").addEventListener("click", (e) => { if (e.target.id === "chartModal") closeChartModal(); });
+  $("chartModalDownload").addEventListener("click", () => {
+    const svgEl = $("chartModalBody").querySelector("svg");
+    if (svgEl) downloadSvgAsPng(svgEl, "روند-تزریق-اکسس.png");
+  });
 
   updateLiveClock();
   setInterval(updateLiveClock, 1000);
