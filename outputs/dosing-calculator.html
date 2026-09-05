@@ -33,9 +33,9 @@
 
 :root{
   --bg: #eef2f4;
-  --navy: #123d54;
-  --navy-2: #1c5170;
-  --deep: #0a2836;
+  --navy: #9f3f4d;
+  --navy-2: #c96773;
+  --deep: #6e2934;
   --card: #ffffff;
   --card-2: #f3f7f9;
   --ink: #0e2028;
@@ -534,10 +534,25 @@ input[type=range]::-moz-range-progress{ height:8px; border-radius:999px; backgro
 }
 .metric.main .sub-kg span{ font-weight:700; direction:ltr; unicode-bidi:isolate; }
 
-.chem-block.na2co3 .metric.main{ background: linear-gradient(150deg,#e7f3fb,#d2e9f6); border-color:#b9dcef; }
-.chem-block.na2co3 .metric.main .num{ color: var(--blue); }
-.chem-block.naoh .metric.main{ background: linear-gradient(150deg,#e4f9f4,#cdf0e8); border-color:#a9e2d6; }
-.chem-block.naoh .metric.main .num{ color: var(--teal); }
+/* کارت‌های اصلی L/h عمداً از کارت‌های مصرف روزانه متمایزند */
+.chem-block.na2co3 .metric.main{
+  background: radial-gradient(circle at 88% 12%,rgba(255,255,255,.42),transparent 30%), linear-gradient(135deg,#2c75b9,#18578f);
+  border-color:#2b79bb; color:#fff; box-shadow:0 10px 22px rgba(24,87,143,.22), inset 0 1px 0 rgba(255,255,255,.3);
+}
+.chem-block.na2co3 .metric.main .num{ color:#fff; text-shadow:0 2px 12px rgba(0,24,55,.3); }
+.chem-block.na2co3 .metric.main .lab,.chem-block.na2co3 .metric.main .sub-kg{ color:#dcefff; border-color:rgba(255,255,255,.28); }
+.chem-block.naoh .metric.main{
+  background: radial-gradient(circle at 88% 12%,rgba(255,255,255,.38),transparent 30%), linear-gradient(135deg,#1ea78f,#087461);
+  border-color:#17937e; color:#fff; box-shadow:0 10px 22px rgba(8,116,97,.22), inset 0 1px 0 rgba(255,255,255,.3);
+}
+.chem-block.naoh .metric.main .num{ color:#fff; text-shadow:0 2px 12px rgba(0,51,42,.32); }
+.chem-block.naoh .metric.main .lab,.chem-block.naoh .metric.main .sub-kg{ color:#dcfff6; border-color:rgba(255,255,255,.28); }
+.chem-block .metric.main:before{ content:"نرخ لحظه‌ای"; font-size:.6rem; font-weight:800; letter-spacing:.03em; opacity:.82; margin-bottom:5px; }
+.chem-block .train-split .ts-item{ border-width:1.5px; box-shadow:0 5px 12px rgba(14,32,40,.06); }
+.chem-block.na2co3 .train-split .ts-item{ background:#eef7ff; border-color:#c7e1f4; }
+.chem-block.naoh .train-split .ts-item{ background:#ecfbf7; border-color:#c1eadf; }
+.chem-block .train-split .ts-val{ font-size:.9rem; color:var(--ink); }
+.chem-block .train-split .ts-unit{ font-weight:800; color:#54717d; }
 
 .gauge{ margin-top: 12px; }
 .gauge-top{
@@ -1185,7 +1200,7 @@ footer.app-foot{
       </div>
       <div class="chart-legend" id="dosingChartLegend"></div>
       <div class="chart-wrap" id="dosingChartWrap" data-title="روند تزریق، جریان و سختی آب‌نمک خام"></div>
-      <div class="chart-axis-note">محور عمودی: درصد نسبت به بیشینهٔ همان شاخص (برای مقایسهٔ روند پنج آیتم در یک نگاه) — عدد واقعیِ هر نقطه در لجند بالا و با نگه‌داشتن روی نقطه دیده می‌شود.</div>
+      <div class="chart-axis-note">محور افقی: زمان ثبت هر نقطه. هر شاخص در ردیف مستقل، با محور عمودی و واحد واقعیِ خودش نمایش داده می‌شود؛ مقیاس‌ها درصدی یا نرمال‌سازی‌شده نیستند.</div>
     </section>
 
     <section class="card accent-rose">
@@ -1478,7 +1493,7 @@ footer.app-foot{
     <div class="chart-modal-title" id="chartModalTitle"></div>
     <div class="chart-legend chart-modal-legend" id="chartModalLegend"></div>
     <div class="chart-modal-body" id="chartModalBody"></div>
-    <div class="chart-modal-note">محور عمودی: درصد نسبت به بیشینهٔ همان شاخص — عدد واقعی هر نقطه در لجند بالا و با نگه‌داشتن روی نقطه دیده می‌شود.</div>
+    <div class="chart-modal-note">محور افقی: زمان ثبت هر نقطه. هر ردیف، محور عمودی با واحد واقعیِ همان شاخص دارد.</div>
     <div class="chart-modal-actions">
       <button class="primary" id="chartModalDownload">
         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v12M7 12l5 5 5-5"/><path d="M5 20h14"/></svg>
@@ -1857,119 +1872,30 @@ function updateLiveClock() {
   el.textContent = `${datePart} — ${timePart} (به وقت ایران)`;
 }
 
-// Each series can have a wildly different unit/scale (L/h, m3/h, mg/l), so a
-// single shared linear axis would flatten the smaller ones. Instead every
-// series is normalized to a % of its OWN max — this keeps every metric's
-// shape (rise/fall) equally readable on one chart. Real numbers are still
-// shown via legend + point tooltips, never lost.
-// Catmull-Rom → cubic-Bezier smoothing so the trend reads as a soft flowing
-// curve instead of a jagged polyline (purely cosmetic, values stay exact —
-// the curve is pinned through every real data point).
-function smoothPathD(pts) {
-  if (pts.length === 0) return "";
-  if (pts.length === 1) return `M${pts[0].x.toFixed(1)},${pts[0].y.toFixed(1)}`;
-  if (pts.length === 2) return `M${pts[0].x.toFixed(1)},${pts[0].y.toFixed(1)} L${pts[1].x.toFixed(1)},${pts[1].y.toFixed(1)}`;
-  let d = `M${pts[0].x.toFixed(1)},${pts[0].y.toFixed(1)} `;
-  for (let i = 0; i < pts.length - 1; i++) {
-    const p0 = pts[i === 0 ? 0 : i - 1];
-    const p1 = pts[i];
-    const p2 = pts[i + 1];
-    const p3 = pts[i + 2 < pts.length ? i + 2 : pts.length - 1];
-    const c1x = p1.x + (p2.x - p0.x) / 6, c1y = p1.y + (p2.y - p0.y) / 6;
-    const c2x = p2.x - (p3.x - p1.x) / 6, c2y = p2.y - (p3.y - p1.y) / 6;
-    d += `C${c1x.toFixed(1)},${c1y.toFixed(1)} ${c2x.toFixed(1)},${c2y.toFixed(1)} ${p2.x.toFixed(1)},${p2.y.toFixed(1)} `;
-  }
-  return d;
-}
-
+// هر شاخص در ردیف مستقل با محور عمودیِ واقعی و واحد خودش نمایش داده می‌شود؛
+// بنابراین زمان روی محور افقی مشترک است و هیچ درصد یا مقیاس پنهانی وجود ندارد.
 function buildLineChart(pts, series, emptyMsg) {
-  if (!pts || pts.length === 0) {
-    return `<div class="chart-empty">
-      <svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16l4.5-5 4 3L18 7l2 2"/><path d="M4 20h16"/></svg>
-      ${emptyMsg}
-    </div>`;
-  }
-  const shown = pts.slice(-40); // keep chart readable
-  const W = 620, H = 260, ML = 30, MR = 46, MT = 16, MB = 28;
-  const plotW = W - ML - MR, plotH = H - MT - MB;
-  const n = shown.length;
-
-  const seriesInfo = series.map((s) => {
-    let max = 0, any = false;
-    shown.forEach((p) => {
-      const v = s.getVal(p);
-      if (v !== null && v !== undefined && isFinite(v)) { any = true; if (v > max) max = v; }
-    });
-    return Object.assign({}, s, { max: max > 0 ? max : 1, any });
+  if (!pts || pts.length === 0) return `<div class="chart-empty"><svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 16l4.5-5 4 3L18 7l2 2"/><path d="M4 20h16"/></svg>${emptyMsg}</div>`;
+  const shown = pts.slice(-40), W = 660, ML = 92, MR = 22, MT = 14, rowH = 66, MB = 30;
+  const H = MT + rowH * series.length + MB, plotW = W - ML - MR, n = shown.length;
+  const xAt = (i) => n > 1 ? ML + plotW * i / (n - 1) : ML + plotW / 2;
+  let svg = "";
+  series.forEach((s, si) => {
+    const vals = shown.map(s.getVal).filter(v => v !== null && v !== undefined && isFinite(v));
+    if (!vals.length) return;
+    const rawMin = Math.min(...vals), rawMax = Math.max(...vals), pad = rawMax === rawMin ? Math.max(Math.abs(rawMax) * .12, 1) : (rawMax - rawMin) * .12;
+    const min = rawMin - pad, max = rawMax + pad, top = MT + si * rowH + 8, bottom = top + rowH - 20;
+    const yAt = v => bottom - ((v - min) / (max - min)) * (bottom - top);
+    const dec = s.decimals ?? 1;
+    svg += `<text x="${ML - 9}" y="${top + 2}" text-anchor="end" style="font:700 9px Vazirmatn,Tahoma,sans-serif;fill:${s.color}">${s.name} (${s.unit})</text>`;
+    [min, (min + max) / 2, max].forEach((v, j) => { const y = yAt(v); svg += `<line class="cx-grid" x1="${ML}" y1="${y.toFixed(1)}" x2="${W - MR}" y2="${y.toFixed(1)}" ${j === 1 ? 'stroke-dasharray="3,4"' : ''}/><text class="cx-label" x="${ML - 7}" y="${(y + 3).toFixed(1)}" text-anchor="end">${fmt(v, dec)}</text>`; });
+    let run = [];
+    const draw = () => { if (run.length > 1) svg += `<path class="cx-line" d="M${run.map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' L')}" style="stroke:${s.color}"/>`; run.forEach((p, i) => { const last = i === run.length - 1; svg += `<circle class="cx-dot" cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${last ? 4 : 2.7}" style="fill:${s.color}"><title>${faDateTime(shown[p.i].t)} — ${s.name} ${fmt(p.v, dec)} ${s.unit}</title></circle>`; }); run = []; };
+    shown.forEach((p, i) => { const v = s.getVal(p); if (v === null || v === undefined || !isFinite(v)) draw(); else run.push({x:xAt(i), y:yAt(v), v, i}); }); draw();
   });
-
-  const xAt = (i) => (n > 1 ? ML + (plotW * i) / (n - 1) : ML + plotW / 2);
-  const yAt = (pct) => MT + plotH - (pct / 100) * plotH;
-
-  let gridSvg = "";
-  [0, 25, 50, 75, 100].forEach((pct) => {
-    const y = yAt(pct);
-    const dash = pct === 0 ? "" : ` stroke-dasharray="3,4"`;
-    gridSvg += `<line class="cx-grid" x1="${ML}" y1="${y.toFixed(1)}" x2="${W - MR}" y2="${y.toFixed(1)}"${dash}/>`;
-    gridSvg += `<text class="cx-label" x="${ML - 5}" y="${(y + 3).toFixed(1)}" text-anchor="end">${pct}%</text>`;
-  });
-
-  let linesSvg = "", dotsSvg = "";
-  const endLabels = [];
-  seriesInfo.forEach((s) => {
-    if (!s.any) return;
-    // split into runs of consecutive real values so a missing reading (e.g.
-    // hardness not entered for that point) doesn't fake a drop to zero
-    const runs = [];
-    let cur = [];
-    shown.forEach((p, i) => {
-      const v = s.getVal(p);
-      if (v === null || v === undefined || !isFinite(v)) { if (cur.length) runs.push(cur); cur = []; return; }
-      cur.push({ x: xAt(i), y: yAt((v / s.max) * 100), i, v });
-    });
-    if (cur.length) runs.push(cur);
-
-    runs.forEach((run) => {
-      if (run.length > 1) linesSvg += `<path class="cx-line" d="${smoothPathD(run)}" style="stroke:${s.color}"/>`;
-    });
-
-    const lastRun = runs[runs.length - 1];
-    const lastPt = lastRun ? lastRun[lastRun.length - 1] : null;
-    const dec = s.decimals != null ? s.decimals : 1;
-
-    runs.forEach((run) => run.forEach((pt) => {
-      const isLast = lastPt && pt.i === lastPt.i;
-      const r = isLast ? 4.3 : 2.8;
-      dotsSvg += `<circle class="cx-dot" cx="${pt.x.toFixed(1)}" cy="${pt.y.toFixed(1)}" r="${r}" style="fill:${s.color}"><title>${faDateTime(shown[pt.i].t)} — ${s.name || ""} ${fmt(pt.v, dec)}${s.unit ? " " + s.unit : ""}</title></circle>`;
-    }));
-
-    if (lastPt) endLabels.push({ y: lastPt.y, color: s.color, text: fmt(lastPt.v, dec) });
-  });
-
-  // stack end-of-line value tags on the right edge, nudging apart overlaps
-  endLabels.sort((a, b) => a.y - b.y);
-  for (let i = 1; i < endLabels.length; i++) {
-    if (endLabels[i].y - endLabels[i - 1].y < 11) endLabels[i].y = endLabels[i - 1].y + 11;
-  }
-  const endLabelsSvg = endLabels.map((l) =>
-    `<text x="${(W - 6).toFixed(1)}" y="${(l.y + 3).toFixed(1)}" text-anchor="end" style="font:700 9.5px Vazirmatn,Tahoma,sans-serif;paint-order:stroke;stroke:#fff;stroke-width:3;fill:${l.color}">${l.text}</text>`
-  ).join("");
-
-  // up to 3 evenly-spaced date labels along the x-axis for better context
-  const labelIdx = n > 2 ? [0, Math.round((n - 1) / 2), n - 1] : n === 2 ? [0, 1] : [0];
-  const xLabels = labelIdx.map((i, k) => {
-    const anchor = k === 0 ? "start" : k === labelIdx.length - 1 ? "end" : "middle";
-    return `<text class="cx-label" x="${xAt(i).toFixed(1)}" y="${H - 8}" text-anchor="${anchor}">${faDateTime(shown[i].t)}</text>`;
-  }).join("");
-
-  return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
-    <defs><filter id="cxShadow" x="-20%" y="-30%" width="140%" height="160%">
-      <feDropShadow dx="0" dy="1.4" stdDeviation="1.5" flood-color="#0a2836" flood-opacity="0.16"/>
-    </filter></defs>
-    ${gridSvg}
-    <g filter="url(#cxShadow)">${linesSvg}</g>
-    ${dotsSvg}${endLabelsSvg}${xLabels}
-  </svg>`;
+  const labels = n > 2 ? [0, Math.round((n - 1) / 2), n - 1] : n === 2 ? [0, 1] : [0];
+  svg += labels.map((i, k) => `<text class="cx-label" x="${xAt(i).toFixed(1)}" y="${H - 8}" text-anchor="${k === 0 ? 'start' : k === labels.length - 1 ? 'end' : 'middle'}">${faDateTime(shown[i].t)}</text>`).join("");
+  return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg"><defs><filter id="cxShadow" x="-20%" y="-30%" width="140%" height="160%"><feDropShadow dx="0" dy="1.4" stdDeviation="1.5" flood-color="#0a2836" flood-opacity="0.16"/></filter></defs><g filter="url(#cxShadow)">${svg}</g></svg>`;
 }
 
 // legend with the latest real value + trend arrow per series (chart itself
