@@ -1862,6 +1862,26 @@ function updateLiveClock() {
 // series is normalized to a % of its OWN max — this keeps every metric's
 // shape (rise/fall) equally readable on one chart. Real numbers are still
 // shown via legend + point tooltips, never lost.
+// Catmull-Rom → cubic-Bezier smoothing so the trend reads as a soft flowing
+// curve instead of a jagged polyline (purely cosmetic, values stay exact —
+// the curve is pinned through every real data point).
+function smoothPathD(pts) {
+  if (pts.length === 0) return "";
+  if (pts.length === 1) return `M${pts[0].x.toFixed(1)},${pts[0].y.toFixed(1)}`;
+  if (pts.length === 2) return `M${pts[0].x.toFixed(1)},${pts[0].y.toFixed(1)} L${pts[1].x.toFixed(1)},${pts[1].y.toFixed(1)}`;
+  let d = `M${pts[0].x.toFixed(1)},${pts[0].y.toFixed(1)} `;
+  for (let i = 0; i < pts.length - 1; i++) {
+    const p0 = pts[i === 0 ? 0 : i - 1];
+    const p1 = pts[i];
+    const p2 = pts[i + 1];
+    const p3 = pts[i + 2 < pts.length ? i + 2 : pts.length - 1];
+    const c1x = p1.x + (p2.x - p0.x) / 6, c1y = p1.y + (p2.y - p0.y) / 6;
+    const c2x = p2.x - (p3.x - p1.x) / 6, c2y = p2.y - (p3.y - p1.y) / 6;
+    d += `C${c1x.toFixed(1)},${c1y.toFixed(1)} ${c2x.toFixed(1)},${c2y.toFixed(1)} ${p2.x.toFixed(1)},${p2.y.toFixed(1)} `;
+  }
+  return d;
+}
+
 function buildLineChart(pts, series, emptyMsg) {
   if (!pts || pts.length === 0) {
     return `<div class="chart-empty">
@@ -1870,7 +1890,7 @@ function buildLineChart(pts, series, emptyMsg) {
     </div>`;
   }
   const shown = pts.slice(-40); // keep chart readable
-  const W = 600, H = 240, ML = 30, MR = 14, MT = 14, MB = 26;
+  const W = 620, H = 260, ML = 30, MR = 46, MT = 16, MB = 28;
   const plotW = W - ML - MR, plotH = H - MT - MB;
   const n = shown.length;
 
@@ -1889,38 +1909,67 @@ function buildLineChart(pts, series, emptyMsg) {
   let gridSvg = "";
   [0, 25, 50, 75, 100].forEach((pct) => {
     const y = yAt(pct);
-    gridSvg += `<line class="cx-grid" x1="${ML}" y1="${y.toFixed(1)}" x2="${W - MR}" y2="${y.toFixed(1)}"/>`;
+    const dash = pct === 0 ? "" : ` stroke-dasharray="3,4"`;
+    gridSvg += `<line class="cx-grid" x1="${ML}" y1="${y.toFixed(1)}" x2="${W - MR}" y2="${y.toFixed(1)}"${dash}/>`;
     gridSvg += `<text class="cx-label" x="${ML - 5}" y="${(y + 3).toFixed(1)}" text-anchor="end">${pct}%</text>`;
   });
 
-  let seriesSvg = "";
+  let linesSvg = "", dotsSvg = "";
+  const endLabels = [];
   seriesInfo.forEach((s) => {
     if (!s.any) return;
-    let d = "";
-    let started = false;
+    // split into runs of consecutive real values so a missing reading (e.g.
+    // hardness not entered for that point) doesn't fake a drop to zero
+    const runs = [];
+    let cur = [];
     shown.forEach((p, i) => {
       const v = s.getVal(p);
-      if (v === null || v === undefined || !isFinite(v)) { started = false; return; }
-      const pct = (v / s.max) * 100;
-      d += (started ? "L" : "M") + xAt(i).toFixed(1) + "," + yAt(pct).toFixed(1) + " ";
-      started = true;
+      if (v === null || v === undefined || !isFinite(v)) { if (cur.length) runs.push(cur); cur = []; return; }
+      cur.push({ x: xAt(i), y: yAt((v / s.max) * 100), i, v });
     });
-    if (d) seriesSvg += `<path class="cx-line" d="${d}" style="stroke:${s.color}"/>`;
-    shown.forEach((p, i) => {
-      const v = s.getVal(p);
-      if (v === null || v === undefined || !isFinite(v)) return;
-      const pct = (v / s.max) * 100;
-      const dec = s.decimals != null ? s.decimals : 1;
-      seriesSvg += `<circle class="cx-dot" cx="${xAt(i).toFixed(1)}" cy="${yAt(pct).toFixed(1)}" r="3.2" style="fill:${s.color}"><title>${faDateTime(p.t)} — ${s.name || ""} ${fmt(v, dec)}${s.unit ? " " + s.unit : ""}</title></circle>`;
+    if (cur.length) runs.push(cur);
+
+    runs.forEach((run) => {
+      if (run.length > 1) linesSvg += `<path class="cx-line" d="${smoothPathD(run)}" style="stroke:${s.color}"/>`;
     });
+
+    const lastRun = runs[runs.length - 1];
+    const lastPt = lastRun ? lastRun[lastRun.length - 1] : null;
+    const dec = s.decimals != null ? s.decimals : 1;
+
+    runs.forEach((run) => run.forEach((pt) => {
+      const isLast = lastPt && pt.i === lastPt.i;
+      const r = isLast ? 4.3 : 2.8;
+      dotsSvg += `<circle class="cx-dot" cx="${pt.x.toFixed(1)}" cy="${pt.y.toFixed(1)}" r="${r}" style="fill:${s.color}"><title>${faDateTime(shown[pt.i].t)} — ${s.name || ""} ${fmt(pt.v, dec)}${s.unit ? " " + s.unit : ""}</title></circle>`;
+    }));
+
+    if (lastPt) endLabels.push({ y: lastPt.y, color: s.color, text: fmt(lastPt.v, dec) });
   });
 
-  const xLabels = `
-    <text class="cx-label" x="${ML}" y="${H - 6}" text-anchor="start">${faDateTime(shown[0].t)}</text>
-    <text class="cx-label" x="${W - MR}" y="${H - 6}" text-anchor="end">${faDateTime(shown[n - 1].t)}</text>
-  `;
+  // stack end-of-line value tags on the right edge, nudging apart overlaps
+  endLabels.sort((a, b) => a.y - b.y);
+  for (let i = 1; i < endLabels.length; i++) {
+    if (endLabels[i].y - endLabels[i - 1].y < 11) endLabels[i].y = endLabels[i - 1].y + 11;
+  }
+  const endLabelsSvg = endLabels.map((l) =>
+    `<text x="${(W - 6).toFixed(1)}" y="${(l.y + 3).toFixed(1)}" text-anchor="end" style="font:700 9.5px Vazirmatn,Tahoma,sans-serif;paint-order:stroke;stroke:#fff;stroke-width:3;fill:${l.color}">${l.text}</text>`
+  ).join("");
 
-  return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">${gridSvg}${seriesSvg}${xLabels}</svg>`;
+  // up to 3 evenly-spaced date labels along the x-axis for better context
+  const labelIdx = n > 2 ? [0, Math.round((n - 1) / 2), n - 1] : n === 2 ? [0, 1] : [0];
+  const xLabels = labelIdx.map((i, k) => {
+    const anchor = k === 0 ? "start" : k === labelIdx.length - 1 ? "end" : "middle";
+    return `<text class="cx-label" x="${xAt(i).toFixed(1)}" y="${H - 8}" text-anchor="${anchor}">${faDateTime(shown[i].t)}</text>`;
+  }).join("");
+
+  return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
+    <defs><filter id="cxShadow" x="-20%" y="-30%" width="140%" height="160%">
+      <feDropShadow dx="0" dy="1.4" stdDeviation="1.5" flood-color="#0a2836" flood-opacity="0.16"/>
+    </filter></defs>
+    ${gridSvg}
+    <g filter="url(#cxShadow)">${linesSvg}</g>
+    ${dotsSvg}${endLabelsSvg}${xLabels}
+  </svg>`;
 }
 
 // legend with the latest real value + trend arrow per series (chart itself
@@ -1976,8 +2025,8 @@ function downloadSvgAsPng(svgEl, filename) {
   clone.insertBefore(styleTag, clone.firstChild);
 
   const vb = clone.viewBox && clone.viewBox.baseVal;
-  const w = (vb && vb.width) || 600;
-  const h = (vb && vb.height) || 240;
+  const w = (vb && vb.width) || 620;
+  const h = (vb && vb.height) || 260;
 
   const bg = document.createElementNS("http://www.w3.org/2000/svg", "rect");
   bg.setAttribute("width", String(w));
@@ -1998,8 +2047,18 @@ function downloadSvgAsPng(svgEl, filename) {
     const ctx = canvas.getContext("2d");
     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
     URL.revokeObjectURL(url);
-    canvas.toBlob((blob) => {
-      if (!blob) return;
+    canvas.toBlob(async (blob) => {
+      if (!blob) { alert("ساخت تصویر نمودار ناموفق بود."); return; }
+
+      // on phones (mainly iOS Safari) an <a download> link on a blob just
+      // opens the image in a new tab instead of saving it — the native
+      // share-sheet's "ذخیرهٔ عکس" is the only reliably direct one-tap save
+      const file = new File([blob], filename, { type: "image/png" });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        try { await navigator.share({ files: [file] }); return; }
+        catch (err) { if (err && err.name === "AbortError") return; /* else fall back below */ }
+      }
+
       const a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
       a.download = filename;
@@ -2020,12 +2079,18 @@ function renderTrendTab() {
   const storageWarn = $("trendStorageWarn");
   if (storageWarn) storageWarn.style.display = trendStorageOK ? "none" : "";
 
+  // NOTE: literal hex values on purpose (not var(--x)) — the "save as image"
+  // export clones this SVG into a standalone document with no access to the
+  // page's CSS variables, so var() there silently resolves to nothing and
+  // the browser falls back to each property's initial value: stroke → none
+  // (line vanishes) and fill → black (dot survives, just wrong color). That
+  // was exactly the "فقط نقطه اومد و خطوط نبود" bug.
   const dosingSeries = [
-    { name: "Na₂CO₃", color: "var(--blue)", unit: "L/h", decimals: 0, getVal: (p) => p.na },
-    { name: "NaOH", color: "var(--teal)", unit: "L/h", decimals: 0, getVal: (p) => p.oh },
-    { name: "جریان", color: "var(--rose)", unit: "m³/h", decimals: 0, getVal: (p) => p.q },
-    { name: "Ca²⁺", color: "var(--amber)", unit: "mg/l", decimals: 0, getVal: (p) => (p.hasHardness ? p.ca : null) },
-    { name: "Mg²⁺", color: "var(--purple)", unit: "mg/l", decimals: 0, getVal: (p) => (p.hasHardness ? p.mg : null) },
+    { name: "Na₂CO₃", color: "#1170a3", unit: "L/h", decimals: 0, getVal: (p) => p.na },
+    { name: "NaOH", color: "#10a893", unit: "L/h", decimals: 0, getVal: (p) => p.oh },
+    { name: "جریان", color: "#d6537f", unit: "m³/h", decimals: 0, getVal: (p) => p.q },
+    { name: "Ca²⁺", color: "#d98a1f", unit: "mg/l", decimals: 0, getVal: (p) => (p.hasHardness ? p.ca : null) },
+    { name: "Mg²⁺", color: "#7c5cd6", unit: "mg/l", decimals: 0, getVal: (p) => (p.hasHardness ? p.mg : null) },
   ];
   $("dosingChartWrap").innerHTML = buildLineChart(
     pts, dosingSeries,
