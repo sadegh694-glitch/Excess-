@@ -1113,6 +1113,10 @@ footer.app-foot{
         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
         ثبت این نقطه در روند
       </button>
+
+      <div class="notice warn" id="trendStorageWarn" style="display:none; margin-top:10px">
+        ذخیرهٔ دائمی نقاط در این مرورگر امکان‌پذیر نیست (مثلاً به دلیل بازکردن مستقیم فایل یا حالت مرورش خصوصی)؛ نقاط ثبت‌شده فقط تا وقتی همین صفحه باز است نمایش داده می‌شوند و با بستن یا رفرش‌کردن صفحه از بین می‌روند.
+      </div>
     </section>
 
     <section class="card accent-blue chart-card">
@@ -1699,15 +1703,43 @@ function applyDefaults() {
 /* ---------------- trend tab: save / delete / chart ---------------- */
 const TREND_KEY = "dosingTrendPoints_v1";
 
+// in-memory cache is the single source of truth for render/add/delete so the
+// tab always works instantly in this browsing session — localStorage is only
+// a best-effort layer on top, in case the browser blocks it (e.g. file://
+// pages, private browsing) writing/reading still won't break the feature.
+let trendPointsCache = null;
+let trendStorageOK = true;
+
+function probeTrendStorage() {
+  try {
+    const k = "__trend_probe__";
+    localStorage.setItem(k, "1");
+    localStorage.removeItem(k);
+    trendStorageOK = true;
+  } catch (e) {
+    trendStorageOK = false;
+  }
+}
+
 function loadTrendPoints() {
+  if (trendPointsCache) return trendPointsCache;
+  let arr = [];
   try {
     const raw = localStorage.getItem(TREND_KEY);
-    const arr = raw ? JSON.parse(raw) : [];
-    return Array.isArray(arr) ? arr : [];
-  } catch (e) { return []; }
+    if (raw) arr = JSON.parse(raw);
+    if (!Array.isArray(arr)) arr = [];
+  } catch (e) { arr = []; }
+  trendPointsCache = arr;
+  probeTrendStorage();
+  return trendPointsCache;
 }
-function saveTrendPoints(arr) {
-  try { localStorage.setItem(TREND_KEY, JSON.stringify(arr)); } catch (e) {}
+function persistTrendPoints() {
+  try {
+    localStorage.setItem(TREND_KEY, JSON.stringify(trendPointsCache));
+    trendStorageOK = true;
+  } catch (e) {
+    trendStorageOK = false;
+  }
 }
 
 function updateTrendPreview() {
@@ -1729,7 +1761,7 @@ function addTrendPoint() {
     ca: lastCalc.ca, mg: lastCalc.mg, hasHardness: lastCalc.hasHardness,
   });
   while (pts.length > 300) pts.shift();
-  saveTrendPoints(pts);
+  persistTrendPoints();
   renderTrendTab();
 
   const btn = $("saveTrendBtn");
@@ -1740,13 +1772,17 @@ function addTrendPoint() {
 }
 
 function deleteTrendPoint(id) {
-  saveTrendPoints(loadTrendPoints().filter((p) => p.id !== id));
+  const pts = loadTrendPoints();
+  const idx = pts.findIndex((p) => p.id === id);
+  if (idx >= 0) pts.splice(idx, 1);
+  persistTrendPoints();
   renderTrendTab();
 }
 
 function clearAllTrend() {
   if (!confirm("همهٔ نقاط ثبت‌شدهٔ روند پاک شود؟ این کار قابل بازگشت نیست.")) return;
-  saveTrendPoints([]);
+  trendPointsCache = [];
+  persistTrendPoints();
   renderTrendTab();
 }
 
@@ -1757,7 +1793,7 @@ function faDateTime(t) {
 function buildLineChart(pts, series, emptyMsg) {
   if (!pts || pts.length === 0) {
     return `<div class="chart-empty">
-      <svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V9M12 19V4M20 19v-7"/></svg>
+      <svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16l4.5-5 4 3L18 7l2 2"/><path d="M4 20h16"/></svg>
       ${emptyMsg}
     </div>`;
   }
@@ -1809,6 +1845,9 @@ function renderTrendTab() {
   const pts = loadTrendPoints().slice().sort((a, b) => a.t - b.t);
 
   $("trendCount").textContent = `${fmt(pts.length, 0)} نقطه`;
+
+  const storageWarn = $("trendStorageWarn");
+  if (storageWarn) storageWarn.style.display = trendStorageOK ? "none" : "";
 
   $("dosingChartWrap").innerHTML = buildLineChart(
     pts,
