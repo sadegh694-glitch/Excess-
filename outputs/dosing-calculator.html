@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
 <title>محاسبه‌گر میزان تزریق کاستیک و کربنات سدیم | اکسس تانک رسوب‌دهی آب‌نمک</title>
-<meta name="description" content="محاسبه نرخ تزریق کربنات سدیم و کاستیک سدا برای حفظ اکسس در محدوده نرمال بهره‌برداری واحد رسوب‌دهی آب‌نمک، بر اساس دفترچه راهنمای بهره‌برداری واحد C/A." />
+<meta name="description" content="محاسبه نرخ تزریق کربنات سدیم و کاستیک برای حفظ اکسس در محدوده نرمال بهره‌برداری واحد رسوب‌دهی آب‌نمک، بر اساس دفترچه راهنمای بهره‌برداری واحد C/A." />
 <meta name="theme-color" content="#071b26" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -47,6 +47,8 @@
   --teal: #10a893;
   --cyan: #6fe3d4;
   --amber: #d98a1f;
+  --purple: #7c5cd6;
+  --rose: #d6537f;
 
   --warn-bg: #fff5e6;
   --warn-ink: #8a5300;
@@ -235,6 +237,8 @@ button{ -webkit-appearance:none; appearance:none; border:none; background:none; 
 }
 .card.accent-teal{ border-inline-start-color: var(--teal); }
 .card.accent-amber{ border-inline-start-color: var(--amber); }
+.card.accent-purple{ border-inline-start-color: var(--purple); }
+.card.accent-rose{ border-inline-start-color: var(--rose); }
 
 .card-head{
   display:flex;
@@ -252,6 +256,8 @@ button{ -webkit-appearance:none; appearance:none; border:none; background:none; 
 .ic-badge.ic-teal{ color: var(--teal); background: linear-gradient(145deg,#e7f8f4,#d7f0e9); border-color:#cdeadf; }
 .ic-badge.ic-amber{ color: var(--amber); background: linear-gradient(145deg,#fbf1e0,#f6e5c6); border-color:#f0dcae; }
 .ic-badge.ic-dark{ color:#fff; background: linear-gradient(145deg, var(--blue), var(--navy)); border-color: var(--navy); }
+.ic-badge.ic-purple{ color: var(--purple); background: linear-gradient(145deg,#f1ecfb,#e4d9f6); border-color:#dccdf0; }
+.ic-badge.ic-rose{ color: var(--rose); background: linear-gradient(145deg,#fbe9f0,#f6d3e0); border-color:#f0c1d3; }
 
 .card-titles{ flex:1; min-width:0; }
 .card-titles h2{
@@ -556,6 +562,27 @@ input[type=range]::-moz-range-progress{ height:8px; border-radius:999px; backgro
 .info-list{ font-size: 0.82rem; line-height: 2; margin:0; padding-inline-start: 20px; color: var(--ink); }
 .info-list li{ margin-bottom:4px; }
 .info-list b{ color: var(--blue-ink); }
+
+.sub-block{ margin-top:16px; padding-top:15px; border-top:1px dashed var(--border); }
+.sub-block:first-child{ margin-top:0; padding-top:0; border-top:none; }
+.sub-head{ display:flex; align-items:center; gap:9px; margin-bottom:8px; }
+.sub-dot{ flex:none; width:11px; height:11px; border-radius:50%; }
+.sub-dot.flo{ background: var(--purple); color: var(--purple); }
+.sub-dot.cel{ background: var(--amber); color: var(--amber); }
+.sub-dot.res{ background: var(--rose); color: var(--rose); }
+.sub-head h3{ font-size:0.86rem; font-weight:800; color:var(--ink); margin:0; }
+.sub-head .sub-tag{
+  margin-inline-start:auto; font-size:0.6rem; font-weight:700; direction:ltr; unicode-bidi:isolate;
+  color:var(--muted); background: var(--card-2); border:1px solid var(--border);
+  border-radius:999px; padding:2px 9px; white-space:nowrap;
+}
+.sub-block p{ font-size:0.79rem; line-height:1.95; color:var(--ink); margin:0 0 7px; }
+.sub-block p:last-child{ margin-bottom:0; }
+.sub-block .sub-fig{
+  display:inline-flex; align-items:center; gap:5px; font-size:0.72rem; font-weight:700;
+  color: var(--blue-ink); background: rgba(17,112,163,.08); border:1px solid rgba(17,112,163,.16);
+  border-radius:7px; padding:2px 8px; margin:0 2px; direction:ltr; unicode-bidi:isolate; line-height:1.6;
+}
 
 /* ---------- calculation steps (guide · formulas card) ---------- */
 .calc-steps{ display:flex; flex-direction:column; }
@@ -956,7 +983,7 @@ footer.app-foot{
         <div class="head">
           <span class="dot"></span>
           <div class="chem-title">
-            <b>کاستیک سدا <span class="formula">NaOH</span></b>
+            <b>کاستیک <span class="formula">NaOH</span></b>
             <small>میزان تزریق برای اکسس هدف (+ استوکیومتری در حالت پیشرفته)</small>
           </div>
         </div>
@@ -1049,6 +1076,51 @@ footer.app-foot{
       </div>
     </section>
 
+    <section class="card accent-purple">
+      <div class="card-head">
+        <div class="ic-badge ic-purple">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="8" r="2"/><circle cx="17" cy="7" r="1.6"/><circle cx="16" cy="16" r="2.2"/><path d="M8.6 9.2 15 15M8.4 8 15.6 7.4"/></svg>
+        </div>
+        <div class="card-titles">
+          <h2>کمک‌مواد زلال‌سازی و پالیش آب‌نمک</h2>
+          <p>سه مادهٔ کمکی که در مسیر کلاریفایر تا فیلترهای پالیشینگ، کیفیت آب‌نمک را برای الکترولایز آماده می‌کنند — جدا از تزریق کربنات/کاستیک.</p>
+        </div>
+      </div>
+
+      <div class="sub-block">
+        <div class="sub-head">
+          <span class="sub-dot flo"></span>
+          <h3>فلوکولانت (پلی‌آکریلات سدیم)</h3>
+          <span class="sub-tag">41U‑04150/04250</span>
+        </div>
+        <p>پیش از ورود آب‌نمک به کلاریفایر، فلوکولانت به آن تزریق می‌شود تا فلاک‌های درشت‌تری از رسوبات CaCO₃/Mg(OH)₂ تشکیل شود و ته‌نشینی سریع‌تر انجام گیرد؛ بدون آن، ذرات ریز رسوب به‌کندی ته‌نشین می‌شوند و کیفیت سرریز کلاریفایر افت می‌کند.</p>
+        <p>غلظت فلوکولانت در آب‌نمک حدود <span class="sub-fig">۱ ppm</span> نگه داشته می‌شود. محلول مصرفی در دو تانک تهیه/تورم (Preparation/Swelling) ساخته می‌شود: به‌ازای هر <span class="sub-fig">۱ kg</span> پودر فلوکولانت، یک محلول <span class="sub-fig">۰٫۰۵٪</span> تهیه و پیش از تزریق حدود <span class="sub-fig">۱ h</span> با هم‌زن نگه داشته می‌شود تا کاملاً متورم شود.</p>
+      </div>
+
+      <div class="sub-block">
+        <div class="sub-head">
+          <span class="sub-dot cel"></span>
+          <h3>آلفاسلولز (پیش‌پوشش و بادی‌فید فیلترهای پالیشینگ)</h3>
+          <span class="sub-tag">41V‑05105/05107 · 05205/05207</span>
+        </div>
+        <p>آلفاسلولز دو نقش جدا در فیلترهای پالیشینگ آب‌نمک (candle filter) دارد:</p>
+        <p>· <b>پیش‌پوشش (Precoat):</b> پیش از شروع فیلتراسیون، لایه‌ای از آلفاسلولز روی کندل‌های فیلتر نشانده می‌شود تا منافذ ریز آن‌ها با جامدات معلق ریز مسدود نشود. تانک پیش‌پوشش با <span class="sub-fig">۱۲۵ kg</span> آلفاسلولز پر می‌شود (غلظت نمونهٔ محلول <span class="sub-fig">۰٫۵٪</span>).</p>
+        <p>· <b>بادی‌فید (Body Feed):</b> در طول فیلتراسیون، سوسپانسیون آلفاسلولز به‌طور پیوسته به جریان ورودی فیلتر تزریق می‌شود تا کیک فیلتر متخلخل‌تر بماند، افت فشار کندتر رشد کند و فاصلهٔ بین دو بازسازی (Regeneration) بیشتر شود. تانک بادی‌فید با <span class="sub-fig">۱۰۰ kg</span> آلفاسلولز پر می‌شود (غلظت محلول طبق سند: نرمال <span class="sub-fig">۳٪</span>، حداکثر <span class="sub-fig">۰٫۵٪</span> — عیناً به همین شکل در سند ثبت شده).</p>
+        <p>کیک فیلتر نهایی از ترکیب آلفاسلولز + جامدات معلق آب‌نمک تشکیل می‌شود؛ وقتی افت فشار فیلتر به حدود <span class="sub-fig">۲ bar</span> نزدیک شود (معمولاً هر <span class="sub-fig">~۴۸ h</span>)، فیلتر بک‌واش و بازسازی می‌شود.</p>
+      </div>
+
+      <div class="sub-block">
+        <div class="sub-head">
+          <span class="sub-dot res"></span>
+          <h3>رزین تبادل یونی Lewatit TP208</h3>
+          <span class="sub-tag">Sec. 4.2.2.1</span>
+        </div>
+        <p>پس از فیلترهای پالیشینگ، سختی <b>محلول</b> باقی‌ماندهٔ آب‌نمک (حدود ۵ تا ۱۰ ppm Ca/Mg) باید در بخش تبادل یونی ثانویه (Secondary Brine Purification) به کمتر از <span class="sub-fig">۲۰ ppb</span> برسد تا به الکترولایزر آسیب نزند؛ رزین Lewatit TP208 یک رزین کلاته‌کننده (Chelating Cation Exchange Resin) با گزینش‌پذیری بالا برای Ca²⁺/Mg²⁺/Sr²⁺ است.</p>
+        <p>آرایش رزین: <span class="sub-fig">۴</span> ستون در <span class="sub-fig">۲</span> خط موازی، در هر خط <span class="sub-fig">۲</span> ستون به‌صورت سری (Lead/Lag، به روش Merry-Go-Round) کار می‌کنند. یک تله‌رزین (Resin Trap) پایین‌دست هر خط، الکترولایزر را در صورت شکستن نازل ستون از نشت دانه‌های رزین محافظت می‌کند و یک آنالایزر آنلاین Ca/Mg خروجی ستون Lead را زیر نظر دارد.</p>
+        <p>عمر سرویس هر ستون بین دو احیا حدود <span class="sub-fig">۹۰ h</span> در حالت نرمال است (در سختی ورودی ۱۰ ppm به <span class="sub-fig">۳۹ h</span> و در ۵ ppm به <span class="sub-fig">۷۸ h</span> می‌رسد)؛ برای حاشیهٔ اطمینان، احیای رزین هر <span class="sub-fig">۷۲ h</span> انجام می‌شود.</p>
+      </div>
+    </section>
+
     <section class="card accent-blue">
       <div class="card-head">
         <div class="ic-badge">
@@ -1067,9 +1139,9 @@ footer.app-foot{
       </ul>
     </section>
 
-    <section class="card accent-teal">
+    <section class="card accent-rose">
       <div class="card-head">
-        <div class="ic-badge ic-teal">
+        <div class="ic-badge ic-rose">
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/><ellipse cx="12" cy="12" rx="9" ry="4"/><ellipse cx="12" cy="12" rx="9" ry="4" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="9" ry="4" transform="rotate(120 12 12)"/></svg>
         </div>
         <div class="card-titles">
@@ -1157,9 +1229,9 @@ footer.app-foot{
       </div>
     </section>
 
-    <section class="card accent-amber">
+    <section class="card accent-purple">
       <div class="card-head">
-        <div class="ic-badge ic-amber">
+        <div class="ic-badge ic-purple">
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4.5A1.5 1.5 0 0 1 5.5 3H15l5 5v11.5A1.5 1.5 0 0 1 18.5 21h-13A1.5 1.5 0 0 1 4 19.5v-15Z"/><path d="M14 3v6h6"/></svg>
         </div>
         <div class="card-titles">
@@ -1172,6 +1244,9 @@ footer.app-foot{
         <li>بخش ۳٫۲٫۲٫۱ Brine Precipitation, Unit 031</li>
         <li>بخش ۳٫۲٫۳٫۱ Process Chemistry</li>
         <li>بخش ۵٫۲٫۲٫۲ Brine purge (کنترل سولفات/کلرات)</li>
+        <li>بخش ۳٫۷٫۱ Flocculant Preparation &amp; Dosing System</li>
+        <li>بخش پیش‌پوشش/بادی‌فید فیلترهای پالیشینگ با آلفاسلولز (Precoat/Body Feed Filters)</li>
+        <li>بخش ۴٫۲٫۲٫۱ Secondary Brine Purification (رزین Lewatit TP208)</li>
         <li>جدول ۶-۸ کیفیت آب‌نمک فوق‌خالص ورودی الکترولایزر</li>
       </ul>
       <div class="notice warn" style="margin-top:12px">
