@@ -122,6 +122,7 @@ button{ -webkit-appearance:none; appearance:none; border:none; background:none; 
 .appbar-txt{ flex:1; min-width:0; line-height:1.4; }
 .appbar-txt b{ display:block; font-size: 0.94rem; font-weight:700; }
 .appbar-txt span{ display:block; font-size: 0.66rem; color:#8fb0bb; direction: ltr; text-align: right; unicode-bidi: plaintext; }
+.appbar-clock{ display:block; font-size: 0.66rem; color:#bcd7de; margin-top:3px; direction:rtl; text-align:right; font-variant-numeric: tabular-nums; }
 .appbar-doc{
   font-size: 0.62rem; font-weight:700; letter-spacing:.03em;
   color:#04212a; background: var(--cyan);
@@ -738,6 +739,7 @@ footer.app-foot{
     <div class="appbar-txt">
       <b>میزان تزریق کربنات و کاستیک</b>
       <span>PLANT UNIT 031 · BRINE PRECIPITATION</span>
+      <div class="appbar-clock" id="liveClock">—</div>
     </div>
     <div class="appbar-doc">C/A</div>
   </div>
@@ -1029,9 +1031,8 @@ footer.app-foot{
         </div>
 
         <div class="metric-grid">
-          <div class="metric main"><div class="num" id="naKgH">—</div><div class="lab">kg/h خالص</div></div>
-          <div class="metric"><div class="num" id="naKgDay">—</div><div class="lab">kg/day خالص</div></div>
-          <div class="metric"><div class="num" id="naSolLh">—</div><div class="lab">L/h محلول ۱۰٪</div></div>
+          <div class="metric main" style="grid-column:1/-1"><div class="num" id="naSolLh">—</div><div class="lab">L/h محلول ۱۰٪</div></div>
+          <div class="metric"><div class="num" id="naSolLDay">—</div><div class="lab">L/day محلول ۱۰٪</div></div>
           <div class="metric"><div class="num" id="naBags">—</div><div class="lab">کیسه ۵۰kg در روز</div></div>
         </div>
 
@@ -1059,9 +1060,8 @@ footer.app-foot{
         </div>
 
         <div class="metric-grid">
-          <div class="metric main"><div class="num" id="ohKgH">—</div><div class="lab">kg/h خالص</div></div>
-          <div class="metric"><div class="num" id="ohKgDay">—</div><div class="lab">kg/day خالص</div></div>
-          <div class="metric"><div class="num" id="ohSolLh">—</div><div class="lab">L/h محلول ۱۸٪</div></div>
+          <div class="metric main" style="grid-column:1/-1"><div class="num" id="ohSolLh">—</div><div class="lab">L/h محلول ۱۸٪</div></div>
+          <div class="metric"><div class="num" id="ohSolLDay">—</div><div class="lab">L/day محلول ۱۸٪</div></div>
           <div class="metric"><div class="num" id="ohSolM3Day">—</div><div class="lab">m³/day محلول</div></div>
         </div>
 
@@ -1584,6 +1584,8 @@ function calculate() {
   const ohFrac = v.concOH / 100;
   const naSolLh = (naFrac > 0 && v.densNa > 0) ? naKgH / (naFrac * v.densNa) : NaN;
   const ohSolLh = (ohFrac > 0 && v.densOH > 0) ? ohKgH / (ohFrac * v.densOH) : NaN;
+  const naSolLDay = naSolLh * 24;
+  const ohSolLDay = ohSolLh * 24;
   const ohSolM3Day = ohSolLh * 24 / 1000;
 
   // dry 50kg bags/day for Na2CO3 (as received in bags, per doc)
@@ -1606,14 +1608,12 @@ function calculate() {
   // --- render: results tab ---
   $("qActual").textContent = fmt(Q, 1);
 
-  $("naKgH").textContent = fmt(naKgH, 1);
-  $("naKgDay").textContent = fmt(naKgDay, 0);
   $("naSolLh").textContent = fmt(naSolLh, 0);
+  $("naSolLDay").textContent = fmt(naSolLDay, 0);
   $("naBags").textContent = fmt(naBags, 1);
 
-  $("ohKgH").textContent = fmt(ohKgH, 1);
-  $("ohKgDay").textContent = fmt(ohKgDay, 0);
   $("ohSolLh").textContent = fmt(ohSolLh, 0);
+  $("ohSolLDay").textContent = fmt(ohSolLDay, 0);
   $("ohSolM3Day").textContent = fmt(ohSolM3Day, 2);
 
   // per-train liter breakdown
@@ -1787,7 +1787,18 @@ function clearAllTrend() {
 }
 
 function faDateTime(t) {
-  return new Date(t).toLocaleString("fa-IR", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" });
+  return new Date(t).toLocaleString("fa-IR", { timeZone: "Asia/Tehran", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" });
+}
+
+// live header clock: always shows Iran local time + Jalali (Shamsi) date,
+// regardless of the device's own timezone/locale settings
+function updateLiveClock() {
+  const el = $("liveClock");
+  if (!el) return;
+  const now = new Date();
+  const datePart = now.toLocaleDateString("fa-IR", { timeZone: "Asia/Tehran", year: "numeric", month: "2-digit", day: "2-digit" });
+  const timePart = now.toLocaleTimeString("fa-IR", { timeZone: "Asia/Tehran", hour: "2-digit", minute: "2-digit", second: "2-digit" });
+  el.textContent = `${datePart} — ${timePart} (به وقت ایران)`;
 }
 
 function buildLineChart(pts, series, emptyMsg) {
@@ -1957,6 +1968,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   $("saveTrendBtn").addEventListener("click", addTrendPoint);
   $("clearTrendBtn").addEventListener("click", clearAllTrend);
+
+  updateLiveClock();
+  setInterval(updateLiveClock, 1000);
 
   calculate();
   renderTrendTab();
