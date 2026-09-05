@@ -195,7 +195,7 @@ button{ -webkit-appearance:none; appearance:none; border:none; background:none; 
 /* ---------- bottom tab bar ---------- */
 .bottom-nav{
   flex: none;
-  display:grid; grid-template-columns: repeat(3,1fr);
+  display:grid; grid-template-columns: repeat(4,1fr);
   background: #fff;
   border-top: 1px solid var(--border);
   padding: 6px 8px calc(6px + env(safe-area-inset-bottom,0px));
@@ -219,9 +219,11 @@ button{ -webkit-appearance:none; appearance:none; border:none; background:none; 
 /* colorful per-tab identity for more visual pop */
 .nav-btn[data-tab="inputs"]{ color:#8fadbc; }
 .nav-btn[data-tab="results"]{ color:#7fc9bb; }
+.nav-btn[data-tab="trend"]{ color:#c3aee0; }
 .nav-btn[data-tab="guide"]{ color:#d4b482; }
 .nav-btn[data-tab="inputs"].active{ color: var(--blue-ink); background: #eaf5f8; transform: translateY(-1px); }
 .nav-btn[data-tab="results"].active{ color: var(--teal); background: #e3f6f2; transform: translateY(-1px); }
+.nav-btn[data-tab="trend"].active{ color: var(--purple); background: #f1ecfb; transform: translateY(-1px); }
 .nav-btn[data-tab="guide"].active{ color: var(--amber); background: #fbf1e0; transform: translateY(-1px); }
 
 /* ---------- Cards ---------- */
@@ -583,6 +585,74 @@ input[type=range]::-moz-range-progress{ height:8px; border-radius:999px; backgro
   color: var(--blue-ink); background: rgba(17,112,163,.08); border:1px solid rgba(17,112,163,.16);
   border-radius:7px; padding:2px 8px; margin:0 2px; direction:ltr; unicode-bidi:isolate; line-height:1.6;
 }
+
+/* ---------- Trend tab ---------- */
+.trend-savebar{
+  display:flex; align-items:center; gap:12px;
+  background: var(--card-2); border:1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 12px 14px;
+}
+.trend-savebar .tsb-txt{ flex:1; min-width:0; }
+.trend-savebar .tsb-txt b{ display:block; font-size:0.84rem; color:var(--ink); margin-bottom:2px; }
+.trend-savebar .tsb-txt span{ font-size:0.68rem; color:var(--muted); line-height:1.7; }
+.trend-count{
+  flex:none; font-size:0.66rem; font-weight:700; color:var(--blue-ink);
+  background:#eaf5f8; border:1px solid #d7e6ea; border-radius:999px; padding:3px 10px;
+  font-variant-numeric: tabular-nums; direction:ltr;
+}
+.btn-save{
+  width:100%; display:flex; align-items:center; justify-content:center; gap:8px;
+  padding: 12px; border-radius: var(--radius-sm); border:none; cursor:pointer;
+  background: linear-gradient(120deg, var(--purple), #5b3fae); color:#fff;
+  font-size:0.85rem; font-weight:700; margin-top:12px;
+  box-shadow: 0 6px 16px rgba(124,92,214,.28);
+}
+.btn-save:active{ transform: scale(0.98); }
+.btn-save.saved{ background: linear-gradient(120deg, var(--teal), #0c8272); box-shadow:0 6px 16px rgba(16,168,147,.28); }
+
+.chart-legend{ display:flex; gap:14px; flex-wrap:wrap; margin-bottom:10px; }
+.chart-legend span{ display:flex; align-items:center; gap:6px; font-size:0.72rem; color:var(--muted); font-weight:600; }
+.chart-legend i{ width:14px; height:4px; border-radius:3px; display:inline-block; }
+.chart-wrap{ width:100%; overflow:hidden; }
+.chart-wrap svg{ width:100%; height:auto; display:block; }
+.cx-grid{ stroke: var(--border); stroke-width:1; }
+.cx-label{ font-size:9px; fill: var(--muted); }
+.cx-line{ fill:none; stroke-width:2.4; stroke-linecap:round; stroke-linejoin:round; }
+.cx-dot{ stroke:#fff; stroke-width:1.3; }
+.chart-empty{
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:8px; padding: 26px 10px; color: var(--muted); font-size:0.78rem; text-align:center;
+}
+.chart-empty svg{ opacity:.35; }
+
+.trend-list{ display:flex; flex-direction:column; gap:8px; max-height: 340px; overflow-y:auto; padding-inline-end:2px; margin-top:4px; }
+.trend-item{
+  display:flex; align-items:center; gap:10px;
+  background: var(--card-2); border:1px solid var(--border); border-radius:12px;
+  padding:9px 11px;
+}
+.trend-item .ti-main{ flex:1; min-width:0; }
+.trend-item .ti-time{ font-size:0.68rem; color:var(--muted); font-weight:600; margin-bottom:4px; }
+.trend-item .ti-vals{ display:flex; flex-wrap:wrap; gap:6px 10px; font-size:0.72rem; color:var(--ink); }
+.trend-item .ti-vals b{ font-variant-numeric: tabular-nums; direction:ltr; unicode-bidi:isolate; display:inline-block; }
+.trend-item .ti-tag{
+  font-size:0.6rem; font-weight:700; color:var(--muted);
+  background:#fff; border:1px solid var(--border); border-radius:999px; padding:1px 7px;
+}
+.ti-del{
+  flex:none; width:30px; height:30px; border-radius:50%; border:1px solid var(--border);
+  background:#fff; color: var(--danger-ink); display:flex; align-items:center; justify-content:center;
+  cursor:pointer;
+}
+.ti-del:active{ transform: scale(0.92); }
+
+.btn-clear-all{
+  width:100%; display:flex; align-items:center; justify-content:center; gap:8px;
+  padding:11px; border-radius: var(--radius-sm); border:1.5px solid var(--danger-ink);
+  background:#fff; color: var(--danger-ink); font-size:0.8rem; font-weight:600; cursor:pointer;
+  margin-top:12px;
+}
+.btn-clear-all:active{ transform: scale(0.98); }
 
 /* ---------- calculation steps (guide · formulas card) ---------- */
 .calc-steps{ display:flex; flex-direction:column; }
@@ -1017,7 +1087,89 @@ footer.app-foot{
     </section>
   </div>
 
-  <!-- ================= TAB 3: GUIDE ================= -->
+  <!-- ================= TAB 3: TREND ================= -->
+  <div class="tab-panel" id="panel-trend">
+
+    <section class="card accent-purple">
+      <div class="card-head">
+        <div class="ic-badge ic-purple">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16l4.5-5 4 3L18 7l2 2"/><path d="M4 20h16"/></svg>
+        </div>
+        <div class="card-titles">
+          <h2>ثبت نقطهٔ روند</h2>
+          <p>مقادیر لحظه‌ای فعلی (کلسیم/منیزیم و میزان تزریق) را به‌عنوان یک نقطه در نمودار روند ذخیره کنید.</p>
+        </div>
+      </div>
+
+      <div class="trend-savebar">
+        <div class="tsb-txt">
+          <b id="tsbLive">—</b>
+          <span id="tsbSub">هنوز مقداری محاسبه نشده</span>
+        </div>
+        <div class="trend-count" id="trendCount">0 نقطه</div>
+      </div>
+
+      <button class="btn-save" id="saveTrendBtn">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+        ثبت این نقطه در روند
+      </button>
+    </section>
+
+    <section class="card accent-blue chart-card">
+      <div class="card-head">
+        <div class="ic-badge">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V9M12 19V4M20 19v-7"/></svg>
+        </div>
+        <div class="card-titles">
+          <h2>روند میزان تزریق کربنات سدیم و کاستیک</h2>
+        </div>
+      </div>
+      <div class="chart-legend">
+        <span><i style="background:var(--blue)"></i>Na₂CO₃ (kg/h)</span>
+        <span><i style="background:var(--teal)"></i>NaOH (kg/h)</span>
+      </div>
+      <div class="chart-wrap" id="dosingChartWrap"></div>
+    </section>
+
+    <section class="card accent-amber chart-card">
+      <div class="card-head">
+        <div class="ic-badge ic-amber">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V9M12 19V4M20 19v-7"/></svg>
+        </div>
+        <div class="card-titles">
+          <h2>روند کلسیم و منیزیم آب‌نمک خام</h2>
+          <p>فقط برای نقاطی رسم می‌شود که هنگام ثبت، «حالت پیشرفته» با مقدار Ca²⁺/Mg²⁺ روشن بوده است.</p>
+        </div>
+      </div>
+      <div class="chart-legend">
+        <span><i style="background:var(--amber)"></i>Ca²⁺ (mg/l)</span>
+        <span><i style="background:var(--purple)"></i>Mg²⁺ (mg/l)</span>
+      </div>
+      <div class="chart-wrap" id="hardnessChartWrap"></div>
+    </section>
+
+    <section class="card accent-rose">
+      <div class="card-head">
+        <div class="ic-badge ic-rose">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M9 9h6v6H9z"/></svg>
+        </div>
+        <div class="card-titles">
+          <h2>نقاط ثبت‌شده</h2>
+        </div>
+      </div>
+      <div id="trendListWrap"></div>
+      <button class="btn-clear-all" id="clearTrendBtn">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg>
+        پاک کردن همهٔ نقاط
+      </button>
+    </section>
+
+    <footer class="app-foot">
+      نقاط روند فقط روی همین مرورگر/دستگاه شما ذخیره می‌شود؛ پاک‌کردن حافظهٔ مرورگر یا استفاده از دستگاه دیگر، این تاریخچه را نشان نمی‌دهد.
+    </footer>
+  </div>
+
+  <!-- ================= TAB 4: GUIDE ================= -->
   <div class="tab-panel" id="panel-guide">
 
     <section class="card accent-teal">
@@ -1268,6 +1420,10 @@ footer.app-foot{
     <span class="dot"></span>
     نتایج
   </button>
+  <button class="nav-btn" data-tab="trend">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16l4.5-5 4 3L18 7l2 2"/><path d="M4 20h16"/></svg>
+    روند
+  </button>
   <button class="nav-btn" data-tab="guide">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/></svg>
     راهنما
@@ -1292,6 +1448,7 @@ const DOWNSTREAM_LIMIT_NA2CO3 = 400; // mg/l  (Table 6-8: <0.4 g/l)
 const DOWNSTREAM_LIMIT_NAOH   = 200; // mg/l  (Table 6-8: <0.2 g/l)
 
 const $ = (id) => document.getElementById(id);
+let lastCalc = null;
 
 /* ---------------- tabs ---------------- */
 function showTab(name) {
@@ -1300,6 +1457,7 @@ function showTab(name) {
   $("panel-" + name).classList.add("active");
   document.querySelector(`.nav-btn[data-tab="${name}"]`).classList.add("active");
   $("tabsContent").scrollTop = 0;
+  if (name === "trend") renderTrendTab();
 }
 
 /* ---------------- numeric steppers ---------------- */
@@ -1505,6 +1663,15 @@ function calculate() {
   } else {
     $("excWarn").innerHTML = "";
   }
+
+  // snapshot for trend tab
+  lastCalc = {
+    q: Q, na: naKgH, oh: ohKgH,
+    ca: v.advToggle ? v.caPpm : 0,
+    mg: v.advToggle ? v.mgPpm : 0,
+    hasHardness: v.advToggle && (v.caPpm > 0 || v.mgPpm > 0),
+  };
+  updateTrendPreview();
 }
 
 function applyDefaults() {
@@ -1527,6 +1694,177 @@ function applyDefaults() {
   $("caPpm").value = DEFAULTS.caPpm;
   $("mgPpm").value = DEFAULTS.mgPpm;
   calculate();
+}
+
+/* ---------------- trend tab: save / delete / chart ---------------- */
+const TREND_KEY = "dosingTrendPoints_v1";
+
+function loadTrendPoints() {
+  try {
+    const raw = localStorage.getItem(TREND_KEY);
+    const arr = raw ? JSON.parse(raw) : [];
+    return Array.isArray(arr) ? arr : [];
+  } catch (e) { return []; }
+}
+function saveTrendPoints(arr) {
+  try { localStorage.setItem(TREND_KEY, JSON.stringify(arr)); } catch (e) {}
+}
+
+function updateTrendPreview() {
+  const liveEl = $("tsbLive"), subEl = $("tsbSub");
+  if (!liveEl || !lastCalc) return;
+  liveEl.textContent = `Na₂CO₃ ${fmt(lastCalc.na, 1)} kg/h   ·   NaOH ${fmt(lastCalc.oh, 1)} kg/h`;
+  subEl.textContent = lastCalc.hasHardness
+    ? `Ca²⁺ ${fmt(lastCalc.ca, 0)} mg/l   ·   Mg²⁺ ${fmt(lastCalc.mg, 0)} mg/l   ·   جریان کل ${fmt(lastCalc.q, 0)} m³/h`
+    : `جریان کل ${fmt(lastCalc.q, 0)} m³/h — بدون دادهٔ سختی (حالت پیشرفته خاموش است)`;
+}
+
+function addTrendPoint() {
+  if (!lastCalc) return;
+  const pts = loadTrendPoints();
+  pts.push({
+    id: Date.now() + "_" + Math.random().toString(36).slice(2),
+    t: Date.now(),
+    q: lastCalc.q, na: lastCalc.na, oh: lastCalc.oh,
+    ca: lastCalc.ca, mg: lastCalc.mg, hasHardness: lastCalc.hasHardness,
+  });
+  while (pts.length > 300) pts.shift();
+  saveTrendPoints(pts);
+  renderTrendTab();
+
+  const btn = $("saveTrendBtn");
+  const original = btn.innerHTML;
+  btn.classList.add("saved");
+  btn.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l4 4 10-10"/></svg> ثبت شد';
+  setTimeout(() => { btn.classList.remove("saved"); btn.innerHTML = original; }, 1200);
+}
+
+function deleteTrendPoint(id) {
+  saveTrendPoints(loadTrendPoints().filter((p) => p.id !== id));
+  renderTrendTab();
+}
+
+function clearAllTrend() {
+  if (!confirm("همهٔ نقاط ثبت‌شدهٔ روند پاک شود؟ این کار قابل بازگشت نیست.")) return;
+  saveTrendPoints([]);
+  renderTrendTab();
+}
+
+function faDateTime(t) {
+  return new Date(t).toLocaleString("fa-IR", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" });
+}
+
+function buildLineChart(pts, series, emptyMsg) {
+  if (!pts || pts.length === 0) {
+    return `<div class="chart-empty">
+      <svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V9M12 19V4M20 19v-7"/></svg>
+      ${emptyMsg}
+    </div>`;
+  }
+  const shown = pts.slice(-40); // keep chart readable
+  const W = 600, H = 220, ML = 34, MR = 14, MT = 14, MB = 26;
+  const plotW = W - ML - MR, plotH = H - MT - MB;
+  const n = shown.length;
+
+  let maxVal = 0;
+  shown.forEach((p) => series.forEach((s) => { const v = s.getVal(p); if (isFinite(v)) maxVal = Math.max(maxVal, v); }));
+  if (maxVal <= 0) maxVal = 1;
+  maxVal *= 1.15;
+
+  const xAt = (i) => (n > 1 ? ML + (plotW * i) / (n - 1) : ML + plotW / 2);
+  const yAt = (v) => MT + plotH - (v / maxVal) * plotH;
+
+  let gridSvg = "";
+  const gridCount = 4;
+  for (let g = 0; g <= gridCount; g++) {
+    const val = (maxVal * g) / gridCount;
+    const y = yAt(val);
+    gridSvg += `<line class="cx-grid" x1="${ML}" y1="${y.toFixed(1)}" x2="${W - MR}" y2="${y.toFixed(1)}"/>`;
+    gridSvg += `<text class="cx-label" x="${ML - 6}" y="${(y + 3).toFixed(1)}" text-anchor="end">${fmt(val, 0)}</text>`;
+  }
+
+  let seriesSvg = "";
+  series.forEach((s) => {
+    let d = "";
+    shown.forEach((p, i) => {
+      const v = s.getVal(p) || 0;
+      d += (i === 0 ? "M" : "L") + xAt(i).toFixed(1) + "," + yAt(v).toFixed(1) + " ";
+    });
+    seriesSvg += `<path class="cx-line" d="${d}" style="stroke:${s.color}"/>`;
+    shown.forEach((p, i) => {
+      const v = s.getVal(p) || 0;
+      seriesSvg += `<circle class="cx-dot" cx="${xAt(i).toFixed(1)}" cy="${yAt(v).toFixed(1)}" r="3.2" style="fill:${s.color}"><title>${faDateTime(p.t)} — ${fmt(v, 1)}</title></circle>`;
+    });
+  });
+
+  const xLabels = `
+    <text class="cx-label" x="${ML}" y="${H - 6}" text-anchor="start">${faDateTime(shown[0].t)}</text>
+    <text class="cx-label" x="${W - MR}" y="${H - 6}" text-anchor="end">${faDateTime(shown[n - 1].t)}</text>
+  `;
+
+  return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">${gridSvg}${seriesSvg}${xLabels}</svg>`;
+}
+
+function renderTrendTab() {
+  const pts = loadTrendPoints().slice().sort((a, b) => a.t - b.t);
+
+  $("trendCount").textContent = `${fmt(pts.length, 0)} نقطه`;
+
+  $("dosingChartWrap").innerHTML = buildLineChart(
+    pts,
+    [
+      { color: "var(--blue)", getVal: (p) => p.na },
+      { color: "var(--teal)", getVal: (p) => p.oh },
+    ],
+    "برای دیدن روند تزریق، حداقل یک نقطه از دکمهٔ بالای همین تب ثبت کنید."
+  );
+
+  const hardPts = pts.filter((p) => p.hasHardness);
+  $("hardnessChartWrap").innerHTML = buildLineChart(
+    hardPts,
+    [
+      { color: "var(--amber)", getVal: (p) => p.ca },
+      { color: "var(--purple)", getVal: (p) => p.mg },
+    ],
+    "هنوز نقطه‌ای با دادهٔ Ca²⁺/Mg²⁺ (حالت پیشرفته روشن) ثبت نشده است."
+  );
+
+  const listWrap = $("trendListWrap");
+  const clearBtn = $("clearTrendBtn");
+  if (pts.length === 0) {
+    listWrap.innerHTML = `<div class="chart-empty">
+      <svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16l4.5-5 4 3L18 7l2 2"/><path d="M4 20h16"/></svg>
+      هنوز نقطه‌ای ثبت نشده — از دکمهٔ «ثبت این نقطه در روند» بالای همین تب استفاده کنید.
+    </div>`;
+    clearBtn.style.display = "none";
+  } else {
+    clearBtn.style.display = "";
+    listWrap.innerHTML = pts
+      .slice()
+      .sort((a, b) => b.t - a.t)
+      .map((p) => {
+        const hardTxt = p.hasHardness
+          ? `<span>Ca²⁺ <b>${fmt(p.ca, 0)}</b> mg/l</span><span>Mg²⁺ <b>${fmt(p.mg, 0)}</b> mg/l</span>`
+          : `<span class="ti-tag">بدون دادهٔ سختی</span>`;
+        return `<div class="trend-item">
+          <div class="ti-main">
+            <div class="ti-time">${faDateTime(p.t)}</div>
+            <div class="ti-vals">
+              <span>Na₂CO₃ <b>${fmt(p.na, 1)}</b> kg/h</span>
+              <span>NaOH <b>${fmt(p.oh, 1)}</b> kg/h</span>
+              ${hardTxt}
+            </div>
+          </div>
+          <button class="ti-del" data-id="${p.id}" title="حذف این نقطه" aria-label="حذف این نقطه">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+          </button>
+        </div>`;
+      })
+      .join("");
+    listWrap.querySelectorAll(".ti-del").forEach((btn) => {
+      btn.addEventListener("click", () => deleteTrendPoint(btn.dataset.id));
+    });
+  }
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -1577,7 +1915,12 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   $("resetBtn").addEventListener("click", applyDefaults);
+
+  $("saveTrendBtn").addEventListener("click", addTrendPoint);
+  $("clearTrendBtn").addEventListener("click", clearAllTrend);
+
   calculate();
+  renderTrendTab();
 });
 </script>
 </body>
