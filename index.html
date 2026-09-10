@@ -6,6 +6,8 @@
 <title>محاسبه‌گر میزان تزریق کاستیک و کربنات سدیم | اکسس تانک رسوب‌دهی آب‌نمک</title>
 <meta name="description" content="محاسبه نرخ تزریق کربنات سدیم و کاستیک برای حفظ اکسس در محدوده نرمال بهره‌برداری واحد رسوب‌دهی آب‌نمک، بر اساس دفترچه راهنمای بهره‌برداری واحد C/A." />
 <meta name="theme-color" content="#3f1210" />
+<meta http-equiv="Cache-Control" content="no-cache, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="تزریق کاستیک/کربنات" />
@@ -794,6 +796,29 @@ svg text{ fill:#000 !important; }
 /* نشان‌های روشن داخل نوار بالا همچنان با متن تیره خوانا بمانند */
 .appbar-doc, .appbar-doc *,
 .lc-ico, .lc-ico *{ color:#04212a !important; }
+
+/* ---------- اعلان نسخهٔ جدید ---------- */
+.update-toast{
+  position: fixed; inset-inline: 12px; z-index: 60;
+  bottom: calc(74px + env(safe-area-inset-bottom, 0px));
+  display: none; align-items: center; gap: 10px;
+  max-width: 700px; margin: 0 auto;
+  padding: 11px 13px; border-radius: 14px;
+  background: linear-gradient(155deg, #c0453f 0%, #9c322c 60%, #6f2320 100%);
+  box-shadow: 0 10px 26px rgba(60,10,8,.32);
+  animation: fadein .22s ease;
+}
+.update-toast.show{ display: flex; }
+.update-toast .ut-txt{ flex: 1; min-width: 0; font-size: 0.72rem; font-weight: 600; line-height: 1.8; }
+.update-toast .ut-txt small{ display: block; font-weight: 400; opacity: .85; font-size: 0.64rem; }
+.update-toast button{
+  flex: none; border: 0; cursor: pointer; font-family: inherit;
+  font-size: 0.72rem; font-weight: 700;
+  padding: 8px 13px; border-radius: 10px; background: #fff;
+}
+.update-toast, .update-toast *{ color:#fff !important; }
+.update-toast button{ color:#8e2b26 !important; }
+.app-ver{ display:block; margin-top: 7px; font-size: 0.66rem; opacity: .85; }
 </style>
 </head>
 <body>
@@ -1056,6 +1081,7 @@ svg text{ fill:#000 !important; }
 
     <footer class="app-foot">
       این ابزار صرفاً بر پایه اعداد و روابط منتشرشده در دفترچه راهنمای بهره‌برداری کار می‌کند و جایگزین آنالیز آزمایشگاهی، لاگ اپراتوری و مهندسی فرآیند سایت نیست.
+      <span class="app-ver"></span>
     </footer>
   </div>
 
@@ -1480,6 +1506,14 @@ svg text{ fill:#000 !important; }
   </button>
 </nav>
 
+<div class="update-toast" id="updateToast" role="status">
+  <div class="ut-txt">
+    نسخهٔ جدید برنامه منتشر شده است
+    <small>با به‌روزرسانی، آخرین تغییرات را می‌بینی و داده‌های ثبت‌شده‌ات پاک نمی‌شود.</small>
+  </div>
+  <button type="button" id="updateNowBtn">به‌روزرسانی</button>
+</div>
+
 <div class="chart-modal-overlay hidden" id="chartModal">
   <div class="chart-modal-box">
     <button class="chart-modal-close" id="chartModalClose" aria-label="بستن">
@@ -1501,6 +1535,9 @@ svg text{ fill:#000 !important; }
 <script>
 // محاسبه‌گر میزان تزریق کاستیک و کربنات سدیم برای اکسس تانک رسوب‌دهی آب‌نمک
 // اعداد پایه از Operating Manual C/A Plant (Doc 8408205-CB-PR-MNL-0102)
+
+// نسخهٔ همین فایل؛ با هر انتشار جدید، این مقدار و فایل version.json با هم به‌روز می‌شوند.
+const APP_VERSION = "1404.06.19-1";
 
 const MW = {
   NA2CO3: 105.99,
@@ -2088,6 +2125,34 @@ document.addEventListener("DOMContentLoaded", () => {
     toggleTrain("B");
   });
 
+  // ---- به‌روزرسانی خودکار نسخه ----
+  // نسخهٔ نصب‌شده روی دستگاه با فایل version.json روی سرور مقایسه می‌شود؛
+  // اگر نسخهٔ تازه‌تری منتشر شده باشد، به کاربر اعلان به‌روزرسانی نشان داده می‌شود.
+  var latestVersion = null;
+
+  function markAppVersion(){
+    document.querySelectorAll(".app-ver").forEach((el) => {
+      el.textContent = "نسخهٔ برنامه: " + APP_VERSION;
+    });
+  }
+
+  function checkForUpdate(){
+    if (location.protocol === "file:") return;
+    fetch("version.json?t=" + Date.now(), { cache: "no-store" })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (!data || !data.version || data.version === APP_VERSION) return;
+        latestVersion = data.version;
+        $("updateToast").classList.add("show");
+      })
+      .catch(() => { /* آفلاین یا بدون دسترسی به شبکه: بی‌صدا نادیده گرفته شود */ });
+  }
+
+  function installUpdate(){
+    // پارامتر نسخه، کش مرورگر/آیفون را دور می‌زند؛ داده‌های ذخیره‌شده دست‌نخورده می‌ماند.
+    location.replace(location.pathname + "?v=" + encodeURIComponent(latestVersion || Date.now()));
+  }
+
   // bottom tab navigation
   document.querySelectorAll(".nav-btn").forEach((btn) => {
     btn.addEventListener("click", () => showTab(btn.dataset.tab));
@@ -2112,6 +2177,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   updateLiveClock();
   setInterval(updateLiveClock, 1000);
+
+  markAppVersion();
+  $("updateNowBtn").addEventListener("click", installUpdate);
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) checkForUpdate(); });
+  checkForUpdate();
 
   calculate();
   renderTrendTab();
