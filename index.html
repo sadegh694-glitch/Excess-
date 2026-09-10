@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
-<title>محاسبه‌گر دوز کاستیک و کربنات سدیم | اکسس تانک رسوب‌دهی آب‌نمک</title>
-<meta name="description" content="محاسبه نرخ تزریق کربنات سدیم و کاستیک سدا برای حفظ اکسس در محدوده نرمال بهره‌برداری واحد رسوب‌دهی آب‌نمک، بر اساس دفترچه راهنمای بهره‌برداری واحد C/A." />
-<meta name="theme-color" content="#071b26" />
+<title>محاسبه‌گر میزان تزریق کاستیک و کربنات سدیم | اکسس تانک رسوب‌دهی آب‌نمک</title>
+<meta name="description" content="محاسبه نرخ تزریق کربنات سدیم و کاستیک برای حفظ اکسس در محدوده نرمال بهره‌برداری واحد رسوب‌دهی آب‌نمک، بر اساس دفترچه راهنمای بهره‌برداری واحد C/A." />
+<meta name="theme-color" content="#3f1210" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-<meta name="apple-mobile-web-app-title" content="دوز کاستیک/کربنات" />
+<meta name="apple-mobile-web-app-title" content="تزریق کاستیک/کربنات" />
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
 <link rel="icon" type="image/png" sizes="32x32" href="favicon.png" />
 <style>
@@ -33,9 +33,9 @@
 
 :root{
   --bg: #eef2f4;
-  --navy: #071b26;
-  --navy-2: #0c2c3c;
-  --deep: #04121b;
+  --navy: #b5453d;
+  --navy-2: #ffc4bd;
+  --deep: #3f1210;
   --card: #ffffff;
   --card-2: #f3f7f9;
   --ink: #0e2028;
@@ -47,6 +47,8 @@
   --teal: #10a893;
   --cyan: #6fe3d4;
   --amber: #d98a1f;
+  --purple: #7c5cd6;
+  --rose: #d6537f;
 
   --warn-bg: #fff5e6;
   --warn-ink: #8a5300;
@@ -100,7 +102,15 @@ button{ -webkit-appearance:none; appearance:none; border:none; background:none; 
   box-shadow: 0 6px 20px rgba(4,18,27,.35);
   flex: none;
 }
-.appbar-row{ display:flex; align-items:center; gap: 10px; }
+.appbar-formulas{
+  position:absolute; inset:0; z-index:0; overflow:hidden; pointer-events:none;
+}
+.appbar-formulas span{
+  position:absolute; display:block; font-weight:800; color:#fff;
+  font-family: "Vazirmatn","Tahoma",sans-serif;
+  direction:ltr; unicode-bidi:isolate; white-space:nowrap; line-height:1;
+}
+.appbar-row{ position:relative; z-index:1; display:flex; align-items:center; gap: 10px; }
 .appbar-icon{
   width: 36px; height:36px; flex:none;
   border-radius: 10px;
@@ -112,6 +122,7 @@ button{ -webkit-appearance:none; appearance:none; border:none; background:none; 
 .appbar-txt{ flex:1; min-width:0; line-height:1.4; }
 .appbar-txt b{ display:block; font-size: 0.94rem; font-weight:700; }
 .appbar-txt span{ display:block; font-size: 0.66rem; color:#8fb0bb; direction: ltr; text-align: right; unicode-bidi: plaintext; }
+.appbar-clock{ display:block; font-size: 0.66rem; color:#bcd7de; margin-top:3px; direction:rtl; text-align:right; font-variant-numeric: tabular-nums; }
 .appbar-doc{
   font-size: 0.62rem; font-weight:700; letter-spacing:.03em;
   color:#04212a; background: var(--cyan);
@@ -121,31 +132,55 @@ button{ -webkit-appearance:none; appearance:none; border:none; background:none; 
 
 /* live readout strip */
 .live-strip{
+  position:relative; z-index:1;
   display:grid; grid-template-columns: repeat(3,1fr);
   gap: 8px; margin-top: 12px;
 }
 .live-chip{
-  background: rgba(255,255,255,.05);
-  border: 1px solid rgba(111,227,212,.16);
-  border-radius: 12px;
-  padding: 8px 8px 7px;
-  position: relative;
-  overflow:hidden;
+  position: relative; overflow:hidden;
+  border-radius: 14px;
+  padding: 9px 10px 8px;
+  background: linear-gradient(160deg, rgba(255,255,255,.09), rgba(255,255,255,.02));
+  border: 1px solid rgba(255,255,255,.12);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.07);
 }
 .live-chip:before{
-  content:""; position:absolute; inset-inline-start:0; top:0; bottom:0; width:3px;
+  content:""; position:absolute; inset-inline-start:0; inset-inline-end:0; bottom:0; height:2px;
+  background: linear-gradient(90deg, transparent, var(--live-color, var(--cyan)), transparent);
+  opacity:.65;
+}
+.live-chip:after{
+  content:""; position:absolute; width:56px; height:56px; border-radius:50%;
+  top:-22px; inset-inline-end:-16px; pointer-events:none;
+  background: var(--live-color, var(--cyan)); opacity:.20; filter: blur(16px);
+}
+.live-chip.q{ --live-color:#f2c572; }
+.live-chip.na{ --live-color:#59b6e0; }
+.live-chip.oh{ --live-color:#6fe3d4; }
+
+.lc-top{ display:flex; align-items:center; gap:5px; position:relative; z-index:1; }
+.lc-ico{
+  flex:none; width:18px; height:18px; border-radius:6px;
+  display:flex; align-items:center; justify-content:center;
+  background: var(--live-color, var(--cyan)); color:#04212a; opacity:.9;
+}
+.lc-ico svg{ width:11px; height:11px; }
+.live-chip .lc-lab{ font-size: 0.62rem; font-weight:600; color:#a9c8d1; flex:1; min-width:0; }
+.lc-dot{
+  flex:none; width:5px; height:5px; border-radius:50%;
   background: var(--live-color, var(--cyan));
+  box-shadow: 0 0 6px var(--live-color, var(--cyan));
+  animation: lcpulse 1.8s ease-in-out infinite;
 }
-.live-chip .lc-lab{ font-size: 0.6rem; color:#9cc0ca; display:flex; align-items:center; gap:4px; }
+@keyframes lcpulse{ 0%,100%{ opacity:.35; transform:scale(.75); } 50%{ opacity:1; transform:scale(1); } }
 .live-chip .lc-val{
-  font-size: 1.02rem; font-weight:700; color:#eafffb;
+  position:relative; z-index:1;
+  font-size: 1.05rem; font-weight:800; color:#f4fdfc;
   font-variant-numeric: tabular-nums; direction: ltr; text-align: right;
-  margin-top: 3px; letter-spacing: .01em;
-  text-shadow: 0 0 12px rgba(111,227,212,.35);
+  margin-top: 6px; letter-spacing: .01em;
+  text-shadow: 0 0 14px rgba(111,227,212,.3);
 }
-.live-chip .lc-unit{ font-size:0.6rem; color:#7ea3ae; margin-inline-start:3px; }
-.live-chip.na{ --live-color: #59b6e0; }
-.live-chip.oh{ --live-color: var(--cyan); }
+.live-chip .lc-unit{ font-size:0.58rem; font-weight:600; color:#89aab5; margin-inline-start:3px; }
 
 /* ---------- scroll area ---------- */
 .tabs-content{
@@ -170,12 +205,11 @@ button{ -webkit-appearance:none; appearance:none; border:none; background:none; 
 }
 .nav-btn{
   display:flex; flex-direction:column; align-items:center; gap:3px;
-  padding: 7px 4px 6px; border-radius: 12px; color: var(--muted);
-  font-size: 0.66rem; font-weight:600; cursor:pointer;
-  transition: color .15s, background .15s;
+  padding: 7px 4px 6px; border-radius: 12px;
+  font-size: 0.66rem; font-weight:600; cursor:pointer; white-space:nowrap;
+  transition: color .15s, background .15s, transform .15s;
 }
 .nav-btn svg{ width:21px; height:21px; }
-.nav-btn.active{ color: var(--blue-ink); background: #eaf5f8; }
 .nav-btn .dot{
   width:4px; height:4px; border-radius:50%; background: var(--amber);
   position: absolute; margin-top: -24px; margin-inline-start: 14px;
@@ -183,39 +217,15 @@ button{ -webkit-appearance:none; appearance:none; border:none; background:none; 
 }
 .nav-btn.alert .dot{ opacity: 1; }
 
-/* ---------- hero / schematic ---------- */
-.hero{
-  background: radial-gradient(120% 140% at 100% 0%, #103e56 0%, var(--navy) 55%, var(--deep) 100%);
-  color:#eaf6f9;
-  border-radius: var(--radius);
-  padding: 18px 16px 16px;
-  margin-bottom: 16px;
-  position: relative;
-  overflow: hidden;
-}
-.hero .corner{ position:absolute; width:20px; height:20px; opacity:.55; }
-.hero .corner.tl{ top:8px; inset-inline-start:8px; border-top:1.5px solid var(--cyan); border-inline-start:1.5px solid var(--cyan); }
-.hero .corner.br{ bottom:8px; inset-inline-end:8px; border-bottom:1.5px solid var(--cyan); border-inline-end:1.5px solid var(--cyan); }
-.hero-eyebrow{
-  display:inline-block; font-size: 0.64rem; letter-spacing: .04em;
-  color:#8fe0d2; background: rgba(111,227,212,.1);
-  border: 1px solid rgba(111,227,212,.3);
-  padding: 3px 10px; border-radius: 999px;
-  direction: ltr; font-weight:600;
-}
-.hero h1{ font-size: 1.22rem; margin: 11px 0 5px; font-weight:700; }
-.hero p{ margin:0; font-size: 0.8rem; line-height:1.9; color:#bcdae2; }
-
-.schematic{ margin: 14px 0 4px; }
-.schematic svg{ width:100%; height:auto; display:block; }
-.schematic-cap{ display:flex; justify-content:space-between; margin-top:6px; font-size:0.6rem; color:#8fb0bb; }
-
-.hero-src{
-  margin-top: 12px; padding-top: 11px;
-  border-top: 1px dashed rgba(255,255,255,.16);
-  font-size: 0.7rem; color:#8fb0bb; line-height: 1.8;
-}
-.hero-src code{ direction: ltr; display:inline-block; background: rgba(255,255,255,.08); padding:1px 6px; border-radius:5px; }
+/* colorful per-tab identity for more visual pop */
+.nav-btn[data-tab="inputs"]{ color:#8fadbc; }
+.nav-btn[data-tab="results"]{ color:#7fc9bb; }
+.nav-btn[data-tab="trend"]{ color:#c3aee0; }
+.nav-btn[data-tab="guide"]{ color:#d4b482; }
+.nav-btn[data-tab="inputs"].active{ color: var(--blue-ink); background: #eaf5f8; transform: translateY(-1px); }
+.nav-btn[data-tab="results"].active{ color: var(--teal); background: #e3f6f2; transform: translateY(-1px); }
+.nav-btn[data-tab="trend"].active{ color: var(--purple); background: #f1ecfb; transform: translateY(-1px); }
+.nav-btn[data-tab="guide"].active{ color: var(--amber); background: #fbf1e0; transform: translateY(-1px); }
 
 /* ---------- Cards ---------- */
 .card{
@@ -230,19 +240,14 @@ button{ -webkit-appearance:none; appearance:none; border:none; background:none; 
 }
 .card.accent-teal{ border-inline-start-color: var(--teal); }
 .card.accent-amber{ border-inline-start-color: var(--amber); }
-.card .ref-tag{
-  position:absolute; top: 14px; inset-inline-end: 14px;
-  font-size: 0.58rem; color: var(--muted); direction: ltr;
-  border: 1px solid var(--border); border-radius: 999px; padding: 2px 8px;
-  background: var(--card-2); letter-spacing:.02em;
-}
+.card.accent-purple{ border-inline-start-color: var(--purple); }
+.card.accent-rose{ border-inline-start-color: var(--rose); }
 
 .card-head{
   display:flex;
   align-items: flex-start;
   gap: 12px;
   margin-bottom: 14px;
-  padding-inline-end: 58px;
 }
 .ic-badge{
   flex:none; width: 38px; height: 38px; border-radius: 11px;
@@ -254,6 +259,8 @@ button{ -webkit-appearance:none; appearance:none; border:none; background:none; 
 .ic-badge.ic-teal{ color: var(--teal); background: linear-gradient(145deg,#e7f8f4,#d7f0e9); border-color:#cdeadf; }
 .ic-badge.ic-amber{ color: var(--amber); background: linear-gradient(145deg,#fbf1e0,#f6e5c6); border-color:#f0dcae; }
 .ic-badge.ic-dark{ color:#fff; background: linear-gradient(145deg, var(--blue), var(--navy)); border-color: var(--navy); }
+.ic-badge.ic-purple{ color: var(--purple); background: linear-gradient(145deg,#f1ecfb,#e4d9f6); border-color:#dccdf0; }
+.ic-badge.ic-rose{ color: var(--rose); background: linear-gradient(145deg,#fbe9f0,#f6d3e0); border-color:#f0c1d3; }
 
 .card-titles{ flex:1; min-width:0; }
 .card-titles h2{
@@ -381,6 +388,34 @@ button{ -webkit-appearance:none; appearance:none; border:none; background:none; 
 
 .row2{ display:grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
+/* ---------- compact layout, "ورودی‌ها" tab only ---------- */
+#panel-inputs .card{ padding: 13px 14px; margin-top: 10px; }
+#panel-inputs .card-head{ gap: 9px; margin-bottom: 10px; }
+#panel-inputs .ic-badge{ width: 32px; height: 32px; border-radius: 9px; }
+#panel-inputs .ic-badge svg{ width:16px; height:16px; }
+#panel-inputs .card-titles h2{ font-size: 0.9rem; }
+#panel-inputs .card-titles p{ font-size: 0.71rem; line-height: 1.6; }
+#panel-inputs .step{ width:22px; height:22px; font-size:0.66rem; top:13px; }
+#panel-inputs .field{ gap: 5px; margin-bottom: 10px; }
+#panel-inputs .field label{ font-size: 0.78rem; }
+#panel-inputs .row2{ gap: 9px; }
+#panel-inputs .unit-field input{ padding: 9px 10px; padding-inline-start: 52px; font-size: 0.9rem; }
+#panel-inputs .unit-field .unit{ font-size: 0.62rem; min-width: 40px; }
+#panel-inputs .step-btn{ width: 34px; }
+#panel-inputs .train-block{ padding: 10px 10px 2px; margin-bottom: 9px; }
+#panel-inputs .train-head{ margin-bottom: 8px; }
+#panel-inputs .toggle-row{ padding: 10px 11px; }
+#panel-inputs .toggle-row .txt strong{ font-size: 0.8rem; }
+#panel-inputs .field-hint{ font-size: 0.66rem; }
+
+/* extra compacting for cards ۱، ۲، ۳ (flow / excess / solution specs) */
+#panel-inputs > section:nth-of-type(-n+3){ padding: 11px 13px; margin-top: 8px; }
+#panel-inputs > section:nth-of-type(-n+3) .card-head{ margin-bottom: 8px; }
+#panel-inputs > section:nth-of-type(-n+3) .card-titles p{ font-size: 0.67rem; line-height: 1.5; }
+#panel-inputs > section:nth-of-type(-n+3) .field{ margin-bottom: 8px; }
+#panel-inputs > section:nth-of-type(-n+3) .row2{ gap: 8px; }
+#panel-inputs > section:nth-of-type(-n+3) .train-block{ padding: 8px 9px 1px; margin-bottom: 7px; }
+#panel-inputs > section:nth-of-type(-n+3) .train-head{ margin-bottom: 6px; }
 
 /* ---------- Range slider ---------- */
 input[type=range]{
@@ -484,13 +519,45 @@ input[type=range]::-moz-range-progress{ height:8px; border-radius:999px; backgro
 
 .metric-grid{ display:grid; grid-template-columns: repeat(2,1fr); gap: 8px; }
 .metric{ background: var(--card-2); border-radius: 10px; padding: 10px 11px; border: 1px solid var(--border); }
-.metric.main{ background: #eaf5f8; border-color:#d7e6ea; }
+.metric.main{
+  background: #eaf5f8; border-color:#d7e6ea;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  text-align:center; padding:16px 12px;
+}
 .metric .num{ font-size:1.08rem; font-weight:700; font-variant-numeric: tabular-nums; direction: ltr; unicode-bidi: isolate; }
+.metric.main .num{ font-size:1.9rem; }
 .metric .lab{ font-size:0.68rem; color:var(--muted); margin-top:2px; }
+.metric.main .lab{ font-size:0.72rem; margin-top:4px; }
+.metric.main .sub-kg{
+  font-size:0.68rem; color:var(--muted); margin-top:7px; padding-top:7px;
+  border-top:1px dashed var(--border); font-variant-numeric: tabular-nums;
+}
+.metric.main .sub-kg span{ font-weight:700; direction:ltr; unicode-bidi:isolate; }
+
+/* کارت‌های اصلی L/h عمداً از کارت‌های مصرف روزانه متمایزند */
+.chem-block.na2co3 .metric.main{
+  background: radial-gradient(circle at 88% 12%,rgba(255,255,255,.42),transparent 30%), linear-gradient(135deg,#2c75b9,#18578f);
+  border-color:#2b79bb; color:#fff; box-shadow:0 10px 22px rgba(24,87,143,.22), inset 0 1px 0 rgba(255,255,255,.3);
+}
+.chem-block.na2co3 .metric.main .num{ color:#fff; text-shadow:0 2px 12px rgba(0,24,55,.3); }
+.chem-block.na2co3 .metric.main .lab,.chem-block.na2co3 .metric.main .sub-kg{ color:#dcefff; border-color:rgba(255,255,255,.28); }
+.chem-block.naoh .metric.main{
+  background: radial-gradient(circle at 88% 12%,rgba(255,255,255,.38),transparent 30%), linear-gradient(135deg,#1ea78f,#087461);
+  border-color:#17937e; color:#fff; box-shadow:0 10px 22px rgba(8,116,97,.22), inset 0 1px 0 rgba(255,255,255,.3);
+}
+.chem-block.naoh .metric.main .num{ color:#fff; text-shadow:0 2px 12px rgba(0,51,42,.32); }
+.chem-block.naoh .metric.main .lab,.chem-block.naoh .metric.main .sub-kg{ color:#dcfff6; border-color:rgba(255,255,255,.28); }
+.chem-block .metric.main:before{ content:"نرخ لحظه‌ای"; font-size:.6rem; font-weight:800; letter-spacing:.03em; opacity:.82; margin-bottom:5px; }
+.chem-block .train-split .ts-item{ border-width:1.5px; box-shadow:0 5px 12px rgba(14,32,40,.06); }
+.chem-block.na2co3 .train-split .ts-item{ background:#eef7ff; border-color:#c7e1f4; }
+.chem-block.naoh .train-split .ts-item{ background:#ecfbf7; border-color:#c1eadf; }
+.chem-block .train-split .ts-val{ font-size:.9rem; color:var(--ink); }
+.chem-block .train-split .ts-unit{ font-weight:800; color:#54717d; }
 
 .gauge{ margin-top: 12px; }
 .gauge-top{
-  display:flex; justify-content: space-between; align-items:baseline;
+  display:flex; flex-wrap:wrap; justify-content: space-between; align-items:baseline;
+  gap: 3px 8px;
   font-size: 0.7rem; color: var(--muted); margin-bottom: 5px;
 }
 .gauge-top span:last-child{ font-weight:700; color: var(--ink); font-variant-numeric: tabular-nums; direction: ltr; }
@@ -504,6 +571,7 @@ input[type=range]::-moz-range-progress{ height:8px; border-radius:999px; backgro
   transition: width .25s ease, background .25s ease;
 }
 .gauge-fill.oh{ background: linear-gradient(90deg, #5fe0c9, var(--teal)); }
+.gauge-fill.warn{ background: linear-gradient(90deg, #f6d68a, var(--amber)) !important; }
 .gauge-fill.over{ background: linear-gradient(90deg, #f0a3a3, var(--danger-ink)) !important; }
 .gauge-limit{
   position:absolute; right: 0; top:-3px; bottom:-3px;
@@ -520,99 +588,6 @@ input[type=range]::-moz-range-progress{ height:8px; border-radius:999px; backgro
 }
 .breakdown b{ color: var(--ink); font-variant-numeric: tabular-nums; }
 
-.stoich-split{
-  display:none; margin-top: 12px; padding: 12px; border-radius: 14px;
-  background: linear-gradient(180deg, #fbfdfe, #f3f8fa); border: 1.2px dashed var(--border);
-}
-.stoich-split.open{ display:block; }
-.ss-head{
-  display:flex; align-items:center; gap:6px;
-  font-size: 0.7rem; color: var(--muted); margin-bottom: 10px; padding-bottom:8px;
-  border-bottom: 1px dashed var(--border);
-}
-.ss-head span{ font-weight:700; color: var(--ink); font-variant-numeric: tabular-nums; direction: ltr; unicode-bidi: isolate; }
-.ss-row{ display:grid; grid-template-columns: 1fr 1fr; gap: 9px; }
-.ss-row + .ss-row{ margin-top: 9px; }
-.ss-item{
-  display:flex; flex-direction:column; gap:6px; min-width:0;
-  background:#fff; border:1px solid var(--border); border-inline-start: 3px solid var(--border);
-  border-radius: 11px; padding: 9px 11px;
-}
-.ss-item.hi{ background: #eaf5f8; border-color:#d7e6ea; border-inline-start-color: var(--blue); }
-.ss-item.hi.oh{ background: #e9f9f4; border-color:#d3ece3; border-inline-start-color: var(--teal); }
-.ss-lab{ font-size: 0.66rem; color: var(--muted); line-height:1.5; }
-.ss-vwrap{ display:flex; align-items:baseline; gap:4px; min-width:0; }
-.ss-val{ font-size:0.98rem; font-weight:700; font-variant-numeric: tabular-nums; direction: ltr; unicode-bidi: isolate; white-space:nowrap; }
-.ss-unit{ font-size: 0.62rem; color: var(--muted); white-space:nowrap; }
-
-.cur-status{
-  display:none; margin-top: 10px; padding: 12px 13px; border-radius: 12px;
-  background: #fff; border: 1.5px solid var(--border);
-}
-.cur-status.open{ display:block; }
-.cs-head{ display:flex; justify-content:space-between; align-items:center; margin-bottom:9px; }
-.cs-head > span:first-child{ font-size: 0.78rem; font-weight:600; }
-.cs-chem{
-  display:inline-block; margin-inline-start:5px; padding:1px 8px; border-radius:999px;
-  font-size:0.68rem; font-weight:800; direction:ltr; unicode-bidi:isolate;
-  background:#e7f2f9; color: var(--blue);
-}
-.cs-chem.oh{ background:#e3f6f2; color: var(--teal); }
-.cs-badge{
-  font-size: 0.66rem; font-weight:700; padding: 3px 10px; border-radius: 999px;
-  background: var(--card-2); color: var(--muted); border: 1px solid var(--border);
-}
-.cs-badge.ok{ background: var(--ok-bg); color: var(--ok-ink); border-color:#c9ecdb; }
-.cs-badge.low{ background: var(--warn-bg); color: var(--warn-ink); border-color:#f0dcae; }
-.cs-badge.high{ background: var(--danger-bg); color: var(--danger-ink); border-color:#f3c9c9; }
-.cs-row{ display:grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.cs-item{
-  min-width:0; display:flex; flex-direction:column; gap:5px;
-  background: var(--card-2); border:1.5px solid var(--border);
-  border-radius: 12px; padding: 9px 11px;
-}
-.cs-item.target{ border-inline-start: 3px solid var(--blue); }
-.cs-item.target.oh{ border-inline-start-color: var(--teal); }
-.cs-item.achieved.ok{ background: var(--ok-bg); border-color:#c9ecdb; }
-.cs-item.achieved.low{ background: var(--warn-bg); border-color:#f0dcae; }
-.cs-item.achieved.high{ background: var(--danger-bg); border-color:#f3c9c9; }
-.cs-lab{ font-size: 0.68rem; color: var(--muted); min-width:0; }
-.cs-val-wrap{ display:flex; align-items:baseline; gap:5px; min-width:0; }
-.cs-val{
-  font-size: 1.05rem; font-weight:800; font-variant-numeric: tabular-nums;
-  direction: ltr; unicode-bidi: isolate; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
-}
-.cs-unit{ font-size: 0.62rem; color: var(--muted); flex:none; }
-.cs-action{
-  margin-top: 9px; font-size: 0.78rem; line-height: 1.85; color: var(--ink);
-  background: var(--card-2); border-radius: 10px; padding: 9px 11px;
-  border-inline-start: 3px solid var(--border);
-}
-.cs-action b{ font-variant-numeric: tabular-nums; }
-.cs-action-head{
-  display:flex; align-items:center; gap:7px; font-weight:800; font-size:0.94rem; line-height:1.6;
-}
-.cs-action-head svg{ width:17px; height:17px; flex:none; }
-.cs-setpoint{
-  font-size: 1.18em; text-decoration: underline; text-decoration-thickness: 2px;
-  text-underline-offset: 3px; font-variant-numeric: tabular-nums; direction:ltr; unicode-bidi:isolate; display:inline-block;
-}
-.cs-action-detail{ margin-top:4px; font-size:0.74rem; color: var(--muted); line-height:1.8; }
-.cs-action-warn{ margin-top:6px; font-size:0.74rem; color: var(--danger-ink); line-height:1.8; }
-.cs-action-note{ margin-top:6px; padding:8px 10px; border-radius:10px; background: var(--warn-bg); color: var(--warn-ink); font-size:0.72rem; line-height:1.8; }
-.cs-action.dir-down{ border-inline-start-color: var(--danger-ink); }
-.cs-action.dir-down .cs-action-head{ color: var(--danger-ink); }
-.cs-action.dir-up{ border-inline-start-color: var(--warn-ink); }
-.cs-action.dir-up .cs-action-head{ color: var(--warn-ink); }
-.cs-action.dir-ok{ border-inline-start-color: var(--ok-ink); }
-.cs-action.dir-ok .cs-action-head{ color: var(--ok-ink); }
-.cur-status-empty{
-  margin-top: 10px; padding: 12px 13px; border-radius: 12px; text-align:center;
-  background: var(--card-2); border: 1.5px dashed var(--border);
-  font-size: 0.78rem; color: var(--muted); line-height:1.85;
-}
-.cur-status.open + .cur-status-empty{ display:none; }
-
 .notice{ margin-top: 9px; padding: 9px 11px; border-radius: 10px; font-size: 0.78rem; line-height:1.9; }
 .notice.ok{ background: var(--ok-bg); color: var(--ok-ink); }
 .notice.warn{ background: var(--warn-bg); color: var(--warn-ink); }
@@ -621,6 +596,173 @@ input[type=range]::-moz-range-progress{ height:8px; border-radius:999px; backgro
 .info-list{ font-size: 0.82rem; line-height: 2; margin:0; padding-inline-start: 20px; color: var(--ink); }
 .info-list li{ margin-bottom:4px; }
 .info-list b{ color: var(--blue-ink); }
+
+.sub-block{ margin-top:16px; padding-top:15px; border-top:1px dashed var(--border); }
+.sub-block:first-child{ margin-top:0; padding-top:0; border-top:none; }
+.sub-head{ display:flex; align-items:center; gap:9px; margin-bottom:8px; }
+.sub-dot{ flex:none; width:11px; height:11px; border-radius:50%; }
+.sub-dot.flo{ background: var(--purple); color: var(--purple); }
+.sub-dot.cel{ background: var(--amber); color: var(--amber); }
+.sub-dot.res{ background: var(--rose); color: var(--rose); }
+.sub-head h3{ font-size:0.86rem; font-weight:800; color:var(--ink); margin:0; }
+.sub-head .sub-tag{
+  margin-inline-start:auto; font-size:0.6rem; font-weight:700; direction:ltr; unicode-bidi:isolate;
+  color:var(--muted); background: var(--card-2); border:1px solid var(--border);
+  border-radius:999px; padding:2px 9px; white-space:nowrap;
+}
+.sub-block p{ font-size:0.79rem; line-height:1.95; color:var(--ink); margin:0 0 7px; }
+.sub-block p:last-child{ margin-bottom:0; }
+.sub-block .sub-fig{
+  display:inline-flex; align-items:center; gap:5px; font-size:0.72rem; font-weight:700;
+  color: var(--blue-ink); background: rgba(17,112,163,.08); border:1px solid rgba(17,112,163,.16);
+  border-radius:7px; padding:2px 8px; margin:0 2px; direction:ltr; unicode-bidi:isolate; line-height:1.6;
+}
+
+/* ---------- Trend tab ---------- */
+.trend-savebar{
+  display:flex; align-items:center; gap:12px;
+  background: var(--card-2); border:1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 12px 14px;
+}
+.trend-savebar .tsb-txt{ flex:1; min-width:0; }
+.trend-savebar .tsb-txt b{ display:block; font-size:0.84rem; color:var(--ink); margin-bottom:2px; }
+.trend-savebar .tsb-txt span{ font-size:0.68rem; color:var(--muted); line-height:1.7; }
+.trend-count{
+  flex:none; font-size:0.66rem; font-weight:700; color:var(--blue-ink);
+  background:#eaf5f8; border:1px solid #d7e6ea; border-radius:999px; padding:3px 10px;
+  font-variant-numeric: tabular-nums; direction:ltr;
+}
+.btn-save{
+  width:100%; display:flex; align-items:center; justify-content:center; gap:8px;
+  padding: 12px; border-radius: var(--radius-sm); border:none; cursor:pointer;
+  background: linear-gradient(120deg, var(--purple), #5b3fae); color:#fff;
+  font-size:0.85rem; font-weight:700; margin-top:12px;
+  box-shadow: 0 6px 16px rgba(124,92,214,.28);
+}
+.btn-save:active{ transform: scale(0.98); }
+.btn-save.saved{ background: linear-gradient(120deg, var(--teal), #0c8272); box-shadow:0 6px 16px rgba(16,168,147,.28); }
+
+.chart-legend{ display:flex; gap:8px 14px; flex-wrap:wrap; margin-bottom:10px; }
+.chart-legend span{ display:flex; align-items:center; gap:6px; font-size:0.7rem; color:var(--muted); font-weight:600; }
+.chart-legend i{ width:14px; height:4px; border-radius:3px; display:inline-block; flex:none; }
+.chart-legend b{ color:var(--ink); font-variant-numeric: tabular-nums; direction:ltr; unicode-bidi:isolate; }
+.chart-legend small{ color:#9aacb3; font-weight:700; }
+.chart-wrap{ width:100%; overflow:hidden; cursor:zoom-in; border-radius:10px; transition: box-shadow .15s; }
+.chart-wrap:has(svg):hover{ box-shadow: 0 0 0 2px var(--blue) inset; }
+.chart-wrap svg{ width:100%; height:auto; display:block; }
+.chart-axis-note{ font-size:0.64rem; color:#93a7b0; margin-top:8px; line-height:1.7; }
+.cx-grid{ stroke: var(--border); stroke-width:1; }
+.cx-label{ font-size:9px; fill: var(--muted); }
+.cx-line{ fill:none; stroke-width:2.4; stroke-linecap:round; stroke-linejoin:round; }
+.cx-dot{ stroke:#fff; stroke-width:1.3; }
+.chart-empty{
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:8px; padding: 26px 10px; color: var(--muted); font-size:0.78rem; text-align:center;
+}
+.chart-empty svg{ opacity:.35; }
+
+.chart-modal-overlay{
+  position:fixed; inset:0; background:rgba(8,18,24,.74); z-index:999;
+  display:flex; align-items:center; justify-content:center; padding:16px;
+  backdrop-filter: blur(2px);
+}
+.chart-modal-overlay.hidden{ display:none; }
+.chart-modal-box{
+  background:#fff; border-radius:18px; padding:18px; max-width:640px; width:100%;
+  max-height:88vh; overflow:auto; position:relative; box-shadow:0 20px 60px rgba(0,0,0,.35);
+}
+.chart-modal-title{ font-size:0.88rem; font-weight:700; color:var(--ink); margin-bottom:6px; padding-inline-end:34px; }
+.chart-modal-legend{ margin-bottom:10px; }
+.chart-modal-body svg{ width:100%; height:auto; display:block; }
+.chart-modal-note{ font-size:0.66rem; color:#93a7b0; margin-top:8px; line-height:1.7; }
+.chart-modal-actions{ display:flex; gap:10px; margin-top:14px; }
+.chart-modal-actions button{
+  flex:1; display:flex; align-items:center; justify-content:center; gap:6px;
+  padding:11px; border-radius:11px; border:1px solid var(--border); background:var(--card-2);
+  font-size:0.78rem; font-weight:700; cursor:pointer; color:var(--ink); font-family:inherit;
+}
+.chart-modal-actions button.primary{ background:linear-gradient(120deg,var(--blue),#0d5c86); color:#fff; border:none; }
+.chart-modal-actions button:active{ transform: scale(0.98); }
+.chart-modal-close{
+  position:absolute; top:14px; inset-inline-end:14px; width:30px; height:30px; border-radius:50%;
+  background:var(--card-2); border:1px solid var(--border); display:flex; align-items:center; justify-content:center;
+  cursor:pointer; color:var(--ink); padding:0;
+}
+
+.trend-list{ display:flex; flex-direction:column; gap:8px; max-height: 340px; overflow-y:auto; padding-inline-end:2px; margin-top:4px; }
+.trend-item{
+  display:flex; align-items:center; gap:10px;
+  background: var(--card-2); border:1px solid var(--border); border-radius:12px;
+  padding:9px 11px;
+}
+.trend-item .ti-main{ flex:1; min-width:0; }
+.trend-item .ti-time{ font-size:0.68rem; color:var(--muted); font-weight:600; margin-bottom:4px; }
+.trend-item .ti-vals{ display:flex; flex-wrap:wrap; gap:6px 10px; font-size:0.72rem; color:var(--ink); }
+.trend-item .ti-vals b{ font-variant-numeric: tabular-nums; direction:ltr; unicode-bidi:isolate; display:inline-block; }
+.trend-item .ti-tag{
+  font-size:0.6rem; font-weight:700; color:var(--muted);
+  background:#fff; border:1px solid var(--border); border-radius:999px; padding:1px 7px;
+}
+.ti-del{
+  flex:none; width:30px; height:30px; border-radius:50%; border:1px solid var(--border);
+  background:#fff; color: var(--danger-ink); display:flex; align-items:center; justify-content:center;
+  cursor:pointer;
+}
+.ti-del:active{ transform: scale(0.92); }
+
+.btn-clear-all{
+  width:100%; display:flex; align-items:center; justify-content:center; gap:8px;
+  padding:11px; border-radius: var(--radius-sm); border:1.5px solid var(--danger-ink);
+  background:#fff; color: var(--danger-ink); font-size:0.8rem; font-weight:600; cursor:pointer;
+  margin-top:12px;
+}
+.btn-clear-all:active{ transform: scale(0.98); }
+
+/* ---------- calculation steps (guide · formulas card) ---------- */
+.calc-steps{ display:flex; flex-direction:column; }
+.calc-step{ display:flex; gap:12px; padding: 14px 0; }
+.calc-step:first-child{ padding-top:2px; }
+.calc-step:not(:last-child){ border-bottom: 1px dashed var(--border); }
+.calc-step .cs-num{
+  flex:none; width:26px; height:26px; border-radius:50%;
+  background: var(--blue-ink); color:#fff; font-weight:700; font-size:0.76rem;
+  display:flex; align-items:center; justify-content:center;
+  font-variant-numeric: tabular-nums; margin-top:1px;
+}
+.calc-step .cs-body{ flex:1; min-width:0; }
+.calc-step .cs-title{ font-weight:700; font-size:0.82rem; color:var(--ink); margin-bottom:7px; }
+.calc-step .cs-formula{
+  direction:ltr; unicode-bidi:isolate; text-align:center;
+  font-size:0.85rem; font-weight:700; color: var(--blue-ink);
+  background: var(--card-2); border:1px solid var(--border); border-radius:10px;
+  padding:9px 10px; letter-spacing:.02em; font-variant-numeric: tabular-nums;
+}
+.calc-step .cs-legend{ margin:9px 0 0; padding-inline-start:18px; font-size:0.73rem; line-height:1.85; color:var(--muted); }
+.calc-step .cs-legend li{ margin-bottom:2px; }
+.calc-step .cs-legend b{ color:var(--ink); direction:ltr; unicode-bidi:isolate; display:inline-block; }
+
+/* ---------- guide tables ---------- */
+.table-wrap{ overflow-x:auto; border-radius: 12px; border: 1px solid var(--border); }
+.info-table{ width:100%; border-collapse: collapse; table-layout: fixed; font-size: 0.76rem; line-height:1.65; min-width: 560px; }
+.info-table th{
+  background: linear-gradient(145deg,#e7f8f4,#d7f0e9); color: var(--blue-ink);
+  font-size: 0.66rem; font-weight:700; text-align: right; padding: 10px 12px;
+  border-bottom: 1.5px solid var(--border); position: sticky; top:0;
+}
+.info-table th:not(:first-child){ border-inline-start: 1px solid rgba(10,47,66,.08); }
+.info-table td{
+  padding: 11px 12px; border-bottom: 1px solid var(--border); vertical-align: top;
+  color: var(--ink);
+}
+.info-table td:not(:first-child){ border-inline-start: 1px solid var(--border); }
+.info-table tbody tr:last-child td{ border-bottom:none; }
+.info-table tbody tr:nth-child(even){ background: var(--card-2); }
+.info-table b{ color: var(--blue-ink); }
+.info-table .mono{
+  direction:ltr; unicode-bidi:isolate; display:inline-block; margin-top:5px;
+  font-size:0.64rem; color: var(--blue-ink); background: rgba(17,112,163,.08);
+  border: 1px solid rgba(17,112,163,.16); border-radius: 6px; padding: 2px 6px; line-height:1.5;
+}
 
 .src{
   font-size: 0.72rem; color: var(--muted);
@@ -642,33 +784,62 @@ footer.app-foot{
   .rf-value span{ font-size: 1.6rem; }
   .live-chip .lc-val{ font-size:0.92rem; }
 }
+
+/* خوانایی یکپارچه: همهٔ نوشته‌ها با رنگ مشکی نمایش داده شوند */
+body *{ color:#000 !important; text-shadow:none !important; }
+svg text{ fill:#000 !important; }
+
+/* داخل نوار بالا (کادر قرمز): نوشته‌ها سفید بمانند تا روی زمینهٔ قرمز خوانا باشند */
+.appbar, .appbar *{ color:#fff !important; }
+/* نشان‌های روشن داخل نوار بالا همچنان با متن تیره خوانا بمانند */
+.appbar-doc, .appbar-doc *,
+.lc-ico, .lc-ico *{ color:#04212a !important; }
 </style>
 </head>
 <body>
 
 <div class="appbar blueprint">
+  <div class="appbar-formulas" aria-hidden="true">
+    <span style="top:-12px; inset-inline-start:36%; font-size:34px; opacity:.10; transform:rotate(-8deg);">Na₂CO₃</span>
+    <span style="top:42px; inset-inline-end:-12px; font-size:42px; opacity:.09; transform:rotate(6deg);">NaOH</span>
+    <span style="bottom:-8px; inset-inline-start:-10px; font-size:26px; opacity:.09; transform:rotate(4deg);">CaCO₃↓</span>
+    <span style="top:4px; inset-inline-start:8px; font-size:14px; opacity:.13; transform:rotate(-4deg);">Mg(OH)₂↓</span>
+  </div>
   <div class="appbar-row">
     <div class="appbar-icon">
       <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6M10 3v5.2c0 .5-.15 1-.44 1.4L5.9 15.4C4.6 17.2 5.9 19.7 8.1 19.7h7.8c2.2 0 3.5-2.5 2.2-4.3l-3.66-5.8A2.4 2.4 0 0 1 14 8.2V3"/><path d="M7.5 14.5h9"/></svg>
     </div>
     <div class="appbar-txt">
-      <b>دوز کربنات و کاستیک</b>
+      <b>میزان تزریق کربنات و کاستیک</b>
       <span>PLANT UNIT 031 · BRINE PRECIPITATION</span>
+      <div class="appbar-clock" id="liveClock">—</div>
     </div>
     <div class="appbar-doc">C/A</div>
   </div>
 
   <div class="live-strip">
     <div class="live-chip q">
-      <div class="lc-lab">جریان کل</div>
+      <div class="lc-top">
+        <span class="lc-ico"><svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12c1.8-2 3.6-2 5.4 0s3.6 2 5.4 0 3.6-2 5.4 0"/></svg></span>
+        <span class="lc-lab">جریان کل</span>
+        <span class="lc-dot"></span>
+      </div>
       <div class="lc-val" id="liveQ">—<span class="lc-unit">m³/h</span></div>
     </div>
     <div class="live-chip na">
-      <div class="lc-lab">Na₂CO₃</div>
+      <div class="lc-top">
+        <span class="lc-ico"><svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2.5h6M10 2.5v5.3c0 .4-.12.8-.34 1.14L5.5 14.5c-1.3 2 .13 4.6 2.5 4.6h8c2.37 0 3.8-2.6 2.5-4.6l-4.16-6.06A2 2 0 0 1 14 6.8V2.5"/></svg></span>
+        <span class="lc-lab">Na₂CO₃</span>
+        <span class="lc-dot"></span>
+      </div>
       <div class="lc-val" id="liveNa">—<span class="lc-unit">kg/h</span></div>
     </div>
     <div class="live-chip oh">
-      <div class="lc-lab">NaOH</div>
+      <div class="lc-top">
+        <span class="lc-ico"><svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c3 4 6 7.5 6 11.2A6 6 0 0 1 6 14.2C6 10.5 9 7 12 3Z"/></svg></span>
+        <span class="lc-lab">NaOH</span>
+        <span class="lc-dot"></span>
+      </div>
       <div class="lc-val" id="liveOH">—<span class="lc-unit">kg/h</span></div>
     </div>
   </div>
@@ -679,64 +850,15 @@ footer.app-foot{
   <!-- ================= TAB 1: INPUTS ================= -->
   <div class="tab-panel active" id="panel-inputs">
 
-    <div class="hero">
-      <span class="corner tl"></span><span class="corner br"></span>
-      <span class="hero-eyebrow">Chlor‑Alkali · Brine Precipitation</span>
-      <h1>محاسبه‌گر دوز Na₂CO₃ و NaOH</h1>
-      <p>نرخ تزریق کربنات سدیم و کاستیک سدا برای حفظ «اکسس» در محدودهٔ نرمال بهره‌برداری تانک رسوب‌دهی آب‌نمک را محاسبه کنید.</p>
-
-      <div class="schematic">
-        <svg viewBox="0 0 460 118" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <marker id="arrow" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
-              <path d="M0,0 L8,4 L0,8 Z" fill="#6fe3d4"/>
-            </marker>
-          </defs>
-          <!-- raw brine -->
-          <rect x="6" y="42" width="82" height="36" rx="6" fill="none" stroke="#6fe3d4" stroke-width="1.2" stroke-dasharray="3 2"/>
-          <text x="47" y="64" text-anchor="middle" font-size="9.5" fill="#dff7f2" font-family="Vazirmatn">آب‌نمک خام</text>
-          <line x1="88" y1="60" x2="128" y2="60" stroke="#6fe3d4" stroke-width="1.4" marker-end="url(#arrow)"/>
-
-          <!-- precipitation tank -->
-          <rect x="132" y="26" width="122" height="68" rx="8" fill="rgba(111,227,212,.08)" stroke="#6fe3d4" stroke-width="1.4"/>
-          <text x="193" y="65" text-anchor="middle" font-size="10" fill="#eafffb" font-weight="700" font-family="Vazirmatn">تانک رسوب‌دهی</text>
-          <text x="193" y="79" text-anchor="middle" font-size="7.5" fill="#9cc0ca" font-family="Vazirmatn">Precipitation · ~60°C</text>
-
-          <!-- dosing ports -->
-          <line x1="160" y1="10" x2="160" y2="26" stroke="#59b6e0" stroke-width="1.4" stroke-dasharray="2 2"/>
-          <circle cx="160" cy="10" r="3.2" fill="#59b6e0"/>
-          <text x="160" y="8" text-anchor="middle" font-size="7.5" fill="#9fd3ea" font-family="Vazirmatn">Na₂CO₃</text>
-
-          <line x1="226" y1="10" x2="226" y2="26" stroke="#6fe3d4" stroke-width="1.4" stroke-dasharray="2 2"/>
-          <circle cx="226" cy="10" r="3.2" fill="#6fe3d4"/>
-          <text x="226" y="8" text-anchor="middle" font-size="7.5" fill="#9fe9dc" font-family="Vazirmatn">NaOH</text>
-
-          <line x1="254" y1="60" x2="294" y2="60" stroke="#6fe3d4" stroke-width="1.4" marker-end="url(#arrow)"/>
-
-          <!-- clarifier -->
-          <rect x="298" y="40" width="76" height="40" rx="6" fill="none" stroke="#6fe3d4" stroke-width="1.2" stroke-dasharray="3 2"/>
-          <text x="336" y="64" text-anchor="middle" font-size="8.5" fill="#dff7f2" font-family="Vazirmatn">کلاریفایر</text>
-
-          <line x1="374" y1="60" x2="412" y2="60" stroke="#6fe3d4" stroke-width="1.4" marker-end="url(#arrow)"/>
-          <text x="437" y="57" text-anchor="middle" font-size="8" fill="#9cc0ca" font-family="Vazirmatn">به سمت</text>
-          <text x="437" y="68" text-anchor="middle" font-size="8" fill="#9cc0ca" font-family="Vazirmatn">الکترولایزر</text>
-        </svg>
-        <div class="schematic-cap"><span>UNIT 031</span><span>REF · 3.2.2.1</span></div>
-      </div>
-
-      <div class="hero-src">مبنای اعداد: دفترچه راهنمای بهره‌برداری واحد C/A · سند <code>8408205-CB-PR-MNL-0102</code></div>
-    </div>
-
     <!-- 1. Flow -->
     <section class="card accent-blue">
-      <span class="ref-tag">REF 3.2.2.1</span>
       <div class="card-head">
         <div class="ic-badge">
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12c1.8-2 3.6-2 5.4 0s3.6 2 5.4 0 3.6-2 5.4 0"/><path d="M3 18c1.8-2 3.6-2 5.4 0s3.6 2 5.4 0 3.6-2 5.4 0"/><path d="M3 6c1.8-2 3.6-2 5.4 0s3.6 2 5.4 0 3.6-2 5.4 0"/></svg>
         </div>
         <div class="card-titles">
           <h2>جریان آب‌نمک</h2>
-          <p>ترین ۱ و ترین ۲ کاملاً مستقل از هم تنظیم می‌شوند؛ هرکدام ظرفیت و درصد بار خودشان را دارند و دوز لازم برای هرکدام جداگانه در نتایج محاسبه می‌شود.</p>
+          <p>ترین ۱ و ترین ۲ کاملاً مستقل از هم تنظیم می‌شوند؛ هرکدام ظرفیت و درصد بار خودشان را دارند و میزان تزریق لازم برای هرکدام جداگانه در نتایج محاسبه می‌شود.</p>
         </div>
         <span class="step">۱</span>
       </div>
@@ -802,50 +924,38 @@ footer.app-foot{
       </div>
     </section>
 
-    <!-- 2. Excess targets -->
-    <section class="card accent-teal">
-      <span class="ref-tag">REF 3.2.2.1</span>
+    <!-- 2. Brine hardness -->
+    <section class="card accent-amber">
       <div class="card-head">
-        <div class="ic-badge ic-teal">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.2"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="0.6" fill="currentColor" stroke="none"/></svg>
+        <div class="ic-badge ic-amber">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/><ellipse cx="12" cy="12" rx="9" ry="4"/><ellipse cx="12" cy="12" rx="9" ry="4" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="9" ry="4" transform="rotate(120 12 12)"/></svg>
         </div>
         <div class="card-titles">
-          <h2>اکسس هدف در تانک رسوب‌دهی</h2>
-          <p>برای رسوب‌گذاری مناسب کلسیم/منیزیم، اکسسی معادل ~۴۰۰ mg/l کربنات و ~۱۵۰ mg/l کاستیک در آب‌نمک خام نگه‌داشته می‌شود.</p>
+          <h2>سختی آب‌نمک خام</h2>
+          <p>اگر Ca²⁺ یا Mg²⁺ عددی دارند وارد کنید؛ صفر در محاسبات لحاظ نمی‌شود و هر مقدار بزرگ‌تر از صفر، به‌صورت خودکار به نتیجه افزوده خواهد شد.</p>
         </div>
-        <span class="step">۲</span>
+        <span class="step step-amber">۲</span>
       </div>
-
       <div class="row2">
         <div class="field">
-          <label for="excNa">اکسس Na₂CO₃ هدف</label>
-          <div class="stepper-row">
-            <button type="button" class="step-btn" data-target="excNa" data-dir="-1">−</button>
-            <div class="unit-field">
-              <input type="number" id="excNa" value="400" min="0" step="10" inputmode="decimal" />
-              <span class="unit">mg/l</span>
-            </div>
-            <button type="button" class="step-btn" data-target="excNa" data-dir="1">+</button>
+          <label for="caPpm">غلظت Ca²⁺ در آب‌نمک خام</label>
+          <div class="unit-field">
+            <input type="number" id="caPpm" value="0" min="0" step="10" inputmode="decimal" />
+            <span class="unit">mg/l</span>
           </div>
         </div>
         <div class="field">
-          <label for="excOH">اکسس NaOH هدف</label>
-          <div class="stepper-row">
-            <button type="button" class="step-btn" data-target="excOH" data-dir="-1">−</button>
-            <div class="unit-field">
-              <input type="number" id="excOH" value="150" min="0" step="10" inputmode="decimal" />
-              <span class="unit">mg/l</span>
-            </div>
-            <button type="button" class="step-btn" data-target="excOH" data-dir="1">+</button>
+          <label for="mgPpm">غلظت Mg²⁺ در آب‌نمک خام</label>
+          <div class="unit-field">
+            <input type="number" id="mgPpm" value="0" min="0" step="10" inputmode="decimal" />
+            <span class="unit">mg/l</span>
           </div>
         </div>
       </div>
-      <div id="excWarn"></div>
     </section>
 
     <!-- 3. Solution specs -->
     <section class="card accent-blue">
-      <span class="ref-tag">REF 3.2.3.1</span>
       <div class="card-head">
         <div class="ic-badge">
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2.5h6M10 2.5v6.3c0 .45-.13.9-.38 1.28L5.3 16.9c-1.5 2.3.15 5.35 2.9 5.35h7.6c2.75 0 4.4-3.05 2.9-5.35l-4.32-6.82A2.3 2.3 0 0 1 14 8.8V2.5"/><path d="M7.2 15h9.6"/></svg>
@@ -900,49 +1010,43 @@ footer.app-foot{
       </div>
     </section>
 
-    <!-- 4. Advanced -->
-    <section class="card accent-amber">
-      <span class="ref-tag">ANNEX A2</span>
+    <!-- 4. Excess targets -->
+    <section class="card accent-teal">
       <div class="card-head">
-        <div class="ic-badge ic-amber">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/><ellipse cx="12" cy="12" rx="9" ry="4"/><ellipse cx="12" cy="12" rx="9" ry="4" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="9" ry="4" transform="rotate(120 12 12)"/></svg>
+        <div class="ic-badge ic-teal">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.2"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="0.6" fill="currentColor" stroke="none"/></svg>
         </div>
         <div class="card-titles">
-          <h2>مصرف بر اساس سختی آب‌نمک <span class="tag">اختیاری</span></h2>
-          <p>غلظت Ca²⁺/Mg²⁺ آنالیزشدهٔ آب‌نمک خام را وارد کنید تا علاوه بر اکسس ثابت سند، مصرفِ واقعیِ کربنات و کاستیک لازم برای رسوب‌دادن همان سختی هم محاسبه و در تب «نتایج» به‌صورت جداگانه (kg/h و L/h) نشان داده شود. عدد مرجع خودِ Ca²⁺/Mg²⁺ در این جلد نیامده (ارجاع به Annex A2) — کاملاً بر پایه ورودی شماست.</p>
+          <h2>اکسس هدف در تانک رسوب‌دهی</h2>
+          <p>برای رسوب‌گذاری مناسب کلسیم/منیزیم، اکسسی معادل ~۴۰۰ mg/l کربنات و ~۱۵۰ mg/l کاستیک در آب‌نمک خام نگه‌داشته می‌شود.</p>
         </div>
-        <span class="step step-amber">۴</span>
+        <span class="step">۴</span>
       </div>
-
-      <div class="toggle-row" id="advToggleRow">
-        <div class="txt">
-          <strong>لحاظ سختی آب‌نمک خام (Ca²⁺ / Mg²⁺)</strong>
-          <span>CaCl₂+Na₂CO₃→CaCO₃+2NaCl &nbsp;·&nbsp; MgCl₂+2NaOH→Mg(OH)₂+2NaCl</span>
-        </div>
-        <label class="switch">
-          <input type="checkbox" id="advToggle" />
-          <span class="slider-el"></span>
-        </label>
-      </div>
-
-      <div class="advanced-body" id="advBody">
-        <div class="row2">
-          <div class="field">
-            <label for="caPpm">غلظت Ca²⁺ در آب‌نمک خام</label>
+      <div class="row2">
+        <div class="field">
+          <label for="excNa">اکسس Na₂CO₃ هدف</label>
+          <div class="stepper-row">
+            <button type="button" class="step-btn" data-target="excNa" data-dir="-1">−</button>
             <div class="unit-field">
-              <input type="number" id="caPpm" value="0" min="0" step="10" inputmode="decimal" />
+              <input type="number" id="excNa" value="400" min="0" step="10" inputmode="decimal" />
               <span class="unit">mg/l</span>
             </div>
+            <button type="button" class="step-btn" data-target="excNa" data-dir="1">+</button>
           </div>
-          <div class="field">
-            <label for="mgPpm">غلظت Mg²⁺ در آب‌نمک خام</label>
+        </div>
+        <div class="field">
+          <label for="excOH">اکسس NaOH هدف</label>
+          <div class="stepper-row">
+            <button type="button" class="step-btn" data-target="excOH" data-dir="-1">−</button>
             <div class="unit-field">
-              <input type="number" id="mgPpm" value="0" min="0" step="10" inputmode="decimal" />
+              <input type="number" id="excOH" value="150" min="0" step="10" inputmode="decimal" />
               <span class="unit">mg/l</span>
             </div>
+            <button type="button" class="step-btn" data-target="excOH" data-dir="1">+</button>
           </div>
         </div>
       </div>
+      <div id="excWarn"></div>
     </section>
 
     <button class="btn-reset" id="resetBtn">
@@ -959,7 +1063,6 @@ footer.app-foot{
   <div class="tab-panel" id="panel-results">
 
     <section class="card results-card" id="resultsCard">
-      <span class="ref-tag">LIVE</span>
       <div class="card-head">
         <div class="ic-badge ic-dark">
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V9M12 19V4M20 19v-7"/></svg>
@@ -981,32 +1084,22 @@ footer.app-foot{
           <span class="dot"></span>
           <div class="chem-title">
             <b>کربنات سدیم <span class="formula">Na₂CO₃</span></b>
-            <small>نرخ تزریق برای اکسس هدف (+ استوکیومتری در حالت پیشرفته)</small>
+            <small>میزان تزریق برای اکسس هدف (+ استوکیومتری سختیِ واردشده)</small>
           </div>
         </div>
 
         <div class="metric-grid">
-          <div class="metric main"><div class="num" id="naKgH">—</div><div class="lab">kg/h خالص</div></div>
-          <div class="metric"><div class="num" id="naKgDay">—</div><div class="lab">kg/day خالص</div></div>
-          <div class="metric"><div class="num" id="naSolLh">—</div><div class="lab">L/h محلول ۱۰٪</div></div>
+          <div class="metric main" style="grid-column:1/-1">
+            <div class="num" id="naSolLh">—</div><div class="lab">L/h محلول ۱۰٪</div>
+            <div class="sub-kg">≈ <span id="naKgH">—</span> kg/h خالص</div>
+          </div>
+          <div class="metric"><div class="num" id="naSolLDay">—</div><div class="lab">L/day محلول ۱۰٪</div></div>
           <div class="metric"><div class="num" id="naBags">—</div><div class="lab">کیسه ۵۰kg در روز</div></div>
         </div>
 
         <div class="train-split">
           <div class="ts-item a" id="naSplitA"><span class="ts-dot"></span><span class="ts-lab">ترین ۱</span><span class="ts-val" id="naSolLhA">—</span><span class="ts-unit">L/h</span></div>
           <div class="ts-item b" id="naSplitB"><span class="ts-dot"></span><span class="ts-lab">ترین ۲</span><span class="ts-val" id="naSolLhB">—</span><span class="ts-unit">L/h</span></div>
-        </div>
-
-        <div class="stoich-split" id="naStoichSplit">
-          <div class="ss-head">به ازای سختی آب‌نمک ورودی (Ca²⁺ = <span id="naCaEcho">—</span> mg/l)</div>
-          <div class="ss-row">
-            <div class="ss-item"><span class="ss-lab">سهم اکسس هدف</span><span class="ss-vwrap"><span class="ss-val" id="naExcKgH">—</span><span class="ss-unit">kg/h</span></span></div>
-            <div class="ss-item hi"><span class="ss-lab">سهم رسوب‌دهی Ca²⁺</span><span class="ss-vwrap"><span class="ss-val" id="naStoichKgH">—</span><span class="ss-unit">kg/h</span></span></div>
-          </div>
-          <div class="ss-row">
-            <div class="ss-item"><span class="ss-lab">معادل محلول اکسس</span><span class="ss-vwrap"><span class="ss-val" id="naExcLh">—</span><span class="ss-unit">L/h</span></span></div>
-            <div class="ss-item hi"><span class="ss-lab">معادل محلول رسوب‌دهی</span><span class="ss-vwrap"><span class="ss-val" id="naStoichLh">—</span><span class="ss-unit">L/h</span></span></div>
-          </div>
         </div>
 
         <div class="gauge">
@@ -1022,33 +1115,23 @@ footer.app-foot{
         <div class="head">
           <span class="dot"></span>
           <div class="chem-title">
-            <b>کاستیک سدا <span class="formula">NaOH</span></b>
-            <small>نرخ تزریق برای اکسس هدف (+ استوکیومتری در حالت پیشرفته)</small>
+            <b>کاستیک <span class="formula">NaOH</span></b>
+            <small>میزان تزریق برای اکسس هدف (+ استوکیومتری سختیِ واردشده)</small>
           </div>
         </div>
 
         <div class="metric-grid">
-          <div class="metric main"><div class="num" id="ohKgH">—</div><div class="lab">kg/h خالص</div></div>
-          <div class="metric"><div class="num" id="ohKgDay">—</div><div class="lab">kg/day خالص</div></div>
-          <div class="metric"><div class="num" id="ohSolLh">—</div><div class="lab">L/h محلول ۱۸٪</div></div>
+          <div class="metric main" style="grid-column:1/-1">
+            <div class="num" id="ohSolLh">—</div><div class="lab">L/h محلول ۱۸٪</div>
+            <div class="sub-kg">≈ <span id="ohKgH">—</span> kg/h خالص</div>
+          </div>
+          <div class="metric"><div class="num" id="ohSolLDay">—</div><div class="lab">L/day محلول ۱۸٪</div></div>
           <div class="metric"><div class="num" id="ohSolM3Day">—</div><div class="lab">m³/day محلول</div></div>
         </div>
 
         <div class="train-split">
           <div class="ts-item a" id="ohSplitA"><span class="ts-dot"></span><span class="ts-lab">ترین ۱</span><span class="ts-val" id="ohSolLhA">—</span><span class="ts-unit">L/h</span></div>
           <div class="ts-item b" id="ohSplitB"><span class="ts-dot"></span><span class="ts-lab">ترین ۲</span><span class="ts-val" id="ohSolLhB">—</span><span class="ts-unit">L/h</span></div>
-        </div>
-
-        <div class="stoich-split" id="ohStoichSplit">
-          <div class="ss-head">به ازای سختی آب‌نمک ورودی (Mg²⁺ = <span id="ohMgEcho">—</span> mg/l)</div>
-          <div class="ss-row">
-            <div class="ss-item"><span class="ss-lab">سهم اکسس هدف</span><span class="ss-vwrap"><span class="ss-val" id="ohExcKgH">—</span><span class="ss-unit">kg/h</span></span></div>
-            <div class="ss-item hi oh"><span class="ss-lab">سهم رسوب‌دهی Mg²⁺</span><span class="ss-vwrap"><span class="ss-val" id="ohStoichKgH">—</span><span class="ss-unit">kg/h</span></span></div>
-          </div>
-          <div class="ss-row">
-            <div class="ss-item"><span class="ss-lab">معادل محلول اکسس</span><span class="ss-vwrap"><span class="ss-val" id="ohExcLh">—</span><span class="ss-unit">L/h</span></span></div>
-            <div class="ss-item hi oh"><span class="ss-lab">معادل محلول رسوب‌دهی</span><span class="ss-vwrap"><span class="ss-val" id="ohStoichLh">—</span><span class="ss-unit">L/h</span></span></div>
-          </div>
         </div>
 
         <div class="gauge">
@@ -1061,135 +1144,186 @@ footer.app-foot{
       </div>
 
       <div class="src">
-        <b>فرمول:</b> نرخ تزریق (kg/h) = جریان آب‌نمک (m³/h) × غلظت هدف (mg/l) ÷ ۱۰۰۰٫ در حالت پیشرفته: غلظت هدف = اکسس + مصرف استوکیومتری واکنش رسوب‌دهی.
+        <b>فرمول:</b> میزان تزریق (kg/h) = جریان آب‌نمک (m³/h) × غلظت هدف (mg/l) ÷ ۱۰۰۰٫ در صورت ورود مقدار Ca²⁺ یا Mg²⁺ بزرگ‌تر از صفر، غلظت هدف = اکسس + مصرف استوکیومتری واکنش رسوب‌دهی.
         <br/>
         <b>منبع:</b> <code>8408205-CB-PR-MNL-0102</code> — Operating Manual C/A Plant، بخش‌های ۳٫۲٫۲٫۱ و ۳٫۲٫۳٫۱ (اکسس ۴۰۰/۱۵۰ mg/l، غلظت محلول‌ها) و جدول ۶-۸ (حد بالادست: Na₂CO₃ &lt; ۰٫۴ g/l، NaOH &lt; ۰٫۲ g/l).
       </div>
     </section>
   </div>
 
-  <!-- ================= TAB: LIVE STATUS ================= -->
-  <div class="tab-panel" id="panel-status">
+  <!-- ================= TAB 3: TREND ================= -->
+  <div class="tab-panel" id="panel-trend">
 
-    <section class="card accent-teal">
-      <span class="ref-tag">LIVE CHECK</span>
+    <section class="card accent-purple">
       <div class="card-head">
-        <div class="ic-badge ic-teal">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V10M18 20V4M6 20v-6"/><path d="M3 20h18"/></svg>
+        <div class="ic-badge ic-purple">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16l4.5-5 4 3L18 7l2 2"/><path d="M4 20h16"/></svg>
         </div>
         <div class="card-titles">
-          <h2>وضعیت فعلی تزریق</h2>
-          <p>جریان و اکسسِ فعلیِ اندازه‌گیری‌شده (یا نرخ تزریق فعلی از روتامتر/فلومتر) را وارد کنید. اپ با استفاده از غلظت/چگالی/اکسس هدفی که در تب «ورودی‌ها» ثبت کرده‌اید، دقیقاً می‌گوید چند لیتر بر ساعت کربنات سدیم و کاستیک سدا باید تزریق شود. همهٔ اعداد این صفحه کاملاً آزاد و قابل‌تغییرند.</p>
+          <h2>ثبت نقطهٔ روند</h2>
+          <p>مقادیر لحظه‌ای فعلی (کلسیم/منیزیم و میزان تزریق) را به‌عنوان یک نقطه در نمودار روند ذخیره کنید.</p>
         </div>
       </div>
 
-      <div class="field">
-        <label for="curFlowQ">جریان آب‌نمک فعلی وارد به چرخه (X)</label>
-        <div class="unit-field">
-          <input type="number" id="curFlowQ" value="0" min="0" step="10" inputmode="decimal" />
-          <span class="unit">m³/h</span>
+      <div class="trend-savebar">
+        <div class="tsb-txt">
+          <b id="tsbLive">—</b>
+          <span id="tsbSub">هنوز مقداری محاسبه نشده</span>
         </div>
-        <span class="field-hint">صفر یا خالی = استفاده از جریان محاسبه‌شدهٔ تب «ورودی‌ها» (هم‌اکنون <b id="curFlowQEcho">—</b> m³/h)</span>
+        <div class="trend-count" id="trendCount">0 نقطه</div>
       </div>
-    </section>
 
-    <section class="card">
-      <div class="chem-block na2co3" style="margin-bottom:0">
-        <div class="head">
-          <span class="dot"></span>
-          <div class="chem-title">
-            <b>کربنات سدیم <span class="formula">Na₂CO₃</span></b>
-            <small>اکسس فعلیِ اندازه‌گیری‌شده (Y) یا نرخ تزریق فعلی را وارد کنید</small>
-          </div>
-        </div>
+      <button class="btn-save" id="saveTrendBtn">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+        ثبت این نقطه در روند
+      </button>
 
-        <div class="row2">
-          <div class="field">
-            <label for="naActualLh">نرخ فعلی تزریق محلول</label>
-            <div class="unit-field">
-              <input type="number" id="naActualLh" value="0" min="0" step="10" inputmode="decimal" />
-              <span class="unit">L/h</span>
-            </div>
-          </div>
-          <div class="field">
-            <label for="naActualMgl">اکسس فعلیِ اندازه‌گیری‌شده (Y)</label>
-            <div class="unit-field">
-              <input type="number" id="naActualMgl" value="0" min="0" step="10" inputmode="decimal" />
-              <span class="unit">mg/l</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="cur-status" id="naCurStatus">
-          <div class="cs-head"><span>نتیجه <span class="cs-chem">Na₂CO₃</span></span><span class="cs-badge" id="naCsBadge">—</span></div>
-          <div class="cs-row">
-            <div class="cs-item achieved" id="naCsAchievedItem">
-              <span class="cs-lab">اکسس فعلی</span>
-              <div class="cs-val-wrap"><span class="cs-val" id="naCsAchieved">—</span><span class="cs-unit">mg/l</span></div>
-            </div>
-            <div class="cs-item target">
-              <span class="cs-lab">اکسس هدف</span>
-              <div class="cs-val-wrap"><span class="cs-val" id="naCsTarget">—</span><span class="cs-unit">mg/l</span></div>
-            </div>
-          </div>
-          <div class="cs-action" id="naCsAction">—</div>
-        </div>
-        <div class="cur-status-empty" id="naCsEmpty">برای مشاهدهٔ نتیجه، نرخ تزریق فعلی یا اکسس اندازه‌گیری‌شده را وارد کنید.</div>
+      <div class="notice warn" id="trendStorageWarn" style="display:none; margin-top:10px">
+        ذخیرهٔ دائمی نقاط در این مرورگر امکان‌پذیر نیست (مثلاً به دلیل بازکردن مستقیم فایل یا حالت مرورش خصوصی)؛ نقاط ثبت‌شده فقط تا وقتی همین صفحه باز است نمایش داده می‌شوند و با بستن یا رفرش‌کردن صفحه از بین می‌روند.
       </div>
     </section>
 
-    <section class="card">
-      <div class="chem-block naoh" style="margin-bottom:0">
-        <div class="head">
-          <span class="dot"></span>
-          <div class="chem-title">
-            <b>کاستیک سدا <span class="formula">NaOH</span></b>
-            <small>اکسس فعلیِ اندازه‌گیری‌شده (Y) یا نرخ تزریق فعلی را وارد کنید</small>
-          </div>
+    <section class="card accent-blue chart-card">
+      <div class="card-head">
+        <div class="ic-badge">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V9M12 19V4M20 19v-7"/></svg>
         </div>
-
-        <div class="row2">
-          <div class="field">
-            <label for="ohActualLh">نرخ فعلی تزریق محلول</label>
-            <div class="unit-field">
-              <input type="number" id="ohActualLh" value="0" min="0" step="10" inputmode="decimal" />
-              <span class="unit">L/h</span>
-            </div>
-          </div>
-          <div class="field">
-            <label for="ohActualMgl">اکسس فعلیِ اندازه‌گیری‌شده (Y)</label>
-            <div class="unit-field">
-              <input type="number" id="ohActualMgl" value="0" min="0" step="10" inputmode="decimal" />
-              <span class="unit">mg/l</span>
-            </div>
-          </div>
+        <div class="card-titles">
+          <h2>روند تزریق، جریان و سختی آب‌نمک خام</h2>
+          <p>خطوط Ca²⁺/Mg²⁺ فقط برای نقاطی رسم می‌شود که هنگام ثبت، مقدارِ آن‌ها بزرگ‌تر از صفر بوده است. برای بزرگ‌نمایی و ذخیرهٔ نمودار به‌صورت عکس، روی خودِ نمودار بزنید.</p>
         </div>
-
-        <div class="cur-status" id="ohCurStatus">
-          <div class="cs-head"><span>نتیجه <span class="cs-chem oh">NaOH</span></span><span class="cs-badge" id="ohCsBadge">—</span></div>
-          <div class="cs-row">
-            <div class="cs-item achieved" id="ohCsAchievedItem">
-              <span class="cs-lab">اکسس فعلی</span>
-              <div class="cs-val-wrap"><span class="cs-val" id="ohCsAchieved">—</span><span class="cs-unit">mg/l</span></div>
-            </div>
-            <div class="cs-item target oh">
-              <span class="cs-lab">اکسس هدف</span>
-              <div class="cs-val-wrap"><span class="cs-val" id="ohCsTarget">—</span><span class="cs-unit">mg/l</span></div>
-            </div>
-          </div>
-          <div class="cs-action" id="ohCsAction">—</div>
-        </div>
-        <div class="cur-status-empty" id="ohCsEmpty">برای مشاهدهٔ نتیجه، نرخ تزریق فعلی یا اکسس اندازه‌گیری‌شده را وارد کنید.</div>
       </div>
+      <div class="chart-legend" id="dosingChartLegend"></div>
+      <div class="chart-wrap" id="dosingChartWrap" data-title="روند تزریق، جریان و سختی آب‌نمک خام"></div>
+      <div class="chart-axis-note">محور افقی: زمان ثبت هر نقطه. هر شاخص در ردیف مستقل، با محور عمودی و واحد واقعیِ خودش نمایش داده می‌شود؛ مقیاس‌ها درصدی یا نرمال‌سازی‌شده نیستند.</div>
     </section>
 
+    <section class="card accent-rose">
+      <div class="card-head">
+        <div class="ic-badge ic-rose">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M9 9h6v6H9z"/></svg>
+        </div>
+        <div class="card-titles">
+          <h2>نقاط ثبت‌شده</h2>
+        </div>
+      </div>
+      <div id="trendListWrap"></div>
+      <button class="btn-clear-all" id="clearTrendBtn">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg>
+        پاک کردن همهٔ نقاط
+      </button>
+    </section>
+
+    <footer class="app-foot">
+      نقاط روند فقط روی همین مرورگر/دستگاه شما ذخیره می‌شود؛ پاک‌کردن حافظهٔ مرورگر یا استفاده از دستگاه دیگر، این تاریخچه را نشان نمی‌دهد.
+    </footer>
   </div>
 
-  <!-- ================= TAB 3: GUIDE ================= -->
+  <!-- ================= TAB 4: GUIDE ================= -->
   <div class="tab-panel" id="panel-guide">
 
+    <section class="card accent-teal">
+      <div class="card-head">
+        <div class="ic-badge ic-teal">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+        </div>
+        <div class="card-titles">
+          <h2>کلسیم و منیزیم در مسیر ری‌اکشن تانک تا 5002</h2>
+          <p>روند کاهش Ca²⁺/Mg²⁺ از ری‌اکشن تانک‌ها تا مخزن آب‌نمک صیقل‌شده، عیناً طبق متن دفترچهٔ بهره‌برداری.</p>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table class="info-table">
+          <colgroup>
+            <col style="width:26%" /><col style="width:42%" /><col style="width:32%" />
+          </colgroup>
+          <thead>
+            <tr>
+              <th>مرحله / تجهیز</th>
+              <th>نقش در کاهش سختی</th>
+              <th>شاخص ثبت‌شده در سند</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><b>ری‌اکشن تانک‌ها</b><br/><span class="mono">41R‑03101A/B<br/>41R‑03201A/B</span></td>
+              <td>آب‌نمک خام حاوی Ca²⁺/Mg²⁺ با تزریق کربنات/کاستیک به CaCO₃ و Mg(OH)₂ تبدیل می‌شود (دمای ~۶۰°C، pH بین ۹ تا ۱۱)</td>
+              <td>اکسس حفظ‌شده:<br/><b>۴۰۰ mg/l</b> Na₂CO₃<br/><b>۱۵۰ mg/l</b> NaOH</td>
+            </tr>
+            <tr>
+              <td><b>کلاریفایر</b><br/><span class="mono">41R‑04101<br/>41R‑04201</span></td>
+              <td>ته‌نشینی رسوبات (CaCO₃/Mg(OH)₂ + SrCO₃ + Al(OH)₃) طی حدود ۹٫۵ ساعت ماند</td>
+              <td>&gt;۹۹٪ رسوب جدا می‌شود؛<br/>جامد معلق سرریز: <b>۲۰ تا ۵۰ ppm</b></td>
+            </tr>
+            <tr>
+              <td><b>مخزن آب‌نمک فیلترشده</b><br/><span class="mono">41V‑05001</span></td>
+              <td>عبور از ۹ فیلتر آنتراسیت (مخزن مشترک هر دو ترین، سطح‌کنترل‌شده)</td>
+              <td>جامد معلق: <b>۲ تا ۵ ppm</b></td>
+            </tr>
+            <tr>
+              <td><b>مخزن آب‌نمک صیقل‌شده</b><br/><span class="mono">41V‑05002</span></td>
+              <td>فیلترهای پالیشینگ (precoat/body‑feed با آلفا-سلولز)</td>
+              <td>جامد معلق: <b>&lt; ۰٫۵ ppm</b></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="notice ok" style="margin-top:12px">
+        کاهش نهاییِ Ca²⁺/Mg²⁺ <b>محلول</b> (نه جامد معلق) بعد از 41V‑05002 روی ستون‌های تبادل یونی ثانویه (Secondary Brine Purification) انجام می‌شود تا مجموع Ca+Mg در آب‌نمک فوق‌خالص ورودی الکترولایزر به کمتر از <b>۱۰ تا ۲۰ ppb</b> برسد (جدول ۶-۸).
+      </div>
+      <div class="notice warn" style="margin-top:8px">
+        عددِ دقیقِ ppm/ppb کلسیم و منیزیمِ <b>محلول</b> برای هرکدام از نقاط بالا (به‌جز مشخصهٔ نهایی جدول ۶-۸) در این جلد از دفترچه نیامده؛ فقط درصد جامد معلق و اکسسِ شیمیایی حفظ‌شده مستند است. عدد ورودی نمک خام این سایت به Annex A2 - Material Balances ارجاع دارد.
+      </div>
+    </section>
+
+    <section class="card accent-purple">
+      <div class="card-head">
+        <div class="ic-badge ic-purple">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="8" r="2"/><circle cx="17" cy="7" r="1.6"/><circle cx="16" cy="16" r="2.2"/><path d="M8.6 9.2 15 15M8.4 8 15.6 7.4"/></svg>
+        </div>
+        <div class="card-titles">
+          <h2>کمک‌مواد زلال‌سازی و پالیش آب‌نمک</h2>
+          <p>سه مادهٔ کمکی که در مسیر کلاریفایر تا فیلترهای پالیشینگ، کیفیت آب‌نمک را برای الکترولایز آماده می‌کنند — جدا از تزریق کربنات/کاستیک.</p>
+        </div>
+      </div>
+
+      <div class="sub-block">
+        <div class="sub-head">
+          <span class="sub-dot flo"></span>
+          <h3>فلوکولانت (پلی‌آکریلات سدیم)</h3>
+          <span class="sub-tag">41U‑04150/04250</span>
+        </div>
+        <p>پیش از ورود آب‌نمک به کلاریفایر، فلوکولانت به آن تزریق می‌شود تا فلاک‌های درشت‌تری از رسوبات CaCO₃/Mg(OH)₂ تشکیل شود و ته‌نشینی سریع‌تر انجام گیرد؛ بدون آن، ذرات ریز رسوب به‌کندی ته‌نشین می‌شوند و کیفیت سرریز کلاریفایر افت می‌کند.</p>
+        <p>غلظت فلوکولانت در آب‌نمک حدود <span class="sub-fig">۱ ppm</span> نگه داشته می‌شود. محلول مصرفی در دو تانک تهیه/تورم (Preparation/Swelling) ساخته می‌شود: به‌ازای هر <span class="sub-fig">۱ kg</span> پودر فلوکولانت، یک محلول <span class="sub-fig">۰٫۰۵٪</span> تهیه و پیش از تزریق حدود <span class="sub-fig">۱ h</span> با هم‌زن نگه داشته می‌شود تا کاملاً متورم شود.</p>
+      </div>
+
+      <div class="sub-block">
+        <div class="sub-head">
+          <span class="sub-dot cel"></span>
+          <h3>آلفاسلولز (پیش‌پوشش و بادی‌فید فیلترهای پالیشینگ)</h3>
+          <span class="sub-tag">41V‑05105/05107 · 05205/05207</span>
+        </div>
+        <p>آلفاسلولز دو نقش جدا در فیلترهای پالیشینگ آب‌نمک (candle filter) دارد:</p>
+        <p>· <b>پیش‌پوشش (Precoat):</b> پیش از شروع فیلتراسیون، لایه‌ای از آلفاسلولز روی کندل‌های فیلتر نشانده می‌شود تا منافذ ریز آن‌ها با جامدات معلق ریز مسدود نشود. تانک پیش‌پوشش با <span class="sub-fig">۱۲۵ kg</span> آلفاسلولز پر می‌شود (غلظت نمونهٔ محلول <span class="sub-fig">۰٫۵٪</span>).</p>
+        <p>· <b>بادی‌فید (Body Feed):</b> در طول فیلتراسیون، سوسپانسیون آلفاسلولز به‌طور پیوسته به جریان ورودی فیلتر تزریق می‌شود تا کیک فیلتر متخلخل‌تر بماند، افت فشار کندتر رشد کند و فاصلهٔ بین دو بازسازی (Regeneration) بیشتر شود. تانک بادی‌فید با <span class="sub-fig">۱۰۰ kg</span> آلفاسلولز پر می‌شود (غلظت محلول طبق سند: نرمال <span class="sub-fig">۳٪</span>، حداکثر <span class="sub-fig">۰٫۵٪</span> — عیناً به همین شکل در سند ثبت شده).</p>
+        <p>کیک فیلتر نهایی از ترکیب آلفاسلولز + جامدات معلق آب‌نمک تشکیل می‌شود؛ وقتی افت فشار فیلتر به حدود <span class="sub-fig">۲ bar</span> نزدیک شود (معمولاً هر <span class="sub-fig">~۴۸ h</span>)، فیلتر بک‌واش و بازسازی می‌شود.</p>
+      </div>
+
+      <div class="sub-block">
+        <div class="sub-head">
+          <span class="sub-dot res"></span>
+          <h3>رزین تبادل یونی Lewatit TP208</h3>
+          <span class="sub-tag">Sec. 4.2.2.1</span>
+        </div>
+        <p>پس از فیلترهای پالیشینگ، سختی <b>محلول</b> باقی‌ماندهٔ آب‌نمک (حدود ۵ تا ۱۰ ppm Ca/Mg) باید در بخش تبادل یونی ثانویه (Secondary Brine Purification) به کمتر از <span class="sub-fig">۲۰ ppb</span> برسد تا به الکترولایزر آسیب نزند؛ رزین Lewatit TP208 یک رزین کلاته‌کننده (Chelating Cation Exchange Resin) با گزینش‌پذیری بالا برای Ca²⁺/Mg²⁺/Sr²⁺ است.</p>
+        <p>آرایش رزین: <span class="sub-fig">۴</span> ستون در <span class="sub-fig">۲</span> خط موازی، در هر خط <span class="sub-fig">۲</span> ستون به‌صورت سری (Lead/Lag، به روش Merry-Go-Round) کار می‌کنند. یک تله‌رزین (Resin Trap) پایین‌دست هر خط، الکترولایزر را در صورت شکستن نازل ستون از نشت دانه‌های رزین محافظت می‌کند و یک آنالایزر آنلاین Ca/Mg خروجی ستون Lead را زیر نظر دارد.</p>
+        <p>عمر سرویس هر ستون بین دو احیا حدود <span class="sub-fig">۹۰ h</span> در حالت نرمال است (در سختی ورودی ۱۰ ppm به <span class="sub-fig">۳۹ h</span> و در ۵ ppm به <span class="sub-fig">۷۸ h</span> می‌رسد)؛ برای حاشیهٔ اطمینان، احیای رزین هر <span class="sub-fig">۷۲ h</span> انجام می‌شود.</p>
+      </div>
+    </section>
+
     <section class="card accent-blue">
-      <span class="ref-tag">SECTION 3.2</span>
       <div class="card-head">
         <div class="ic-badge">
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4"/><path d="M12 3a6.5 6.5 0 0 0-3.6 11.9c.5.35.8.9.8 1.5v.1h5.6v-.1c0-.6.3-1.15.8-1.5A6.5 6.5 0 0 0 12 3Z"/></svg>
@@ -1207,10 +1341,9 @@ footer.app-foot{
       </ul>
     </section>
 
-    <section class="card accent-teal">
-      <span class="ref-tag">CHEMISTRY</span>
+    <section class="card accent-rose">
       <div class="card-head">
-        <div class="ic-badge ic-teal">
+        <div class="ic-badge ic-rose">
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/><ellipse cx="12" cy="12" rx="9" ry="4"/><ellipse cx="12" cy="12" rx="9" ry="4" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="9" ry="4" transform="rotate(120 12 12)"/></svg>
         </div>
         <div class="card-titles">
@@ -1226,33 +1359,56 @@ footer.app-foot{
     </section>
 
     <section class="card accent-blue">
-      <span class="ref-tag">FORMULAS</span>
       <div class="card-head">
         <div class="ic-badge">
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 11h2M13 11h3M8 15h2M13 15h3"/></svg>
         </div>
         <div class="card-titles">
-          <h2>فرمول‌های محاسبهٔ دوز</h2>
-          <p>مسیر محاسبه از جریان و اکسس هدف تا نرخ تزریق محلول، همانی که در تب‌های «ورودی‌ها»، «نتایج» و «وضعیت فعلی» اجرا می‌شود.</p>
+          <h2>فرمول‌های محاسبهٔ میزان تزریق</h2>
+          <p>مسیر محاسبه از جریان و اکسس هدف تا نرخ تزریق محلول، همانی که در تب‌های «ورودی‌ها» و «نتایج» اجرا می‌شود.</p>
         </div>
       </div>
-      <ul class="info-list">
-        <li><b>۱) غلظت هدف کل:</b>
-          <span style="direction:ltr;unicode-bidi:isolate;display:inline-block">C_target (mg/l) = اکسس هدف + استوکیومتری Ca²⁺/Mg²⁺</span>
-          &nbsp;(جمله دوم فقط در حالت پیشرفته/advanced فعال می‌شود؛ در حالت عادی C_target = اکسس هدف)
-        </li>
-        <li><b>۲) جرم مادهٔ خالص لازم:</b>
-          <span style="direction:ltr;unicode-bidi:isolate;display:inline-block">Mass (kg/h) = Q (m³/h) × C_target (mg/l) ÷ 1000</span>
-        </li>
-        <li><b>۳) نرخ تزریق محلول:</b>
-          <span style="direction:ltr;unicode-bidi:isolate;display:inline-block">Rate (L/h) = Mass (kg/h) ÷ [ غلظت٪محلول÷100 × چگالی (kg/L) ]</span>
-        </li>
-        <li><b>۴) تب «وضعیت فعلی»:</b> همین سه فرمول عیناً با جریانِ واقعیِ واردشدهٔ شما (X، به‌جای Q طراحی) اجرا می‌شود تا «نرخ هدف» متناظر با شرایط فعلی به‌دست آید؛ اگر اکسس اندازه‌گیری‌شده (mg/l) وارد شود، به‌جای C_target طراحی در فرمول ۲ و ۳ قرار می‌گیرد تا وضعیت واقعی مشخص شود. اختلافِ «نرخ هدف» با نرخ تزریق فعلیِ واردشدهٔ خودتان، همان مقدار افزایش/کاهش پیشنهادی است.</li>
-      </ul>
+      <div class="calc-steps">
+        <div class="calc-step">
+          <div class="cs-num">۱</div>
+          <div class="cs-body">
+            <div class="cs-title">غلظت هدف کل در آب‌نمک</div>
+            <div class="cs-formula">C_target &nbsp;=&nbsp; C_excess &nbsp;+&nbsp; C_stoich</div>
+            <ul class="cs-legend">
+              <li><b>C_excess</b> = اکسس هدف واردشده در تب «ورودی‌ها» (mg/l)</li>
+              <li><b>C_stoich</b> = مصرف استوکیومتری Ca²⁺/Mg²⁺؛ فقط وقتی مقدار واردشده بزرگ‌تر از صفر باشد اضافه می‌شود، در غیر این صورت صفر است</li>
+            </ul>
+          </div>
+        </div>
+        <div class="calc-step">
+          <div class="cs-num">۲</div>
+          <div class="cs-body">
+            <div class="cs-title">جرم مادهٔ خالص لازم</div>
+            <div class="cs-formula">Mass &nbsp;=&nbsp; Q &nbsp;×&nbsp; C_target &nbsp;÷&nbsp; 1000</div>
+            <ul class="cs-legend">
+              <li><b>Q</b> = جریان آب‌نمک ترین فعال (m³/h)</li>
+              <li><b>C_target</b> = حاصل مرحلهٔ ۱ (mg/l)</li>
+              <li>حاصل تقسیم، جرم مادهٔ خالص را به <b>kg/h</b> می‌دهد</li>
+            </ul>
+          </div>
+        </div>
+        <div class="calc-step">
+          <div class="cs-num">۳</div>
+          <div class="cs-body">
+            <div class="cs-title">نرخ تزریق محلول</div>
+            <div class="cs-formula">Rate &nbsp;=&nbsp; Mass &nbsp;÷&nbsp; ( Conc٪ ÷ 100 × Density )</div>
+            <ul class="cs-legend">
+              <li><b>Conc٪</b> = غلظت وزنی محلول تزریقی، از تب «ورودی‌ها» (٪)</li>
+              <li><b>Density</b> = چگالی محلول (kg/L)</li>
+              <li>حاصل، نرخ تزریق محلول را به <b>L/h</b> می‌دهد — همان عددی که در تب «نتایج» نشان داده می‌شود</li>
+            </ul>
+          </div>
+        </div>
+      </div>
     </section>
 
+
     <section class="card accent-amber">
-      <span class="ref-tag">SEC 3.2.2.1 / 5.2.2.2</span>
       <div class="card-head">
         <div class="ic-badge ic-amber">
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c3 4 6 7.5 6 11.2A6 6 0 0 1 6 14.2C6 10.5 9 7 12 3Z"/></svg>
@@ -1275,10 +1431,9 @@ footer.app-foot{
       </div>
     </section>
 
-    <section class="card accent-amber">
-      <span class="ref-tag">DOC INFO</span>
+    <section class="card accent-purple">
       <div class="card-head">
-        <div class="ic-badge ic-amber">
+        <div class="ic-badge ic-purple">
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4.5A1.5 1.5 0 0 1 5.5 3H15l5 5v11.5A1.5 1.5 0 0 1 18.5 21h-13A1.5 1.5 0 0 1 4 19.5v-15Z"/><path d="M14 3v6h6"/></svg>
         </div>
         <div class="card-titles">
@@ -1291,10 +1446,13 @@ footer.app-foot{
         <li>بخش ۳٫۲٫۲٫۱ Brine Precipitation, Unit 031</li>
         <li>بخش ۳٫۲٫۳٫۱ Process Chemistry</li>
         <li>بخش ۵٫۲٫۲٫۲ Brine purge (کنترل سولفات/کلرات)</li>
+        <li>بخش ۳٫۷٫۱ Flocculant Preparation &amp; Dosing System</li>
+        <li>بخش پیش‌پوشش/بادی‌فید فیلترهای پالیشینگ با آلفاسلولز (Precoat/Body Feed Filters)</li>
+        <li>بخش ۴٫۲٫۲٫۱ Secondary Brine Purification (رزین Lewatit TP208)</li>
         <li>جدول ۶-۸ کیفیت آب‌نمک فوق‌خالص ورودی الکترولایزر</li>
       </ul>
       <div class="notice warn" style="margin-top:12px">
-        خلوص/چگالی محلول‌ها (۱۰٪–۱٫۱۰۵ و ۱۸٪–۱٫۱۹۷) مقادیر متعارف صنعتی‌اند نه عدد رسمی سایت شما — در تب «ورودی‌ها» قابل ویرایش‌اند. ترکیب واقعی آب‌نمک خام در این جلد نیامده (ارجاع به Annex A2)، پس دقت حالت پیشرفته کاملاً به دقت عدد واردشده شما بستگی دارد.
+        خلوص/چگالی محلول‌ها (۱۰٪–۱٫۱۰۵ و ۱۸٪–۱٫۱۹۷) مقادیر متعارف صنعتی‌اند نه عدد رسمی سایت شما — در تب «ورودی‌ها» قابل ویرایش‌اند. ترکیب واقعی آب‌نمک خام در این جلد نیامده (ارجاع به Annex A2)، پس دقت محاسبهٔ سختی به دقت عدد واردشده شما بستگی دارد.
       </div>
     </section>
 
@@ -1312,10 +1470,9 @@ footer.app-foot{
     <span class="dot"></span>
     نتایج
   </button>
-  <button class="nav-btn" data-tab="status">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V10M18 20V4M6 20v-6"/><path d="M3 20h18"/></svg>
-    <span class="dot"></span>
-    وضعیت فعلی
+  <button class="nav-btn" data-tab="trend">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16l4.5-5 4 3L18 7l2 2"/><path d="M4 20h16"/></svg>
+    روند
   </button>
   <button class="nav-btn" data-tab="guide">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/></svg>
@@ -1323,8 +1480,26 @@ footer.app-foot{
   </button>
 </nav>
 
+<div class="chart-modal-overlay hidden" id="chartModal">
+  <div class="chart-modal-box">
+    <button class="chart-modal-close" id="chartModalClose" aria-label="بستن">
+      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+    <div class="chart-modal-title" id="chartModalTitle"></div>
+    <div class="chart-legend chart-modal-legend" id="chartModalLegend"></div>
+    <div class="chart-modal-body" id="chartModalBody"></div>
+    <div class="chart-modal-note">محور افقی: زمان ثبت هر نقطه. هر ردیف، محور عمودی با واحد واقعیِ همان شاخص دارد.</div>
+    <div class="chart-modal-actions">
+      <button class="primary" id="chartModalDownload">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v12M7 12l5 5 5-5"/><path d="M5 20h14"/></svg>
+        ذخیره به‌عنوان عکس
+      </button>
+    </div>
+  </div>
+</div>
+
 <script>
-// محاسبه‌گر دوز کاستیک و کربنات سدیم برای اکسس تانک رسوب‌دهی آب‌نمک
+// محاسبه‌گر میزان تزریق کاستیک و کربنات سدیم برای اکسس تانک رسوب‌دهی آب‌نمک
 // اعداد پایه از Operating Manual C/A Plant (Doc 8408205-CB-PR-MNL-0102)
 
 const MW = {
@@ -1341,6 +1516,7 @@ const DOWNSTREAM_LIMIT_NA2CO3 = 400; // mg/l  (Table 6-8: <0.4 g/l)
 const DOWNSTREAM_LIMIT_NAOH   = 200; // mg/l  (Table 6-8: <0.2 g/l)
 
 const $ = (id) => document.getElementById(id);
+let lastCalc = null;
 
 /* ---------------- tabs ---------------- */
 function showTab(name) {
@@ -1349,6 +1525,7 @@ function showTab(name) {
   $("panel-" + name).classList.add("active");
   document.querySelector(`.nav-btn[data-tab="${name}"]`).classList.add("active");
   $("tabsContent").scrollTop = 0;
+  if (name === "trend") renderTrendTab();
 }
 
 /* ---------------- numeric steppers ---------------- */
@@ -1389,10 +1566,13 @@ function paintGauge(fillEl, limitEl, lblEl, value, limit, unitLabel) {
   const scaleMax = limit * 1.3;
   const fillPct = Math.max(0, Math.min(100, (value / scaleMax) * 100));
   const limitPct = (limit / scaleMax) * 100;
+  const ratio = limit > 0 ? value / limit : 0;
   fillEl.style.width = fillPct + "%";
-  fillEl.classList.toggle("over", value > limit);
+  fillEl.classList.remove("over", "warn");
+  if (ratio > 1) fillEl.classList.add("over");
+  else if (ratio >= 0.85) fillEl.classList.add("warn");
   limitEl.style.right = limitPct + "%";
-  lblEl.textContent = `${fmt(value, 0)} / ${fmt(limit, 0)} ${unitLabel}`;
+  lblEl.textContent = `${fmt(value, 0)} / ${fmt(limit, 0)} ${unitLabel} (${fmt(ratio * 100, 0)}%)`;
 }
 
 const DEFAULTS = {
@@ -1402,16 +1582,8 @@ const DEFAULTS = {
   concNa: 10, densNa: 1.105,
   concOH: 18, densOH: 1.197,
   purity: 99,
-  advToggle: false, caPpm: 0, mgPpm: 0,
-  curFlowQ: 0, naActualLh: 0, ohActualLh: 0, naActualMgl: 0, ohActualMgl: 0,
+  caPpm: 0, mgPpm: 0,
 };
-
-// tracks which of the two "current status" inputs (typed rate vs typed
-// measured excess) the user most recently edited, per chemical — used so
-// the action/recommendation always follows the freshest number the user
-// actually typed, instead of always favoring one field forever.
-const lastTouched = { na: null, oh: null };
-let prevActualInputs = { naActualLh: 0, naActualMgl: 0, ohActualLh: 0, ohActualMgl: 0 };
 
 function fmt(n, d = 1) {
   if (!isFinite(n)) return "—";
@@ -1438,32 +1610,16 @@ function readInputs() {
     concOH: parseFloat($("concOH").value) || 0,
     densOH: parseFloat($("densOH").value) || 0,
     purity: parseFloat($("purity").value) || 0,
-    advToggle: $("advToggle").checked,
     caPpm: parseFloat($("caPpm").value) || 0,
     mgPpm: parseFloat($("mgPpm").value) || 0,
-    curFlowQ: parseFloat($("curFlowQ").value) || 0,
-    naActualLh: parseFloat($("naActualLh").value) || 0,
-    ohActualLh: parseFloat($("ohActualLh").value) || 0,
-    naActualMgl: parseFloat($("naActualMgl").value) || 0,
-    ohActualMgl: parseFloat($("ohActualMgl").value) || 0,
   };
 }
 
 function calculate() {
   const v = readInputs();
 
-  if (v.naActualLh !== prevActualInputs.naActualLh) lastTouched.na = "lh";
-  else if (v.naActualMgl !== prevActualInputs.naActualMgl) lastTouched.na = "mgl";
-  if (v.ohActualLh !== prevActualInputs.ohActualLh) lastTouched.oh = "lh";
-  else if (v.ohActualMgl !== prevActualInputs.ohActualMgl) lastTouched.oh = "mgl";
-  prevActualInputs = {
-    naActualLh: v.naActualLh, naActualMgl: v.naActualMgl,
-    ohActualLh: v.ohActualLh, ohActualMgl: v.ohActualMgl,
-  };
-
   $("loadPctAVal").textContent = v.loadPctA + "٪";
   $("loadPctBVal").textContent = v.loadPctB + "٪";
-  $("advBody").classList.toggle("open", v.advToggle);
   paintRangeFill($("loadPctA"));
   paintRangeFill($("loadPctB"));
 
@@ -1472,15 +1628,9 @@ function calculate() {
   const QB = v.activeB ? v.qDesignB * (v.loadPctB / 100) : 0;
   const Q = QA + QB; // m3/h total
 
-  // live-status tab: the flow "currently entering the cycle" (X) may differ
-  // from the design flow above (e.g. plant running at a different rate than
-  // what's set in tab 1); 0/empty means "use the design flow as-is".
-  const curFlowQ = v.curFlowQ > 0 ? v.curFlowQ : Q;
-  $("curFlowQEcho").textContent = fmt(Q, 0);
-
-  // stoichiometric addition (optional, advanced mode)
-  const stoichNa = v.advToggle ? v.caPpm * RATIO_NA2CO3_PER_CA : 0;
-  const stoichOH = v.advToggle ? v.mgPpm * RATIO_NAOH_PER_MG : 0;
+  // only entered hardness values participate in the stoichiometric addition
+  const stoichNa = v.caPpm > 0 ? v.caPpm * RATIO_NA2CO3_PER_CA : 0;
+  const stoichOH = v.mgPpm > 0 ? v.mgPpm * RATIO_NAOH_PER_MG : 0;
 
   const totalConcNa = v.excNa + stoichNa; // mg/l = g/m3
   const totalConcOH = v.excOH + stoichOH;
@@ -1496,6 +1646,8 @@ function calculate() {
   const ohFrac = v.concOH / 100;
   const naSolLh = (naFrac > 0 && v.densNa > 0) ? naKgH / (naFrac * v.densNa) : NaN;
   const ohSolLh = (ohFrac > 0 && v.densOH > 0) ? ohKgH / (ohFrac * v.densOH) : NaN;
+  const naSolLDay = naSolLh * 24;
+  const ohSolLDay = ohSolLh * 24;
   const ohSolM3Day = ohSolLh * 24 / 1000;
 
   // dry 50kg bags/day for Na2CO3 (as received in bags, per doc)
@@ -1518,14 +1670,14 @@ function calculate() {
   // --- render: results tab ---
   $("qActual").textContent = fmt(Q, 1);
 
-  $("naKgH").textContent = fmt(naKgH, 1);
-  $("naKgDay").textContent = fmt(naKgDay, 0);
   $("naSolLh").textContent = fmt(naSolLh, 0);
+  $("naSolLDay").textContent = fmt(naSolLDay, 0);
+  $("naKgH").textContent = fmt(naKgH, 1);
   $("naBags").textContent = fmt(naBags, 1);
 
-  $("ohKgH").textContent = fmt(ohKgH, 1);
-  $("ohKgDay").textContent = fmt(ohKgDay, 0);
   $("ohSolLh").textContent = fmt(ohSolLh, 0);
+  $("ohSolLDay").textContent = fmt(ohSolLDay, 0);
+  $("ohKgH").textContent = fmt(ohKgH, 1);
   $("ohSolM3Day").textContent = fmt(ohSolM3Day, 2);
 
   // per-train liter breakdown
@@ -1538,134 +1690,15 @@ function calculate() {
   renderSplit($("ohSplitA"), $("ohSolLhA"), v.activeA, ohSolLhA);
   renderSplit($("ohSplitB"), $("ohSolLhB"), v.activeB, ohSolLhB);
 
-  // "how much for this much hardness" split: excess-target portion vs
-  // Ca2+/Mg2+ stoichiometric portion, each converted to kg/h and L/h
-  const showNaStoich = v.advToggle && v.caPpm > 0;
-  const showOhStoich = v.advToggle && v.mgPpm > 0;
-  $("naStoichSplit").classList.toggle("open", showNaStoich);
-  $("ohStoichSplit").classList.toggle("open", showOhStoich);
-  if (showNaStoich) {
-    const excNaKgH = Q * v.excNa / 1000;
-    const stoichNaKgH = Q * stoichNa / 1000;
-    $("naCaEcho").textContent = fmt(v.caPpm, 0);
-    $("naExcKgH").textContent = fmt(excNaKgH, 1);
-    $("naStoichKgH").textContent = fmt(stoichNaKgH, 1);
-    $("naExcLh").textContent = fmt(litersFor(Q, v.excNa, naFrac, v.densNa), 1);
-    $("naStoichLh").textContent = fmt(litersFor(Q, stoichNa, naFrac, v.densNa), 1);
-  }
-  if (showOhStoich) {
-    const excOhKgH = Q * v.excOH / 1000;
-    const stoichOhKgH = Q * stoichOH / 1000;
-    $("ohMgEcho").textContent = fmt(v.mgPpm, 0);
-    $("ohExcKgH").textContent = fmt(excOhKgH, 1);
-    $("ohStoichKgH").textContent = fmt(stoichOhKgH, 1);
-    $("ohExcLh").textContent = fmt(litersFor(Q, v.excOH, ohFrac, v.densOH), 1);
-    $("ohStoichLh").textContent = fmt(litersFor(Q, stoichOH, ohFrac, v.densOH), 1);
-  }
-
-  // "وقتی X متر مکعب با اکسس Y وارد چرخه می‌شود و خارج از رنج است، طبق
-  // اطلاعات ثبت‌شده در تب‌ها چه تزریقی لازم است؟" — either the current
-  // injection rate (L/h) or a directly-measured excess (mg/l) can be typed;
-  // the app derives the other, then the exact L/h adjustment needed to hit
-  // the target AT THE CURRENT FLOW (curFlowQ). Nothing here is a
-  // fixed/hardcoded reference number — every field is freely editable.
-  const TOLERANCE_PCT = 0.05; // ±5% around target counts as "normal"
-  const CS_ICON_OK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
-  const CS_ICON_UP = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>';
-  const CS_ICON_DOWN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>';
-  let hasCurAlert = false;
-  const renderCurStatus = (flowQ, actualLh, actualMgl, targetConcMg, frac, dens, downstreamLimit, boxId, emptyId, badgeId, achievedId, targetId, actionId, achievedItemId, touched) => {
-    const show = actualLh > 0 || actualMgl > 0;
-    const box = $(boxId);
-    const achievedItem = $(achievedItemId);
-    box.classList.toggle("open", show);
-    $(emptyId).style.display = show ? "none" : "";
-    if (!show) { achievedItem.className = "cs-item achieved"; return; }
-
-    // if only ONE of the two fields is filled, there's no ambiguity — use
-    // it. If BOTH are filled, the field the user most recently typed into
-    // ("touched") wins completely (both the shown excess and the rate used
-    // in the recommendation come from that same field), so re-editing
-    // either field always visibly updates the result — never gets stuck
-    // on a stale value from the other field.
-    const targetSolLh = litersFor(flowQ, targetConcMg, frac, dens);
-    let achievedConc, actualLhUsed;
-    if (touched === "mgl" && actualMgl > 0) {
-      achievedConc = actualMgl;
-      actualLhUsed = litersFor(flowQ, achievedConc, frac, dens);
-    } else if (actualLh > 0) {
-      actualLhUsed = actualLh;
-      achievedConc = (flowQ > 0 && frac > 0 && dens > 0) ? (actualLh * frac * dens * 1000) / flowQ : NaN;
-    } else {
-      achievedConc = actualMgl;
-      actualLhUsed = litersFor(flowQ, achievedConc, frac, dens);
-    }
-    const deltaLh = (isFinite(targetSolLh) && isFinite(actualLhUsed)) ? targetSolLh - actualLhUsed : NaN;
-    $(achievedId).textContent = fmt(achievedConc, 0);
-    $(targetId).textContent = fmt(targetConcMg, 0);
-
-    // when BOTH fields are filled, the last-edited one is the source for
-    // achievedConc/actualLhUsed (see above). If that source is the measured
-    // excess (mg/l), actualLhUsed is a back-calculated *equivalent* rate —
-    // not the literal number typed in the rate field — so it must never be
-    // labeled "your current rate" as if they were the same value; that
-    // mislabeling is what made the recommendation look self-contradictory
-    // (e.g. "increase by 543 vs. your current rate of 543" while the rate
-    // field visibly showed 2000). Instead it's labeled as a derived
-    // equivalent, with a note pointing at the literal rate field.
-    const usingMglSource = touched === "mgl" && actualMgl > 0;
-    const rateNoun = usingMglSource ? "معادلِ نرخ (بر اساس اکسسِ اندازه‌گیری‌شده)" : "نرخ فعلیِ شما";
-    const mismatchNote = (usingMglSource && actualLh > 0 && isFinite(actualLhUsed) && Math.abs(actualLh - actualLhUsed) > Math.max(1, actualLh * 0.02))
-      ? `<div class="cs-action-note">نرخِ واردشدهٔ شما در فیلدِ «نرخ فعلی تزریق» (<b>${fmt(actualLh,1)} L/h</b>) در این محاسبه لحاظ نشد، چون آخرین فیلدی که ویرایش کردید «اکسسِ اندازه‌گیری‌شده» بود. برای اینکه محاسبه بر اساسِ همان نرخ انجام شود، دوباره یک بار روی فیلدِ نرخ ضربه بزنید (یا فقط رقمی از آن را دوباره تایپ کنید).</div>`
-      : "";
-
-    const badge = $(badgeId);
-    const action = $(actionId);
-    if (!isFinite(achievedConc)) {
-      badge.className = "cs-badge"; badge.textContent = "—";
-      achievedItem.className = "cs-item achieved";
-      action.className = "cs-action";
-      action.innerHTML = "برای محاسبه، جریان آب‌نمک باید بزرگ‌تر از صفر باشد.";
-      return;
-    }
-    const diffPct = targetConcMg > 0 ? (achievedConc - targetConcMg) / targetConcMg : 0;
-    const overDownstream = achievedConc > downstreamLimit;
-    if (Math.abs(diffPct) <= TOLERANCE_PCT && !overDownstream) {
-      badge.className = "cs-badge ok"; badge.textContent = "نرمال"; achievedItem.className = "cs-item achieved ok";
-      action.className = "cs-action dir-ok";
-      action.innerHTML = (isFinite(actualLhUsed)
-        ? `<div class="cs-action-head">${CS_ICON_OK}نیازی به تغییر نیست</div><div class="cs-action-detail">${rateNoun} <b>${fmt(actualLhUsed,1)} L/h</b> است و اکسس حاصل از آن در محدودهٔ هدف قرار دارد.</div>`
-        : `<div class="cs-action-head">${CS_ICON_OK}نیازی به تغییر نیست</div><div class="cs-action-detail">اکسس فعلی در محدودهٔ هدف قرار دارد.</div>`) + mismatchNote;
-    } else if (diffPct < 0) {
-      badge.className = "cs-badge low"; badge.textContent = "کمتر از هدف"; achievedItem.className = "cs-item achieved low"; hasCurAlert = true;
-      action.className = "cs-action dir-up";
-      action.innerHTML = (isFinite(deltaLh)
-        ? `<div class="cs-action-head">${CS_ICON_UP}نرخ تزریق را روی <b class="cs-setpoint">${fmt(targetSolLh,1)}</b> لیتر بر ساعت تنظیم کنید</div><div class="cs-action-detail">یعنی <b>${fmt(Math.abs(deltaLh),1)} L/h افزایش</b> نسبت به ${rateNoun} (<b>${fmt(actualLhUsed,1)} L/h</b>).</div>`
-        : `<div class="cs-action-head">${CS_ICON_UP}نرخ تزریق را روی <b class="cs-setpoint">${fmt(targetSolLh,1)}</b> لیتر بر ساعت تنظیم کنید</div><div class="cs-action-detail">این نرخ برای رساندن اکسس به هدف لازم است.</div>`) + mismatchNote;
-    } else {
-      badge.className = "cs-badge high"; badge.textContent = overDownstream ? "بیش از حد مجاز" : "بیشتر از هدف"; achievedItem.className = "cs-item achieved high"; hasCurAlert = true;
-      action.className = "cs-action dir-down";
-      action.innerHTML = (isFinite(deltaLh)
-        ? `<div class="cs-action-head">${CS_ICON_DOWN}نرخ تزریق را روی <b class="cs-setpoint">${fmt(targetSolLh,1)}</b> لیتر بر ساعت تنظیم کنید</div><div class="cs-action-detail">یعنی <b>${fmt(Math.abs(deltaLh),1)} L/h کاهش</b> نسبت به ${rateNoun} (<b>${fmt(actualLhUsed,1)} L/h</b>).</div>`
-        : `<div class="cs-action-head">${CS_ICON_DOWN}نرخ تزریق را روی <b class="cs-setpoint">${fmt(targetSolLh,1)}</b> لیتر بر ساعت تنظیم کنید</div><div class="cs-action-detail">این نرخ برای رساندن اکسس به هدف لازم است.</div>`) +
-        (overDownstream ? `<div class="cs-action-warn">⚠ از حد مجاز پایین‌دست (&lt; ${downstreamLimit} mg/l) نیز عبور کرده است.</div>` : "") + mismatchNote;
-    }
-  };
-  renderCurStatus(curFlowQ, v.naActualLh, v.naActualMgl, totalConcNa, naFrac, v.densNa, DOWNSTREAM_LIMIT_NA2CO3,
-    "naCurStatus", "naCsEmpty", "naCsBadge", "naCsAchieved", "naCsTarget", "naCsAction", "naCsAchievedItem", lastTouched.na);
-  renderCurStatus(curFlowQ, v.ohActualLh, v.ohActualMgl, totalConcOH, ohFrac, v.densOH, DOWNSTREAM_LIMIT_NAOH,
-    "ohCurStatus", "ohCsEmpty", "ohCsBadge", "ohCsAchieved", "ohCsTarget", "ohCsAction", "ohCsAchievedItem", lastTouched.oh);
-  document.querySelector('.nav-btn[data-tab="status"]').classList.toggle("alert", hasCurAlert);
-
   // breakdown text
-  if (v.advToggle && (v.caPpm > 0 || v.mgPpm > 0)) {
-    $("naBreak").innerHTML =
-      `غلظت هدف کل: <b>${fmt(totalConcNa,0)} mg/l</b> = اکسس <b>${fmt(v.excNa,0)}</b> + استوکیومتری Ca²⁺ <b>${fmt(stoichNa,0)}</b> mg/l (نسبت مولی Na₂CO₃:Ca²⁺ = ${fmt(RATIO_NA2CO3_PER_CA,3)})`;
-    $("ohBreak").innerHTML =
-      `غلظت هدف کل: <b>${fmt(totalConcOH,0)} mg/l</b> = اکسس <b>${fmt(v.excOH,0)}</b> + استوکیومتری Mg²⁺ <b>${fmt(stoichOH,0)}</b> mg/l (نسبت مولی NaOH:Mg²⁺ = ${fmt(RATIO_NAOH_PER_MG,3)})`;
+  if (v.caPpm > 0 || v.mgPpm > 0) {
+    const naDetail = v.caPpm > 0 ? ` + استوکیومتری Ca²⁺ <b>${fmt(stoichNa,0)}</b> mg/l` : "";
+    const ohDetail = v.mgPpm > 0 ? ` + استوکیومتری Mg²⁺ <b>${fmt(stoichOH,0)}</b> mg/l` : "";
+    $("naBreak").innerHTML = `غلظت هدف کل: <b>${fmt(totalConcNa,0)} mg/l</b> = اکسس <b>${fmt(v.excNa,0)}</b>${naDetail}${v.caPpm > 0 ? ` (نسبت مولی Na₂CO₃:Ca²⁺ = ${fmt(RATIO_NA2CO3_PER_CA,3)})` : ""}`;
+    $("ohBreak").innerHTML = `غلظت هدف کل: <b>${fmt(totalConcOH,0)} mg/l</b> = اکسس <b>${fmt(v.excOH,0)}</b>${ohDetail}${v.mgPpm > 0 ? ` (نسبت مولی NaOH:Mg²⁺ = ${fmt(RATIO_NAOH_PER_MG,3)})` : ""}`;
   } else {
-    $("naBreak").innerHTML = `غلظت هدف: اکسس <b>${fmt(v.excNa,0)} mg/l</b> (بدون احتساب سختی آب‌نمک — حالت پیشرفته غیرفعال است)`;
-    $("ohBreak").innerHTML = `غلظت هدف: اکسس <b>${fmt(v.excOH,0)} mg/l</b> (بدون احتساب سختی آب‌نمک — حالت پیشرفته غیرفعال است)`;
+    $("naBreak").innerHTML = `غلظت هدف: اکسس <b>${fmt(v.excNa,0)} mg/l</b> (بدون احتساب سختی آب‌نمک)`;
+    $("ohBreak").innerHTML = `غلظت هدف: اکسس <b>${fmt(v.excOH,0)} mg/l</b> (بدون احتساب سختی آب‌نمک)`;
   }
 
   // warnings vs downstream limits (Table 6-8)
@@ -1698,6 +1731,15 @@ function calculate() {
   } else {
     $("excWarn").innerHTML = "";
   }
+
+  // snapshot for trend tab
+  lastCalc = {
+    q: Q, na: naSolLh, oh: ohSolLh,
+    ca: v.caPpm,
+    mg: v.mgPpm,
+    hasHardness: v.caPpm > 0 || v.mgPpm > 0,
+  };
+  updateTrendPreview();
 }
 
 function applyDefaults() {
@@ -1716,22 +1758,305 @@ function applyDefaults() {
   $("concOH").value = DEFAULTS.concOH;
   $("densOH").value = DEFAULTS.densOH;
   $("purity").value = DEFAULTS.purity;
-  $("advToggle").checked = DEFAULTS.advToggle;
   $("caPpm").value = DEFAULTS.caPpm;
   $("mgPpm").value = DEFAULTS.mgPpm;
-  $("curFlowQ").value = DEFAULTS.curFlowQ;
-  $("naActualLh").value = DEFAULTS.naActualLh;
-  $("ohActualLh").value = DEFAULTS.ohActualLh;
-  $("naActualMgl").value = DEFAULTS.naActualMgl;
-  $("ohActualMgl").value = DEFAULTS.ohActualMgl;
   calculate();
+}
+
+/* ---------------- trend tab: save / delete / chart ---------------- */
+const TREND_KEY = "dosingTrendPoints_v1";
+
+// in-memory cache is the single source of truth for render/add/delete so the
+// tab always works instantly in this browsing session — localStorage is only
+// a best-effort layer on top, in case the browser blocks it (e.g. file://
+// pages, private browsing) writing/reading still won't break the feature.
+let trendPointsCache = null;
+let trendStorageOK = true;
+
+function probeTrendStorage() {
+  try {
+    const k = "__trend_probe__";
+    localStorage.setItem(k, "1");
+    localStorage.removeItem(k);
+    trendStorageOK = true;
+  } catch (e) {
+    trendStorageOK = false;
+  }
+}
+
+function loadTrendPoints() {
+  if (trendPointsCache) return trendPointsCache;
+  let arr = [];
+  try {
+    const raw = localStorage.getItem(TREND_KEY);
+    if (raw) arr = JSON.parse(raw);
+    if (!Array.isArray(arr)) arr = [];
+  } catch (e) { arr = []; }
+  trendPointsCache = arr;
+  probeTrendStorage();
+  return trendPointsCache;
+}
+function persistTrendPoints() {
+  try {
+    localStorage.setItem(TREND_KEY, JSON.stringify(trendPointsCache));
+    trendStorageOK = true;
+  } catch (e) {
+    trendStorageOK = false;
+  }
+}
+
+function updateTrendPreview() {
+  const liveEl = $("tsbLive"), subEl = $("tsbSub");
+  if (!liveEl || !lastCalc) return;
+  liveEl.textContent = `Na₂CO₃ ${fmt(lastCalc.na, 0)} L/h   ·   NaOH ${fmt(lastCalc.oh, 0)} L/h`;
+  subEl.textContent = lastCalc.hasHardness
+    ? `Ca²⁺ ${fmt(lastCalc.ca, 0)} mg/l   ·   Mg²⁺ ${fmt(lastCalc.mg, 0)} mg/l   ·   جریان کل ${fmt(lastCalc.q, 0)} m³/h`
+    : `جریان کل ${fmt(lastCalc.q, 0)} m³/h — بدون دادهٔ سختی`;
+}
+
+function addTrendPoint() {
+  if (!lastCalc) return;
+  const pts = loadTrendPoints();
+  pts.push({
+    id: Date.now() + "_" + Math.random().toString(36).slice(2),
+    t: Date.now(),
+    q: lastCalc.q, na: lastCalc.na, oh: lastCalc.oh,
+    ca: lastCalc.ca, mg: lastCalc.mg, hasHardness: lastCalc.hasHardness,
+  });
+  while (pts.length > 300) pts.shift();
+  persistTrendPoints();
+  renderTrendTab();
+
+  const btn = $("saveTrendBtn");
+  const original = btn.innerHTML;
+  btn.classList.add("saved");
+  btn.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l4 4 10-10"/></svg> ثبت شد';
+  setTimeout(() => { btn.classList.remove("saved"); btn.innerHTML = original; }, 1200);
+}
+
+function deleteTrendPoint(id) {
+  const pts = loadTrendPoints();
+  const idx = pts.findIndex((p) => p.id === id);
+  if (idx >= 0) pts.splice(idx, 1);
+  persistTrendPoints();
+  renderTrendTab();
+}
+
+function clearAllTrend() {
+  if (!confirm("همهٔ نقاط ثبت‌شدهٔ روند پاک شود؟ این کار قابل بازگشت نیست.")) return;
+  trendPointsCache = [];
+  persistTrendPoints();
+  renderTrendTab();
+}
+
+function faDateTime(t) {
+  return new Date(t).toLocaleString("fa-IR", { timeZone: "Asia/Tehran", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" });
+}
+
+// live header clock: always shows Iran local time + Jalali (Shamsi) date,
+// regardless of the device's own timezone/locale settings
+function updateLiveClock() {
+  const el = $("liveClock");
+  if (!el) return;
+  const now = new Date();
+  const datePart = now.toLocaleDateString("fa-IR", { timeZone: "Asia/Tehran", year: "numeric", month: "2-digit", day: "2-digit" });
+  const timePart = now.toLocaleTimeString("fa-IR", { timeZone: "Asia/Tehran", hour: "2-digit", minute: "2-digit", second: "2-digit" });
+  el.textContent = `${datePart} — ${timePart} (به وقت ایران)`;
+}
+
+// هر شاخص در ردیف مستقل با محور عمودیِ واقعی و واحد خودش نمایش داده می‌شود؛
+// بنابراین زمان روی محور افقی مشترک است و هیچ درصد یا مقیاس پنهانی وجود ندارد.
+function buildLineChart(pts, series, emptyMsg) {
+  if (!pts || pts.length === 0) return `<div class="chart-empty"><svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 16l4.5-5 4 3L18 7l2 2"/><path d="M4 20h16"/></svg>${emptyMsg}</div>`;
+  const shown = pts.slice(-40), W = 660, ML = 102, MR = 64, MT = 14, rowH = 76, MB = 36;
+  const H = MT + rowH * series.length + MB, plotW = W - ML - MR, n = shown.length;
+  const xAt = (i) => n > 1 ? ML + plotW * i / (n - 1) : ML + plotW / 2;
+  let svg = "";
+  series.forEach((s, si) => {
+    const vals = shown.map(s.getVal).filter(v => v !== null && v !== undefined && isFinite(v));
+    if (!vals.length) return;
+    const rawMin = Math.min(...vals), rawMax = Math.max(...vals), pad = rawMax === rawMin ? Math.max(Math.abs(rawMax) * .12, 1) : (rawMax - rawMin) * .12;
+    const min = rawMin - pad, max = rawMax + pad, top = MT + si * rowH + 8, bottom = top + rowH - 20;
+    const yAt = v => bottom - ((v - min) / (max - min)) * (bottom - top);
+    const dec = s.decimals ?? 1;
+    const lastVal = vals[vals.length - 1];
+    svg += `<text x="${ML - 9}" y="${top + 2}" text-anchor="end" style="font:700 9px Vazirmatn,Tahoma,sans-serif;fill:${s.color}">${s.name} (${s.unit})</text>`;
+    [min, (min + max) / 2, max].forEach((v, j) => { const y = yAt(v); svg += `<line class="cx-grid" x1="${ML}" y1="${y.toFixed(1)}" x2="${W - MR}" y2="${y.toFixed(1)}" ${j === 1 ? 'stroke-dasharray="3,4"' : ''}/><text class="cx-label" x="${ML - 7}" y="${(y + 3).toFixed(1)}" text-anchor="end">${fmt(v, dec)}</text>`; });
+    let run = [];
+    const draw = () => { if (run.length > 1) { const d = run.map((p, i) => i === 0 ? `M${p.x.toFixed(1)},${p.y.toFixed(1)}` : `L${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(" "); svg += `<path class="cx-line" d="${d}" style="stroke:${s.color}"/>`; } run.forEach((p, i) => { const last = i === run.length - 1; svg += `<circle class="cx-dot" cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${last ? 4.6 : 2.7}" style="fill:${s.color}"><title>${faDateTime(shown[p.i].t)} — ${s.name} ${fmt(p.v, dec)} ${s.unit}</title></circle>`; }); run = []; };
+    shown.forEach((p, i) => { const v = s.getVal(p); if (v === null || v === undefined || !isFinite(v)) draw(); else run.push({x:xAt(i), y:yAt(v), v, i}); }); draw();
+    const tagX = W - MR + 6, tagY = yAt(lastVal) - 9, tagText = `${fmt(lastVal, dec)} ${s.unit}`;
+    svg += `<rect x="${tagX}" y="${tagY.toFixed(1)}" width="${Math.max(42, tagText.length * 5.2)}" height="18" rx="5" fill="${s.color}" opacity=".94"/><text x="${tagX + 5}" y="${(tagY + 12).toFixed(1)}" style="font:700 8px Vazirmatn,Tahoma,sans-serif;fill:#fff">${tagText}</text>`;
+  });
+  const labels = n > 2 ? [0, Math.round((n - 1) / 2), n - 1] : n === 2 ? [0, 1] : [0];
+  svg += labels.map((i, k) => `<text class="cx-label" x="${xAt(i).toFixed(1)}" y="${H - 8}" text-anchor="${k === 0 ? 'start' : k === labels.length - 1 ? 'end' : 'middle'}">${faDateTime(shown[i].t)}</text>`).join("");
+  return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg"><defs><filter id="cxShadow" x="-20%" y="-30%" width="140%" height="160%"><feDropShadow dx="0" dy="1.4" stdDeviation="1.5" flood-color="#0a2836" flood-opacity="0.16"/></filter></defs><g filter="url(#cxShadow)">${svg}</g></svg>`;
+}
+
+// legend with the latest real value + trend arrow per series (chart itself
+// only shows normalized shapes, so absolute numbers live here)
+function buildChartLegend(pts, series) {
+  const shown = pts.slice(-40);
+  return series.map((s) => {
+    const withVal = [];
+    shown.forEach((p) => {
+      const v = s.getVal(p);
+      if (v !== null && v !== undefined && isFinite(v)) withVal.push(v);
+    });
+    const unitTxt = s.unit ? ` (${s.unit})` : "";
+    if (withVal.length === 0) {
+      return `<span><i style="background:${s.color}"></i>${s.name}${unitTxt} <b>—</b></span>`;
+    }
+    const dec = s.decimals != null ? s.decimals : 1;
+    const last = withVal[withVal.length - 1];
+    let trendTxt = "";
+    if (withVal.length > 1 && withVal[0] !== 0) {
+      const pct = ((last - withVal[0]) / Math.abs(withVal[0])) * 100;
+      const arrow = pct > 0.5 ? "▲" : pct < -0.5 ? "▼" : "–";
+      trendTxt = ` <small>${arrow} ${fmt(Math.abs(pct), 0)}٪</small>`;
+    }
+    return `<span><i style="background:${s.color}"></i>${s.name}${unitTxt} <b>${fmt(last, dec)}</b>${trendTxt}</span>`;
+  }).join("");
+}
+
+/* ---------------- chart zoom modal + export-as-image ---------------- */
+function openChartModal(wrapEl) {
+  const svgEl = wrapEl.querySelector(":scope > svg");
+  if (!svgEl) return; // empty-state chart: nothing to zoom/export
+  const legendEl = wrapEl.previousElementSibling; // .chart-legend sits right before .chart-wrap
+  $("chartModalTitle").textContent = wrapEl.dataset.title || "نمودار";
+  $("chartModalLegend").innerHTML = (legendEl && legendEl.classList.contains("chart-legend")) ? legendEl.innerHTML : "";
+  $("chartModalBody").innerHTML = svgEl.outerHTML;
+  $("chartModal").classList.remove("hidden");
+}
+function closeChartModal() { $("chartModal").classList.add("hidden"); }
+
+function downloadSvgAsPng(svgEl, filename) {
+  const clone = svgEl.cloneNode(true);
+  clone.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+
+  // the live page's CSS classes (.cx-grid/.cx-line/...) don't travel with a
+  // standalone SVG blob, so inline the few rules the chart actually needs
+  const styleTag = document.createElementNS("http://www.w3.org/2000/svg", "style");
+  styleTag.textContent =
+    ".cx-grid{stroke:#dfe8eb;stroke-width:1}" +
+    ".cx-label{font-size:9px;fill:#647b85;font-family:Vazirmatn,Tahoma,sans-serif}" +
+    ".cx-line{fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}" +
+    ".cx-dot{stroke:#fff;stroke-width:1.3}";
+  clone.insertBefore(styleTag, clone.firstChild);
+
+  const vb = clone.viewBox && clone.viewBox.baseVal;
+  const w = (vb && vb.width) || 620;
+  const h = (vb && vb.height) || 260;
+
+  const bg = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+  bg.setAttribute("width", String(w));
+  bg.setAttribute("height", String(h));
+  bg.setAttribute("fill", "#ffffff");
+  clone.insertBefore(bg, clone.firstChild);
+
+  const svgStr = new XMLSerializer().serializeToString(clone);
+  const svgBlob = new Blob([svgStr], { type: "image/svg+xml;charset=utf-8" });
+  const url = URL.createObjectURL(svgBlob);
+
+  const img = new Image();
+  img.onload = () => {
+    const scale = 2.5; // sharper output for sharing/printing
+    const canvas = document.createElement("canvas");
+    canvas.width = w * scale;
+    canvas.height = h * scale;
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    URL.revokeObjectURL(url);
+    canvas.toBlob(async (blob) => {
+      if (!blob) { alert("ساخت تصویر نمودار ناموفق بود."); return; }
+
+      // Trigger the browser's native download directly; the device decides whether
+      // downloaded images appear in Downloads or the photo gallery.
+      const a = document.createElement("a");
+      const downloadUrl = URL.createObjectURL(blob);
+      a.href = downloadUrl;
+      a.download = filename;
+      a.style.display = "none";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(downloadUrl), 1000);
+    }, "image/png");
+  };
+  img.onerror = () => { URL.revokeObjectURL(url); alert("ساخت تصویر نمودار ناموفق بود."); };
+  img.src = url;
+}
+
+function renderTrendTab() {
+  const pts = loadTrendPoints().slice().sort((a, b) => a.t - b.t);
+
+  $("trendCount").textContent = `${fmt(pts.length, 0)} نقطه`;
+
+  const storageWarn = $("trendStorageWarn");
+  if (storageWarn) storageWarn.style.display = trendStorageOK ? "none" : "";
+
+  // NOTE: literal hex values on purpose (not var(--x)) — the "save as image"
+  // export clones this SVG into a standalone document with no access to the
+  // page's CSS variables, so var() there silently resolves to nothing and
+  // the browser falls back to each property's initial value: stroke → none
+  // (line vanishes) and fill → black (dot survives, just wrong color). That
+  // was exactly the "فقط نقطه اومد و خطوط نبود" bug.
+  const dosingSeries = [
+    { name: "Na₂CO₃", color: "#1170a3", unit: "L/h", decimals: 0, getVal: (p) => p.na },
+    { name: "NaOH", color: "#10a893", unit: "L/h", decimals: 0, getVal: (p) => p.oh },
+    { name: "جریان", color: "#d6537f", unit: "m³/h", decimals: 0, getVal: (p) => p.q },
+    { name: "Ca²⁺", color: "#d98a1f", unit: "mg/l", decimals: 0, getVal: (p) => (p.hasHardness ? p.ca : null) },
+    { name: "Mg²⁺", color: "#7c5cd6", unit: "mg/l", decimals: 0, getVal: (p) => (p.hasHardness ? p.mg : null) },
+  ];
+  $("dosingChartWrap").innerHTML = buildLineChart(
+    pts, dosingSeries,
+    "برای دیدن روند تزریق، حداقل یک نقطه از دکمهٔ بالای همین تب ثبت کنید."
+  );
+  $("dosingChartLegend").innerHTML = buildChartLegend(pts, dosingSeries);
+
+  const listWrap = $("trendListWrap");
+  const clearBtn = $("clearTrendBtn");
+  if (pts.length === 0) {
+    listWrap.innerHTML = `<div class="chart-empty">
+      <svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16l4.5-5 4 3L18 7l2 2"/><path d="M4 20h16"/></svg>
+      هنوز نقطه‌ای ثبت نشده — از دکمهٔ «ثبت این نقطه در روند» بالای همین تب استفاده کنید.
+    </div>`;
+    clearBtn.style.display = "none";
+  } else {
+    clearBtn.style.display = "";
+    listWrap.innerHTML = pts
+      .slice()
+      .sort((a, b) => b.t - a.t)
+      .map((p) => {
+        const hardTxt = p.hasHardness
+          ? `<span>Ca²⁺ <b>${fmt(p.ca, 0)}</b> mg/l</span><span>Mg²⁺ <b>${fmt(p.mg, 0)}</b> mg/l</span>`
+          : `<span class="ti-tag">بدون دادهٔ سختی</span>`;
+        return `<div class="trend-item">
+          <div class="ti-main">
+            <div class="ti-time">${faDateTime(p.t)}</div>
+            <div class="ti-vals">
+              <span>Na₂CO₃ <b>${fmt(p.na, 0)}</b> L/h</span>
+              <span>NaOH <b>${fmt(p.oh, 0)}</b> L/h</span>
+              ${hardTxt}
+            </div>
+          </div>
+          <button class="ti-del" data-id="${p.id}" title="حذف این نقطه" aria-label="حذف این نقطه">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+          </button>
+        </div>`;
+      })
+      .join("");
+    listWrap.querySelectorAll(".ti-del").forEach((btn) => {
+      btn.addEventListener("click", () => deleteTrendPoint(btn.dataset.id));
+    });
+  }
 }
 
 document.addEventListener("DOMContentLoaded", () => {
   const ids = ["qDesignA","loadPctA","activeA","qDesignB","loadPctB","activeB",
                "excNa","excOH","concNa","densNa",
-               "concOH","densOH","purity","advToggle","caPpm","mgPpm",
-               "curFlowQ","naActualLh","ohActualLh","naActualMgl","ohActualMgl"];
+               "concOH","densOH","purity","caPpm","mgPpm"];
   ids.forEach((id) => {
     const el = $(id);
     el.addEventListener("input", calculate);
@@ -1763,20 +2088,33 @@ document.addEventListener("DOMContentLoaded", () => {
     toggleTrain("B");
   });
 
-  // advanced toggle row is clickable anywhere (not just the tiny switch)
-  $("advToggleRow").addEventListener("click", (e) => {
-    if (e.target.id === "advToggle") return; // native click already toggled it
-    $("advToggle").checked = !$("advToggle").checked;
-    calculate();
-  });
-
   // bottom tab navigation
   document.querySelectorAll(".nav-btn").forEach((btn) => {
     btn.addEventListener("click", () => showTab(btn.dataset.tab));
   });
 
   $("resetBtn").addEventListener("click", applyDefaults);
+
+  $("saveTrendBtn").addEventListener("click", addTrendPoint);
+  $("clearTrendBtn").addEventListener("click", clearAllTrend);
+
+  // click any rendered chart to zoom it in a modal, with a save-as-image action
+  document.addEventListener("click", (e) => {
+    const wrap = e.target.closest(".chart-wrap");
+    if (wrap) openChartModal(wrap);
+  });
+  $("chartModalClose").addEventListener("click", closeChartModal);
+  $("chartModal").addEventListener("click", (e) => { if (e.target.id === "chartModal") closeChartModal(); });
+  $("chartModalDownload").addEventListener("click", () => {
+    const svgEl = $("chartModalBody").querySelector("svg");
+    if (svgEl) downloadSvgAsPng(svgEl, "روند-تزریق-اکسس.png");
+  });
+
+  updateLiveClock();
+  setInterval(updateLiveClock, 1000);
+
   calculate();
+  renderTrendTab();
 });
 </script>
 </body>

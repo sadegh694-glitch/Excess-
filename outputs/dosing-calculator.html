@@ -788,6 +788,12 @@ footer.app-foot{
 /* خوانایی یکپارچه: همهٔ نوشته‌ها با رنگ مشکی نمایش داده شوند */
 body *{ color:#000 !important; text-shadow:none !important; }
 svg text{ fill:#000 !important; }
+
+/* داخل نوار بالا (کادر قرمز): نوشته‌ها سفید بمانند تا روی زمینهٔ قرمز خوانا باشند */
+.appbar, .appbar *{ color:#fff !important; }
+/* نشان‌های روشن داخل نوار بالا همچنان با متن تیره خوانا بمانند */
+.appbar-doc, .appbar-doc *,
+.lc-ico, .lc-ico *{ color:#04212a !important; }
 </style>
 </head>
 <body>
