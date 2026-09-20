@@ -220,14 +220,20 @@ button{ -webkit-appearance:none; appearance:none; border:none; background:none; 
 .nav-btn.alert .dot{ opacity: 1; }
 
 /* colorful per-tab identity for more visual pop */
-.nav-btn[data-tab="inputs"]{ color:#25a9e0; }
-.nav-btn[data-tab="results"]{ color:#00b894; }
-.nav-btn[data-tab="trend"]{ color:#9b5de5; }
-.nav-btn[data-tab="guide"]{ color:#f59f00; }
-.nav-btn[data-tab="inputs"].active{ color:#075985; background: linear-gradient(145deg,#d8f3ff,#b9e9ff); box-shadow:0 8px 18px rgba(37,169,224,.22); transform: translateY(-2px); }
-.nav-btn[data-tab="results"].active{ color:#006c5f; background: linear-gradient(145deg,#d7fff4,#b6f4df); box-shadow:0 8px 18px rgba(0,184,148,.22); transform: translateY(-2px); }
-.nav-btn[data-tab="trend"].active{ color:#5b21b6; background: linear-gradient(145deg,#f0e5ff,#dec9ff); box-shadow:0 8px 18px rgba(155,93,229,.22); transform: translateY(-2px); }
-.nav-btn[data-tab="guide"].active{ color:#8a4b00; background: linear-gradient(145deg,#fff3c4,#ffd98a); box-shadow:0 8px 18px rgba(245,159,0,.24); transform: translateY(-2px); }
+.nav-btn{ position:relative; overflow:hidden; border:1px solid transparent; }
+.nav-btn::after{
+  content:""; position:absolute; inset:auto 18% 3px; height:3px; border-radius:99px;
+  background:currentColor; opacity:.24; transform:scaleX(.55); transition:opacity .18s, transform .18s;
+}
+.nav-btn[data-tab="inputs"]{ color:#087ea4; }
+.nav-btn[data-tab="results"]{ color:#008f78; }
+.nav-btn[data-tab="trend"]{ color:#7651b8; }
+.nav-btn[data-tab="guide"]{ color:#c56b0a; }
+.nav-btn[data-tab="inputs"].active{ color:#063d62; background:linear-gradient(135deg,#1385ad 0%,#4b748f 48%,#a9474c 100%); border-color:#167b9e; box-shadow:0 7px 16px rgba(34,101,132,.28), inset 0 1px rgba(255,255,255,.28); transform:translateY(-2px); }
+.nav-btn[data-tab="results"].active{ color:#063f3b; background:linear-gradient(135deg,#13a88c 0%,#4d8f86 48%,#b34b4f 100%); border-color:#15977f; box-shadow:0 7px 16px rgba(24,127,112,.28), inset 0 1px rgba(255,255,255,.28); transform:translateY(-2px); }
+.nav-btn[data-tab="trend"].active{ color:#321c62; background:linear-gradient(135deg,#4b8ead 0%,#716a9e 48%,#b84d59 100%); border-color:#6872a0; box-shadow:0 7px 16px rgba(88,91,148,.28), inset 0 1px rgba(255,255,255,.28); transform:translateY(-2px); }
+.nav-btn[data-tab="guide"].active{ color:#5b2607; background:linear-gradient(135deg,#1684a6 0%,#77718b 48%,#bd5147 100%); border-color:#8b7080; box-shadow:0 7px 16px rgba(120,91,113,.28), inset 0 1px rgba(255,255,255,.28); transform:translateY(-2px); }
+.nav-btn.active::after{ opacity:.72; transform:scaleX(1); }
 
 /* ---------- Cards ---------- */
 .card{
@@ -1564,7 +1570,7 @@ svg text{ fill:#000 !important; }
 // اعداد پایه از Operating Manual C/A Plant (Doc 8408205-CB-PR-MNL-0102)
 
 // نسخهٔ همین فایل؛ با هر انتشار جدید، این مقدار و فایل version.json با هم به‌روز می‌شوند.
-const APP_VERSION = "1405.06.29-1";
+const APP_VERSION = "1405.06.29-2";
 
 const MW = {
   NA2CO3: 105.99,
