@@ -590,6 +590,17 @@ input[type=range]::-moz-range-progress{ height:8px; border-radius:999px; backgro
 }
 .breakdown b{ color: var(--ink); font-variant-numeric: tabular-nums; }
 
+.result-formula{
+  margin-top:10px; padding:11px; border:1px dashed #c7d9df; border-radius:10px;
+  background:#fff; color:#536c77; font-size:.69rem; line-height:1.95;
+}
+.result-formula b{ color:var(--ink); }
+.result-formula .rf-title{ display:flex; align-items:center; gap:6px; margin-bottom:5px; color:var(--ink); font-size:.74rem; font-weight:800; }
+.result-formula .rf-step{ direction:ltr; unicode-bidi:isolate; font-variant-numeric:tabular-nums; text-align:left; white-space:normal; }
+.result-formula .rf-step + .rf-step{ border-top:1px dashed #e0eaed; margin-top:4px; padding-top:4px; }
+.chem-block.na2co3 .result-formula .rf-title{ color:#17639e; }
+.chem-block.naoh .result-formula .rf-title{ color:#087b68; }
+
 .notice{ margin-top: 9px; padding: 9px 11px; border-radius: 10px; font-size: 0.78rem; line-height:1.9; }
 .notice.ok{ background: var(--ok-bg); color: var(--ok-ink); }
 .notice.warn{ background: var(--warn-bg); color: var(--warn-ink); }
@@ -1137,6 +1148,7 @@ svg text{ fill:#000 !important; }
         </div>
 
         <div class="breakdown" id="naBreak"></div>
+        <div class="result-formula" id="naFormula"></div>
         <div id="naNotice"></div>
       </div>
 
@@ -1169,6 +1181,7 @@ svg text{ fill:#000 !important; }
         </div>
 
         <div class="breakdown" id="ohBreak"></div>
+        <div class="result-formula" id="ohFormula"></div>
         <div id="ohNotice"></div>
       </div>
 
@@ -1740,6 +1753,16 @@ function calculate() {
     $("naBreak").innerHTML = `غلظت هدف: اکسس <b>${fmt(v.excNa,0)} mg/l</b> (بدون احتساب سختی آب‌نمک)`;
     $("ohBreak").innerHTML = `غلظت هدف: اکسس <b>${fmt(v.excOH,0)} mg/l</b> (بدون احتساب سختی آب‌نمک)`;
   }
+
+  const renderFormula = (el, chem, excess, stoich, totalConc, kgH, fraction, density, solLh) => {
+    const fractionTxt = fmt(fraction * 100, 0);
+    el.innerHTML = `<div class="rf-title">فرمولِ محاسبهٔ ${chem}</div>
+      <div class="rf-step">1) C<sub>target</sub> = ${fmt(excess, 0)} + ${fmt(stoich, 0)} = <b>${fmt(totalConc, 0)} mg/L</b></div>
+      <div class="rf-step">2) m = ${fmt(Q, 1)} × ${fmt(totalConc, 0)} ÷ 1000 = <b>${fmt(kgH, 1)} kg/h</b></div>
+      <div class="rf-step">3) Rate = ${fmt(kgH, 1)} ÷ (${fmt(fraction, 2)} × ${fmt(density, 2)}) = <b>${fmt(solLh, 0)} L/h</b> <span>(${fractionTxt}% محلول)</span></div>`;
+  };
+  renderFormula($("naFormula"), "Na₂CO₃", v.excNa, stoichNa, totalConcNa, naKgH, naFrac, v.densNa, naSolLh);
+  renderFormula($("ohFormula"), "NaOH", v.excOH, stoichOH, totalConcOH, ohKgH, ohFrac, v.densOH, ohSolLh);
 
   // warnings vs downstream limits (Table 6-8)
   let hasAlert = false;
