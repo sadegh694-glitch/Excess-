@@ -220,14 +220,14 @@ button{ -webkit-appearance:none; appearance:none; border:none; background:none; 
 .nav-btn.alert .dot{ opacity: 1; }
 
 /* colorful per-tab identity for more visual pop */
-.nav-btn[data-tab="inputs"]{ color:#8fadbc; }
-.nav-btn[data-tab="results"]{ color:#7fc9bb; }
-.nav-btn[data-tab="trend"]{ color:#c3aee0; }
-.nav-btn[data-tab="guide"]{ color:#d4b482; }
-.nav-btn[data-tab="inputs"].active{ color: var(--blue-ink); background: #eaf5f8; transform: translateY(-1px); }
-.nav-btn[data-tab="results"].active{ color: var(--teal); background: #e3f6f2; transform: translateY(-1px); }
-.nav-btn[data-tab="trend"].active{ color: var(--purple); background: #f1ecfb; transform: translateY(-1px); }
-.nav-btn[data-tab="guide"].active{ color: var(--amber); background: #fbf1e0; transform: translateY(-1px); }
+.nav-btn[data-tab="inputs"]{ color:#25a9e0; }
+.nav-btn[data-tab="results"]{ color:#00b894; }
+.nav-btn[data-tab="trend"]{ color:#9b5de5; }
+.nav-btn[data-tab="guide"]{ color:#f59f00; }
+.nav-btn[data-tab="inputs"].active{ color:#075985; background: linear-gradient(145deg,#d8f3ff,#b9e9ff); box-shadow:0 8px 18px rgba(37,169,224,.22); transform: translateY(-2px); }
+.nav-btn[data-tab="results"].active{ color:#006c5f; background: linear-gradient(145deg,#d7fff4,#b6f4df); box-shadow:0 8px 18px rgba(0,184,148,.22); transform: translateY(-2px); }
+.nav-btn[data-tab="trend"].active{ color:#5b21b6; background: linear-gradient(145deg,#f0e5ff,#dec9ff); box-shadow:0 8px 18px rgba(155,93,229,.22); transform: translateY(-2px); }
+.nav-btn[data-tab="guide"].active{ color:#8a4b00; background: linear-gradient(145deg,#fff3c4,#ffd98a); box-shadow:0 8px 18px rgba(245,159,0,.24); transform: translateY(-2px); }
 
 /* ---------- Cards ---------- */
 .card{
@@ -654,6 +654,9 @@ input[type=range]::-moz-range-progress{ height:8px; border-radius:999px; backgro
 .chart-wrap svg{ width:100%; height:auto; display:block; }
 .chart-axis-note{ font-size:0.64rem; color:#93a7b0; margin-top:8px; line-height:1.7; }
 .cx-grid{ stroke: var(--border); stroke-width:1; }
+.cx-axis{ stroke:#9bb1bb; stroke-width:1.25; }
+.cx-row{ fill:#fbfdfe; stroke:#e2ecef; stroke-width:1; }
+.cx-time-grid{ stroke:#e5edef; stroke-width:1; stroke-dasharray:3 5; }
 .cx-label{ font-size:9px; fill: var(--muted); }
 .cx-line{ fill:none; stroke-width:2.4; stroke-linecap:round; stroke-linejoin:round; }
 .cx-dot{ stroke:#fff; stroke-width:1.3; }
@@ -742,6 +745,19 @@ input[type=range]::-moz-range-progress{ height:8px; border-radius:999px; backgro
 .calc-step .cs-legend{ margin:9px 0 0; padding-inline-start:18px; font-size:0.73rem; line-height:1.85; color:var(--muted); }
 .calc-step .cs-legend li{ margin-bottom:2px; }
 .calc-step .cs-legend b{ color:var(--ink); direction:ltr; unicode-bidi:isolate; display:inline-block; }
+.guide-live-calc{
+  margin-top:14px; padding:12px; border:1.5px solid #cfe3ea; border-radius:14px;
+  background:linear-gradient(145deg,#ffffff,#f1fbff); box-shadow:0 8px 20px rgba(17,112,163,.08);
+}
+.guide-live-calc h3{ margin:0 0 6px; font-size:.86rem; color:var(--blue-ink); }
+.guide-live-calc p{ margin:0 0 10px; font-size:.72rem; line-height:1.8; color:var(--muted); }
+.guide-calc-grid{ display:grid; grid-template-columns:1fr; gap:9px; }
+.guide-calc-item{ border:1px solid var(--border); border-radius:12px; background:#fff; padding:10px; }
+.guide-calc-item.na{ border-color:#c7e1f4; background:#f2f9ff; }
+.guide-calc-item.oh{ border-color:#c1eadf; background:#f1fcf8; }
+.guide-calc-item b{ display:block; margin-bottom:5px; font-size:.76rem; color:var(--ink); }
+.guide-calc-line{ direction:ltr; unicode-bidi:isolate; text-align:left; font-size:.72rem; line-height:1.9; color:#4f6873; font-variant-numeric:tabular-nums; }
+.guide-calc-line strong{ color:var(--ink); }
 
 /* ---------- guide tables ---------- */
 .table-wrap{ overflow-x:auto; border-radius: 12px; border: 1px solid var(--border); }
@@ -1402,7 +1418,8 @@ svg text{ fill:#000 !important; }
             <div class="cs-formula">C_target &nbsp;=&nbsp; C_excess &nbsp;+&nbsp; C_stoich</div>
             <ul class="cs-legend">
               <li><b>C_excess</b> = اکسس هدف واردشده در تب «ورودی‌ها» (mg/l)</li>
-              <li><b>C_stoich</b> = مصرف استوکیومتری Ca²⁺/Mg²⁺؛ فقط وقتی مقدار واردشده بزرگ‌تر از صفر باشد اضافه می‌شود، در غیر این صورت صفر است</li>
+              <li><b>Na₂CO₃:</b> مصرف استوکیومتری = Ca²⁺ × ۲٫۶۴۴؛ اگر Ca²⁺ صفر باشد، این بخش صفر است</li>
+              <li><b>NaOH:</b> مصرف استوکیومتری = Mg²⁺ × ۳٫۲۹۲؛ اگر Mg²⁺ صفر باشد، این بخش صفر است</li>
             </ul>
           </div>
         </div>
@@ -1424,11 +1441,21 @@ svg text{ fill:#000 !important; }
             <div class="cs-title">نرخ تزریق محلول</div>
             <div class="cs-formula">Rate &nbsp;=&nbsp; Mass &nbsp;÷&nbsp; ( Conc٪ ÷ 100 × Density )</div>
             <ul class="cs-legend">
+              <li><b>Na₂CO₃:</b> نرخ محلول = جرم خالص کربنات سدیم ÷ (غلظت وزنی کربنات ÷ ۱۰۰ × چگالی محلول کربنات)</li>
+              <li><b>NaOH:</b> نرخ محلول = جرم خالص کاستیک ÷ (غلظت وزنی کاستیک ÷ ۱۰۰ × چگالی محلول کاستیک)</li>
               <li><b>Conc٪</b> = غلظت وزنی محلول تزریقی، از تب «ورودی‌ها» (٪)</li>
               <li><b>Density</b> = چگالی محلول (kg/L)</li>
               <li>حاصل، نرخ تزریق محلول را به <b>L/h</b> می‌دهد — همان عددی که در تب «نتایج» نشان داده می‌شود</li>
             </ul>
           </div>
+        </div>
+      </div>
+      <div class="guide-live-calc" id="guideLiveCalc">
+        <h3>محاسبه با اعداد فعلی ورودی‌ها</h3>
+        <p>هر عددی در تب «ورودی‌ها» تغییر بدهید، مسیر محاسبهٔ همان عددها اینجا هم به‌روزرسانی می‌شود.</p>
+        <div class="guide-calc-grid">
+          <div class="guide-calc-item na" id="guideCalcNa">—</div>
+          <div class="guide-calc-item oh" id="guideCalcOh">—</div>
         </div>
       </div>
     </section>
@@ -1537,7 +1564,7 @@ svg text{ fill:#000 !important; }
 // اعداد پایه از Operating Manual C/A Plant (Doc 8408205-CB-PR-MNL-0102)
 
 // نسخهٔ همین فایل؛ با هر انتشار جدید، این مقدار و فایل version.json با هم به‌روز می‌شوند.
-const APP_VERSION = "1404.06.19-1";
+const APP_VERSION = "1405.06.29-1";
 
 const MW = {
   NA2CO3: 105.99,
@@ -1738,6 +1765,16 @@ function calculate() {
     $("ohBreak").innerHTML = `غلظت هدف: اکسس <b>${fmt(v.excOH,0)} mg/l</b> (بدون احتساب سختی آب‌نمک)`;
   }
 
+  const renderGuideLine = (el, title, excess, stoich, totalConc, kgH, frac, density, solLh) => {
+    const concPct = fmt(frac * 100, 0);
+    el.innerHTML = `<b>${title}</b>
+      <div class="guide-calc-line">C_target = ${fmt(excess,0)} + ${fmt(stoich,0)} = <strong>${fmt(totalConc,0)} mg/L</strong></div>
+      <div class="guide-calc-line">Mass = ${fmt(Q,1)} × ${fmt(totalConc,0)} ÷ 1000 = <strong>${fmt(kgH,1)} kg/h</strong></div>
+      <div class="guide-calc-line">Rate = ${fmt(kgH,1)} ÷ (${fmt(frac,2)} × ${fmt(density,2)}) = <strong>${fmt(solLh,0)} L/h</strong> (${concPct}% محلول)</div>`;
+  };
+  renderGuideLine($("guideCalcNa"), "Na₂CO₃ با ورودی‌های فعلی", v.excNa, stoichNa, totalConcNa, naKgH, naFrac, v.densNa, naSolLh);
+  renderGuideLine($("guideCalcOh"), "NaOH با ورودی‌های فعلی", v.excOH, stoichOH, totalConcOH, ohKgH, ohFrac, v.densOH, ohSolLh);
+
   // warnings vs downstream limits (Table 6-8)
   let hasAlert = false;
   if (v.excNa > DOWNSTREAM_LIMIT_NA2CO3) {
@@ -1905,33 +1942,72 @@ function updateLiveClock() {
 // بنابراین زمان روی محور افقی مشترک است و هیچ درصد یا مقیاس پنهانی وجود ندارد.
 function buildLineChart(pts, series, emptyMsg) {
   if (!pts || pts.length === 0) return `<div class="chart-empty"><svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 16l4.5-5 4 3L18 7l2 2"/><path d="M4 20h16"/></svg>${emptyMsg}</div>`;
-  const shown = pts.slice(-40), W = 660, ML = 102, MR = 64, MT = 14, rowH = 76, MB = 36;
+  const shown = pts.slice(-40), W = 720, ML = 112, MR = 84, MT = 12, rowH = 100, MB = 42;
   const H = MT + rowH * series.length + MB, plotW = W - ML - MR, n = shown.length;
   const xAt = (i) => n > 1 ? ML + plotW * i / (n - 1) : ML + plotW / 2;
-  let svg = "";
-  series.forEach((s, si) => {
-    const vals = shown.map(s.getVal).filter(v => v !== null && v !== undefined && isFinite(v));
-    if (!vals.length) return;
-    const rawMin = Math.min(...vals), rawMax = Math.max(...vals), pad = rawMax === rawMin ? Math.max(Math.abs(rawMax) * .12, 1) : (rawMax - rawMin) * .12;
-    const min = rawMin - pad, max = rawMax + pad, top = MT + si * rowH + 8, bottom = top + rowH - 20;
-    const yAt = v => bottom - ((v - min) / (max - min)) * (bottom - top);
-    const dec = s.decimals ?? 1;
-    const lastVal = vals[vals.length - 1];
-    svg += `<text x="${ML - 9}" y="${top + 2}" text-anchor="end" style="font:700 9px Vazirmatn,Tahoma,sans-serif;fill:${s.color}">${s.name} (${s.unit})</text>`;
-    [min, (min + max) / 2, max].forEach((v, j) => { const y = yAt(v); svg += `<line class="cx-grid" x1="${ML}" y1="${y.toFixed(1)}" x2="${W - MR}" y2="${y.toFixed(1)}" ${j === 1 ? 'stroke-dasharray="3,4"' : ''}/><text class="cx-label" x="${ML - 7}" y="${(y + 3).toFixed(1)}" text-anchor="end">${fmt(v, dec)}</text>`; });
-    let run = [];
-    const draw = () => { if (run.length > 1) { const d = run.map((p, i) => i === 0 ? `M${p.x.toFixed(1)},${p.y.toFixed(1)}` : `L${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(" "); svg += `<path class="cx-line" d="${d}" style="stroke:${s.color}"/>`; } run.forEach((p, i) => { const last = i === run.length - 1; svg += `<circle class="cx-dot" cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${last ? 4.6 : 2.7}" style="fill:${s.color}"><title>${faDateTime(shown[p.i].t)} — ${s.name} ${fmt(p.v, dec)} ${s.unit}</title></circle>`; }); run = []; };
-    shown.forEach((p, i) => { const v = s.getVal(p); if (v === null || v === undefined || !isFinite(v)) draw(); else run.push({x:xAt(i), y:yAt(v), v, i}); }); draw();
-    const tagX = W - MR + 6, tagY = yAt(lastVal) - 9, tagText = `${fmt(lastVal, dec)} ${s.unit}`;
-    svg += `<rect x="${tagX}" y="${tagY.toFixed(1)}" width="${Math.max(42, tagText.length * 5.2)}" height="18" rx="5" fill="${s.color}" opacity=".94"/><text x="${tagX + 5}" y="${(tagY + 12).toFixed(1)}" style="font:700 8px Vazirmatn,Tahoma,sans-serif;fill:#fff">${tagText}</text>`;
-  });
   const labels = n > 2 ? [0, Math.round((n - 1) / 2), n - 1] : n === 2 ? [0, 1] : [0];
-  svg += labels.map((i, k) => `<text class="cx-label" x="${xAt(i).toFixed(1)}" y="${H - 8}" text-anchor="${k === 0 ? 'start' : k === labels.length - 1 ? 'end' : 'middle'}">${faDateTime(shown[i].t)}</text>`).join("");
-  return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg"><defs><filter id="cxShadow" x="-20%" y="-30%" width="140%" height="160%"><feDropShadow dx="0" dy="1.4" stdDeviation="1.5" flood-color="#0a2836" flood-opacity="0.16"/></filter></defs><g filter="url(#cxShadow)">${svg}</g></svg>`;
+  let svg = `<defs><clipPath id="cxPlotClip"><rect x="${ML}" y="${MT}" width="${plotW}" height="${rowH * series.length}" rx="8"/></clipPath></defs>`;
+
+  series.forEach((s, si) => {
+    const rowTop = MT + si * rowH, top = rowTop + 23, bottom = rowTop + rowH - 18;
+    const vals = shown.map(s.getVal).filter(v => v !== null && v !== undefined && isFinite(v));
+    const dec = s.decimals ?? 1;
+
+    svg += `<rect class="cx-row" x="${ML}" y="${rowTop}" width="${plotW}" height="${rowH - 7}" rx="8"/>`;
+    svg += `<text x="${ML - 10}" y="${rowTop + 15}" text-anchor="end" style="font:700 10px Vazirmatn,Tahoma,sans-serif;fill:${s.color}">${s.name}</text><text x="${ML - 10}" y="${rowTop + 27}" text-anchor="end" style="font:8px Vazirmatn,Tahoma,sans-serif;fill:#8198a2">${s.unit}</text>`;
+
+    labels.forEach((i) => {
+      const x = xAt(i);
+      svg += `<line class="cx-time-grid" x1="${x.toFixed(1)}" y1="${top}" x2="${x.toFixed(1)}" y2="${bottom}"/>`;
+    });
+
+    if (!vals.length) {
+      svg += `<line class="cx-axis" x1="${ML}" y1="${bottom}" x2="${W - MR}" y2="${bottom}"/><line class="cx-axis" x1="${ML}" y1="${top}" x2="${ML}" y2="${bottom}"/><text class="cx-label" x="${ML + plotW / 2}" y="${rowTop + 58}" text-anchor="middle">داده‌ای ثبت نشده است</text>`;
+      return;
+    }
+
+    const rawMin = Math.min(...vals), rawMax = Math.max(...vals);
+    const pad = rawMax === rawMin ? Math.max(Math.abs(rawMax) * .12, 1) : (rawMax - rawMin) * .12;
+    const min = rawMin - pad, max = rawMax + pad;
+    const yAt = v => bottom - ((v - min) / (max - min)) * (bottom - top);
+    const lastVal = vals[vals.length - 1];
+
+    [min, (min + max) / 2, max].forEach((v, j) => {
+      const y = yAt(v);
+      svg += `<line class="cx-grid" x1="${ML}" y1="${y.toFixed(1)}" x2="${W - MR}" y2="${y.toFixed(1)}" ${j === 1 ? 'stroke-dasharray="3,4"' : ''}/><text class="cx-label" x="${ML - 7}" y="${(y + 3).toFixed(1)}" text-anchor="end">${fmt(v, dec)}</text>`;
+    });
+    svg += `<line class="cx-axis" x1="${ML}" y1="${top}" x2="${ML}" y2="${bottom}"/><line class="cx-axis" x1="${ML}" y1="${bottom}" x2="${W - MR}" y2="${bottom}"/>`;
+
+    let run = [];
+    const draw = () => {
+      if (run.length > 1) {
+        const d = run.map((p, i) => i === 0 ? `M${p.x.toFixed(1)},${p.y.toFixed(1)}` : `L${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(" ");
+        svg += `<path class="cx-line" d="${d}" style="stroke:${s.color}" clip-path="url(#cxPlotClip)"/>`;
+      }
+      run.forEach((p, i) => {
+        const last = i === run.length - 1;
+        svg += `<circle class="cx-dot" cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${last ? 4.6 : 2.7}" style="fill:${s.color}"><title>${faDateTime(shown[p.i].t)} — ${s.name} ${fmt(p.v, dec)} ${s.unit}</title></circle>`;
+      });
+      run = [];
+    };
+    shown.forEach((p, i) => {
+      const v = s.getVal(p);
+      if (v === null || v === undefined || !isFinite(v)) draw();
+      else run.push({x:xAt(i), y:yAt(v), v, i});
+    });
+    draw();
+
+    const tagText = `${fmt(lastVal, dec)} ${s.unit}`;
+    const tagX = W - MR + 7, tagY = Math.max(rowTop + 29, Math.min(bottom - 18, yAt(lastVal) - 9));
+    svg += `<rect x="${tagX}" y="${tagY.toFixed(1)}" width="${Math.max(46, tagText.length * 5.4)}" height="18" rx="5" fill="${s.color}" opacity=".94"/><text x="${tagX + 5}" y="${(tagY + 12).toFixed(1)}" style="font:700 8px Vazirmatn,Tahoma,sans-serif;fill:#fff">${tagText}</text>`;
+  });
+
+  svg += labels.map((i, k) => `<text class="cx-label" x="${xAt(i).toFixed(1)}" y="${H - 10}" text-anchor="${k === 0 ? 'start' : k === labels.length - 1 ? 'end' : 'middle'}">${faDateTime(shown[i].t)}</text>`).join("");
+  svg += `<text class="cx-label" x="${W - MR}" y="${H - 25}" text-anchor="end">زمان ثبت</text>`;
+  return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">${svg}</svg>`;
 }
 
-// legend with the latest real value + trend arrow per series (chart itself
-// only shows normalized shapes, so absolute numbers live here)
+// legend with the latest real value + trend arrow per series
 function buildChartLegend(pts, series) {
   const shown = pts.slice(-40);
   return series.map((s) => {
@@ -1977,6 +2053,9 @@ function downloadSvgAsPng(svgEl, filename) {
   const styleTag = document.createElementNS("http://www.w3.org/2000/svg", "style");
   styleTag.textContent =
     ".cx-grid{stroke:#dfe8eb;stroke-width:1}" +
+    ".cx-axis{stroke:#9bb1bb;stroke-width:1.25}" +
+    ".cx-row{fill:#fbfdfe;stroke:#e2ecef;stroke-width:1}" +
+    ".cx-time-grid{stroke:#e5edef;stroke-width:1;stroke-dasharray:3 5}" +
     ".cx-label{font-size:9px;fill:#647b85;font-family:Vazirmatn,Tahoma,sans-serif}" +
     ".cx-line{fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}" +
     ".cx-dot{stroke:#fff;stroke-width:1.3}";

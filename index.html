@@ -220,14 +220,14 @@ button{ -webkit-appearance:none; appearance:none; border:none; background:none; 
 .nav-btn.alert .dot{ opacity: 1; }
 
 /* colorful per-tab identity for more visual pop */
-.nav-btn[data-tab="inputs"]{ color:#8fadbc; }
-.nav-btn[data-tab="results"]{ color:#7fc9bb; }
-.nav-btn[data-tab="trend"]{ color:#c3aee0; }
-.nav-btn[data-tab="guide"]{ color:#d4b482; }
-.nav-btn[data-tab="inputs"].active{ color: var(--blue-ink); background: #eaf5f8; transform: translateY(-1px); }
-.nav-btn[data-tab="results"].active{ color: var(--teal); background: #e3f6f2; transform: translateY(-1px); }
-.nav-btn[data-tab="trend"].active{ color: var(--purple); background: #f1ecfb; transform: translateY(-1px); }
-.nav-btn[data-tab="guide"].active{ color: var(--amber); background: #fbf1e0; transform: translateY(-1px); }
+.nav-btn[data-tab="inputs"]{ color:#25a9e0; }
+.nav-btn[data-tab="results"]{ color:#00b894; }
+.nav-btn[data-tab="trend"]{ color:#9b5de5; }
+.nav-btn[data-tab="guide"]{ color:#f59f00; }
+.nav-btn[data-tab="inputs"].active{ color:#075985; background: linear-gradient(145deg,#d8f3ff,#b9e9ff); box-shadow:0 8px 18px rgba(37,169,224,.22); transform: translateY(-2px); }
+.nav-btn[data-tab="results"].active{ color:#006c5f; background: linear-gradient(145deg,#d7fff4,#b6f4df); box-shadow:0 8px 18px rgba(0,184,148,.22); transform: translateY(-2px); }
+.nav-btn[data-tab="trend"].active{ color:#5b21b6; background: linear-gradient(145deg,#f0e5ff,#dec9ff); box-shadow:0 8px 18px rgba(155,93,229,.22); transform: translateY(-2px); }
+.nav-btn[data-tab="guide"].active{ color:#8a4b00; background: linear-gradient(145deg,#fff3c4,#ffd98a); box-shadow:0 8px 18px rgba(245,159,0,.24); transform: translateY(-2px); }
 
 /* ---------- Cards ---------- */
 .card{
@@ -745,6 +745,19 @@ input[type=range]::-moz-range-progress{ height:8px; border-radius:999px; backgro
 .calc-step .cs-legend{ margin:9px 0 0; padding-inline-start:18px; font-size:0.73rem; line-height:1.85; color:var(--muted); }
 .calc-step .cs-legend li{ margin-bottom:2px; }
 .calc-step .cs-legend b{ color:var(--ink); direction:ltr; unicode-bidi:isolate; display:inline-block; }
+.guide-live-calc{
+  margin-top:14px; padding:12px; border:1.5px solid #cfe3ea; border-radius:14px;
+  background:linear-gradient(145deg,#ffffff,#f1fbff); box-shadow:0 8px 20px rgba(17,112,163,.08);
+}
+.guide-live-calc h3{ margin:0 0 6px; font-size:.86rem; color:var(--blue-ink); }
+.guide-live-calc p{ margin:0 0 10px; font-size:.72rem; line-height:1.8; color:var(--muted); }
+.guide-calc-grid{ display:grid; grid-template-columns:1fr; gap:9px; }
+.guide-calc-item{ border:1px solid var(--border); border-radius:12px; background:#fff; padding:10px; }
+.guide-calc-item.na{ border-color:#c7e1f4; background:#f2f9ff; }
+.guide-calc-item.oh{ border-color:#c1eadf; background:#f1fcf8; }
+.guide-calc-item b{ display:block; margin-bottom:5px; font-size:.76rem; color:var(--ink); }
+.guide-calc-line{ direction:ltr; unicode-bidi:isolate; text-align:left; font-size:.72rem; line-height:1.9; color:#4f6873; font-variant-numeric:tabular-nums; }
+.guide-calc-line strong{ color:var(--ink); }
 
 /* ---------- guide tables ---------- */
 .table-wrap{ overflow-x:auto; border-radius: 12px; border: 1px solid var(--border); }
@@ -1437,6 +1450,14 @@ svg text{ fill:#000 !important; }
           </div>
         </div>
       </div>
+      <div class="guide-live-calc" id="guideLiveCalc">
+        <h3>محاسبه با اعداد فعلی ورودی‌ها</h3>
+        <p>هر عددی در تب «ورودی‌ها» تغییر بدهید، مسیر محاسبهٔ همان عددها اینجا هم به‌روزرسانی می‌شود.</p>
+        <div class="guide-calc-grid">
+          <div class="guide-calc-item na" id="guideCalcNa">—</div>
+          <div class="guide-calc-item oh" id="guideCalcOh">—</div>
+        </div>
+      </div>
     </section>
 
 
@@ -1543,7 +1564,7 @@ svg text{ fill:#000 !important; }
 // اعداد پایه از Operating Manual C/A Plant (Doc 8408205-CB-PR-MNL-0102)
 
 // نسخهٔ همین فایل؛ با هر انتشار جدید، این مقدار و فایل version.json با هم به‌روز می‌شوند.
-const APP_VERSION = "1404.06.19-1";
+const APP_VERSION = "1405.06.29-1";
 
 const MW = {
   NA2CO3: 105.99,
@@ -1743,6 +1764,16 @@ function calculate() {
     $("naBreak").innerHTML = `غلظت هدف: اکسس <b>${fmt(v.excNa,0)} mg/l</b> (بدون احتساب سختی آب‌نمک)`;
     $("ohBreak").innerHTML = `غلظت هدف: اکسس <b>${fmt(v.excOH,0)} mg/l</b> (بدون احتساب سختی آب‌نمک)`;
   }
+
+  const renderGuideLine = (el, title, excess, stoich, totalConc, kgH, frac, density, solLh) => {
+    const concPct = fmt(frac * 100, 0);
+    el.innerHTML = `<b>${title}</b>
+      <div class="guide-calc-line">C_target = ${fmt(excess,0)} + ${fmt(stoich,0)} = <strong>${fmt(totalConc,0)} mg/L</strong></div>
+      <div class="guide-calc-line">Mass = ${fmt(Q,1)} × ${fmt(totalConc,0)} ÷ 1000 = <strong>${fmt(kgH,1)} kg/h</strong></div>
+      <div class="guide-calc-line">Rate = ${fmt(kgH,1)} ÷ (${fmt(frac,2)} × ${fmt(density,2)}) = <strong>${fmt(solLh,0)} L/h</strong> (${concPct}% محلول)</div>`;
+  };
+  renderGuideLine($("guideCalcNa"), "Na₂CO₃ با ورودی‌های فعلی", v.excNa, stoichNa, totalConcNa, naKgH, naFrac, v.densNa, naSolLh);
+  renderGuideLine($("guideCalcOh"), "NaOH با ورودی‌های فعلی", v.excOH, stoichOH, totalConcOH, ohKgH, ohFrac, v.densOH, ohSolLh);
 
   // warnings vs downstream limits (Table 6-8)
   let hasAlert = false;
