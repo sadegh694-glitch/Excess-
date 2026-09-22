@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
 <title>محاسبه‌گر میزان تزریق کاستیک و کربنات سدیم | اکسس تانک رسوب‌دهی آب‌نمک</title>
 <meta name="description" content="محاسبه نرخ تزریق کربنات سدیم و کاستیک برای حفظ اکسس در محدوده نرمال بهره‌برداری واحد رسوب‌دهی آب‌نمک، بر اساس دفترچه راهنمای بهره‌برداری واحد C/A." />
-<meta name="theme-color" content="#123b4a" />
+<meta name="theme-color" content="#24201b" />
 <meta http-equiv="Cache-Control" content="no-cache, must-revalidate" />
 <meta http-equiv="Pragma" content="no-cache" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -899,6 +899,30 @@ body{
 .calc-step .cs-formula{ background:#f1eee5; border-color:#d7d2c5; }
 .guide-live-calc{ background:linear-gradient(145deg,#fffdf7,#edf5f0); border-color:#bfd8d0; }
 .chart-wrap,.trend-savebar{ background:#f7f3ea; border-color:#d2cec1; }
+/* ---------- Petro-art contrast correction: charcoal, brass and copper ---------- */
+:root{
+  --bg:#efe6d3; --navy:#24201b; --navy-2:#51402b; --deep:#171411;
+  --card:#fffaf0; --card-2:#f4ead7; --ink:#2d241b; --muted:#756b5e; --border:#d8c8aa;
+  --blue:#b76822; --blue-ink:#4a2814; --teal:#2f8060; --cyan:#e2b75c;
+  --amber:#c78320; --purple:#8b6040; --rose:#a94f3f;
+  --warn-bg:#fff0c9; --warn-ink:#81520b; --danger-bg:#f8dfd5; --danger-ink:#8d3025;
+  --ok-bg:#e2efdf; --ok-ink:#286645;
+}
+body{background-color:#efe6d3;background-image:radial-gradient(circle at 15% 8%,rgba(199,131,32,.16),transparent 27%),linear-gradient(135deg,rgba(255,250,240,.6),transparent 45%),repeating-linear-gradient(0deg,rgba(74,40,20,.035) 0 1px,transparent 1px 5px)}
+.appbar{background:linear-gradient(125deg,#171411 0%,#35291e 48%,#9b4c25 100%)!important}
+.appbar-icon{background:rgba(226,183,92,.14)!important;border-color:rgba(226,183,92,.42)!important;color:#e2b75c!important}
+.appbar-doc{background:linear-gradient(135deg,#d19a37,#f1d184)!important;color:#3a2410!important}
+.appbar-txt span,.appbar-clock{color:#d7c4a3!important}
+.live-chip{border-color:rgba(226,183,92,.28)!important;background:linear-gradient(145deg,rgba(255,240,201,.14),rgba(255,255,255,.035))!important}
+.live-chip.q{--live-color:#e0ae43}.live-chip.na{--live-color:#d18432}.live-chip.oh{--live-color:#77a95d}
+.card{background:rgba(255,250,240,.97)!important;border-color:#d8c8aa!important;box-shadow:0 10px 26px rgba(74,40,20,.13)!important}
+.card.accent-blue{border-inline-start-color:#b76822!important}.card.accent-teal{border-inline-start-color:#2f8060!important}.card.accent-amber{border-inline-start-color:#c78320!important}.card.accent-purple{border-inline-start-color:#8b6040!important}.card.accent-rose{border-inline-start-color:#a94f3f!important}
+.ic-badge,.ic-badge.ic-teal{background:linear-gradient(145deg,#f4e8cf,#e7d4b0)!important;border-color:#d7bd8e!important;color:#9b5c1e!important}.ic-badge.ic-amber{background:linear-gradient(145deg,#fff0c9,#ebcf91)!important;color:#9a6010!important}.ic-badge.ic-purple{background:linear-gradient(145deg,#f1e4d7,#dfc5ae)!important;color:#7b4c30!important}.ic-badge.ic-rose{background:linear-gradient(145deg,#f8e1d6,#e7bba8)!important;color:#974534!important}
+.unit-field input,.select-field select,.step-btn,.train-block{background:#f6eddd!important;border-color:#d4c09c!important;color:#2d241b!important}.unit-field input:focus,.select-field select:focus{border-color:#b76822!important;box-shadow:0 0 0 4px rgba(183,104,34,.16)!important;background:#fffaf0!important}.unit-field .unit{background:#e9dcc3!important;border-color:#d4c09c!important}
+.bottom-nav{background:#fffaf0!important;border-top-color:#cdbb98!important;box-shadow:0 -8px 22px rgba(74,40,20,.18)!important}
+.nav-btn[data-tab="inputs"]{color:#a85e1d!important}.nav-btn[data-tab="results"]{color:#2f8060!important}.nav-btn[data-tab="trend"]{color:#8b6040!important}.nav-btn[data-tab="guide"]{color:#c78320!important}
+.nav-btn[data-tab="inputs"].active{color:#fff7e5!important;background:linear-gradient(135deg,#6e3b19,#b76822 58%,#d39b3d)!important;border-color:#a55d1d!important}.nav-btn[data-tab="results"].active{color:#fff7e5!important;background:linear-gradient(135deg,#245942,#2f8060 58%,#9a9b4b)!important;border-color:#367753!important}.nav-btn[data-tab="trend"].active{color:#fff7e5!important;background:linear-gradient(135deg,#5a3524,#8b6040 58%,#c48a43)!important;border-color:#805538!important}.nav-btn[data-tab="guide"].active{color:#fff7e5!important;background:linear-gradient(135deg,#70501b,#c78320 58%,#e0b050)!important;border-color:#b4771d!important}
+.calc-step .cs-num,.step{background:#4a2814!important}.step-amber{background:#c78320!important}.calc-step .cs-formula,.chart-wrap,.trend-savebar{background:#f2e7d3!important;border-color:#d8c8aa!important}.guide-live-calc{background:linear-gradient(145deg,#fffaf0,#f0e3ce)!important;border-color:#d5b77d!important}.info-table th{background:linear-gradient(145deg,#f1dfb4,#e5c987)!important;color:#4a2814!important}
 </style>
 </head>
 <body>
@@ -1628,7 +1652,7 @@ body{
 // اعداد پایه از Operating Manual C/A Plant (Doc 8408205-CB-PR-MNL-0102)
 
 // نسخهٔ همین فایل؛ با هر انتشار جدید، این مقدار و فایل version.json با هم به‌روز می‌شوند.
-const APP_VERSION = "1405.06.29-3";
+const APP_VERSION = "1405.06.29-4";
 
 const MW = {
   NA2CO3: 105.99,
